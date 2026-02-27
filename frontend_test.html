@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Marketplace - API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .section h2 {
+            color: #3498db;
+            margin-top: 0;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Real Estate Marketplace Platform</h1>
+        <p style="text-align: center; color: #666;">
+            Test the API endpoints for your Real Estate Marketplace with AI Integration
+        </p>
+
+        <!-- Health Check -->
+        <div class="section">
+            <h2>🏥 API Health Check</h2>
+            <button onclick="testHealth()">Check API Health</button>
+            <div id="healthResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="grid">
+            <div class="section">
+                <h2>🔐 User Registration</h2>
+                <input type="text" id="regName" placeholder="Name" value="John Doe">
+                <input type="email" id="regEmail" placeholder="Email" value="john@example.com">
+                <input type="password" id="regPassword" placeholder="Password" value="password123">
+                <select id="regRole">
+                    <option value="buyer">Buyer</option>
+                    <option value="seller">Seller</option>
+                    <option value="admin">Admin</option>
+                </select>
+                <button onclick="registerUser()">Register User</button>
+                <div id="registerResult" class="result" style="display: none;"></div>
+            </div>
+
+            <div class="section">
+                <h2>🔑 User Login</h2>
+                <input type="email" id="loginEmail" placeholder="Email" value="john@example.com">
+                <input type="password" id="loginPassword" placeholder="Password" value="password123">
+                <button onclick="loginUser()">Login User</button>
+                <div id="loginResult" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Property Management -->
+        <div class="section">
+            <h2>🏢 Property Management</h2>
+            <div class="grid">
+                <div>
+                    <input type="text" id="propertyTitle" placeholder="Property Title" value="Beautiful Family Home">
+                    <input type="text" id="propertyLocation" placeholder="Location" value="Miami, FL">
+                    <input type="number" id="propertyPrice" placeholder="Price" value="500000">
+                    <select id="propertyType">
+                        <option value="house">House</option>
+                        <option value="flat">Flat</option>
+                        <option value="plot">Plot</option>
+                        <option value="commercial">Commercial</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="number" id="propertyBedrooms" placeholder="Bedrooms" value="4">
+                    <input type="number" id="propertyBathrooms" placeholder="Bathrooms" value="3">
+                    <input type="number" id="propertyArea" placeholder="Area (sq ft)" value="2500">
+                    <textarea id="propertyDescription" placeholder="Description">Beautiful family home in excellent location with modern amenities.</textarea>
+                </div>
+            </div>
+            <button onclick="addProperty()">Add Property</button>
+            <div id="propertyResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Property Search -->
+        <div class="section">
+            <h2>🔍 Property Search & Filters</h2>
+            <div class="grid">
+                <div>
+                    <input type="text" id="searchLocation" placeholder="Location" value="Miami">
+                    <input type="number" id="minPrice" placeholder="Min Price" value="300000">
+                    <input type="number" id="maxPrice" placeholder="Max Price" value="700000">
+                </div>
+                <div>
+                    <select id="propertyTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="house">House</option>
+                        <option value="flat">Flat</option>
+                        <option value="plot">Plot</option>
+                        <option value="commercial">Commercial</option>
+                    </select>
+                    <input type="number" id="bedroomsFilter" placeholder="Bedrooms" value="3">
+                    <select id="sortBy">
+                        <option value="newest">Newest First</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="searchProperties()">Search Properties</button>
+            <div id="searchResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- AI Features -->
+        <div class="grid">
+            <div class="section">
+                <h2>🤖 AI Price Prediction</h2>
+                <input type="text" id="aiLocation" placeholder="Location" value="Miami, FL">
+                <input type="number" id="aiArea" placeholder="Area (sq ft)" value="2500">
+                <input type="number" id="aiBedrooms" placeholder="Bedrooms" value="4">
+                <input type="number" id="aiBathrooms" placeholder="Bathrooms" value="3">
+                <button onclick="predictPrice()">Predict Price</button>
+                <div id="aiResult" class="result" style="display: none;"></div>
+            </div>
+
+            <div class="section">
+                <h2>🧠 Market Analysis</h2>
+                <input type="text" id="marketLocation" placeholder="Location" value="Miami">
+                <select id="propertyTypeAnalysis">
+                    <option value="residential">Residential</option>
+                    <option value="commercial">Commercial</option>
+                </select>
+                <button onclick="getMarketAnalysis()">Get Market Analysis</button>
+                <div id="marketResult" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="section">
+            <h2>👤 User Profile</h2>
+            <div class="grid">
+                <div>
+                    <input type="text" id="profileName" placeholder="Name" value="John Updated">
+                    <input type="text" id="profilePhone" placeholder="Phone" value="123-456-7890">
+                    <button onclick="updateProfile()">Update Profile</button>
+                </div>
+                <div>
+                    <input type="text" id="prefLocation" placeholder="Preferred Location" value="Los Angeles">
+                    <input type="number" id="prefMinPrice" placeholder="Min Price" value="400000">
+                    <input type="number" id="prefMaxPrice" placeholder="Max Price" value="800000">
+                    <button onclick="updatePreferences()">Update Preferences</button>
+                </div>
+            </div>
+            <button onclick="getProfile()">Get My Profile</button>
+            <div id="profileResult" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let authToken = '';
+        let userId = '';
+        let propertyId = '';
+
+        // Utility function to display results
+        function displayResult(elementId, data, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${isSuccess ? 'success' : 'error'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // API Health Check
+        async function testHealth() {
+            try {
+                const response = await fetch('http://localhost:5000/api/health');
+                const data = await response.json();
+                displayResult('healthResult', data, response.ok);
+            } catch (error) {
+                displayResult('healthResult', { error: error.message }, false);
+            }
+        }
+
+        // User Registration
+        async function registerUser() {
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('regName').value,
+                        email: document.getElementById('regEmail').value,
+                        password: document.getElementById('regPassword').value,
+                        role: document.getElementById('regRole').value
+                    })
+                });
+                const data = await response.json();
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    userId = data.user.id;
+                }
+                displayResult('registerResult', data, response.ok);
+            } catch (error) {
+                displayResult('registerResult', { error: error.message }, false);
+            }
+        }
+
+        // User Login
+        async function loginUser() {
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+                const data = await response.json();
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    userId = data.user.id;
+                }
+                displayResult('loginResult', data, response.ok);
+            } catch (error) {
+                displayResult('loginResult', { error: error.message }, false);
+            }
+        }
+
+        // Add Property
+        async function addProperty() {
+            if (!authToken) {
+                displayResult('propertyResult', { error: 'Please login first' }, false);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/properties', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: document.getElementById('propertyTitle').value,
+                        location: document.getElementById('propertyLocation').value,
+                        price: parseInt(document.getElementById('propertyPrice').value),
+                        type: document.getElementById('propertyType').value,
+                        bedrooms: parseInt(document.getElementById('propertyBedrooms').value),
+                        bathrooms: parseInt(document.getElementById('propertyBathrooms').value),
+                        area: parseInt(document.getElementById('propertyArea').value),
+                        description: document.getElementById('propertyDescription').value
+                    })
+                });
+                const data = await response.json();
+                if (response.ok && data.data) {
+                    propertyId = data.data._id;
+                }
+                displayResult('propertyResult', data, response.ok);
+            } catch (error) {
+                displayResult('propertyResult', { error: error.message }, false);
+            }
+        }
+
+        // Search Properties
+        async function searchProperties() {
+            try {
+                const params = new URLSearchParams({
+                    location: document.getElementById('searchLocation').value,
+                    minPrice: document.getElementById('minPrice').value,
+                    maxPrice: document.getElementById('maxPrice').value,
+                    type: document.getElementById('propertyTypeFilter').value,
+                    bedrooms: document.getElementById('bedroomsFilter').value,
+                    sortBy: document.getElementById('sortBy').value
+                });
+
+                const response = await fetch(`http://localhost:5000/api/properties?${params}`);
+                const data = await response.json();
+                displayResult('searchResult', data, response.ok);
+            } catch (error) {
+                displayResult('searchResult', { error: error.message }, false);
+            }
+        }
+
+        // AI Price Prediction
+        async function predictPrice() {
+            try {
+                const response = await fetch('http://localhost:5000/api/ai/predict-price', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: 'house',
+                        location: document.getElementById('aiLocation').value,
+                        area: parseInt(document.getElementById('aiArea').value),
+                        bedrooms: parseInt(document.getElementById('aiBedrooms').value),
+                        bathrooms: parseInt(document.getElementById('aiBathrooms').value)
+                    })
+                });
+                const data = await response.json();
+                displayResult('aiResult', data, response.ok);
+            } catch (error) {
+                displayResult('aiResult', { error: error.message }, false);
+            }
+        }
+
+        // Market Analysis
+        async function getMarketAnalysis() {
+            try {
+                const params = new URLSearchParams({
+                    location: document.getElementById('marketLocation').value,
+                    propertyType: document.getElementById('propertyTypeAnalysis').value
+                });
+
+                const response = await fetch(`http://localhost:5000/api/ai/market-analysis?${params}`);
+                const data = await response.json();
+                displayResult('marketResult', data, response.ok);
+            } catch (error) {
+                displayResult('marketResult', { error: error.message }, false);
+            }
+        }
+
+        // Get Profile
+        async function getProfile() {
+            if (!authToken) {
+                displayResult('profileResult', { error: 'Please login first' }, false);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const data = await response.json();
+                displayResult('profileResult', data, response.ok);
+            } catch (error) {
+                displayResult('profileResult', { error: error.message }, false);
+            }
+        }
+
+        // Update Profile
+        async function updateProfile() {
+            if (!authToken) {
+                displayResult('profileResult', { error: 'Please login first' }, false);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: document.getElementById('profileName').value,
+                        phone: document.getElementById('profilePhone').value
+                    })
+                });
+                const data = await response.json();
+                displayResult('profileResult', data, response.ok);
+            } catch (error) {
+                displayResult('profileResult', { error: error.message }, false);
+            }
+        }
+
+        // Update Preferences
+        async function updatePreferences() {
+            if (!authToken) {
+                displayResult('profileResult', { error: 'Please login first' }, false);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/preferences', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        location: document.getElementById('prefLocation').value,
+                        minPrice: parseInt(document.getElementById('prefMinPrice').value),
+                        maxPrice: parseInt(document.getElementById('prefMaxPrice').value)
+                    })
+                });
+                const data = await response.json();
+                displayResult('profileResult', data, response.ok);
+            } catch (error) {
+                displayResult('profileResult', { error: error.message }, false);
+            }
+        }
+
+        // Initialize with health check
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html>
