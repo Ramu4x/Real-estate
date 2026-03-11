@@ -39,19 +39,19 @@ const addProperty = async (req, res) => {
     }
 
     const property = await Property.create(propertyData);
-    
+
     // Populate createdBy field
     await property.populate("createdBy", "name email");
-    
+
     res.status(201).json({
       success: true,
       data: property
     });
   } catch (error) {
     console.error('Error creating property:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };
@@ -77,15 +77,15 @@ const getProperties = async (req, res) => {
 
     // Build filter object
     let filter = { status: "available" };
-    
+
     // If user wants to see only their own properties (for sellers)
     if (myProperties === 'true' && req.user) {
       filter.createdBy = req.user.id;
     }
-    
+
     if (type) filter.type = type;
     if (bedrooms) filter.bedrooms = parseInt(bedrooms);
-    
+
     // Handle location-based search
     if (latitude && longitude) {
       // Geospatial search
@@ -110,7 +110,7 @@ const getProperties = async (req, res) => {
     } else if (state) {
       filter["address.state"] = { $regex: state, $options: "i" };
     }
-    
+
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = parseInt(minPrice);
@@ -177,9 +177,9 @@ const getProperties = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };
@@ -188,11 +188,11 @@ const getProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id)
       .populate("createdBy", "name email phone avatar");
-    
+
     if (!property) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Property not found" 
+        message: "Property not found"
       });
     }
 
@@ -205,9 +205,9 @@ const getProperty = async (req, res) => {
       data: property
     });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };
@@ -215,7 +215,7 @@ const getProperty = async (req, res) => {
 const updateProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
-    
+
     if (!property) {
       return res.status(404).json({ message: "Property not found" });
     }
@@ -225,9 +225,25 @@ const updateProperty = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to update this property" });
     }
 
+    // Prepare update data
+    const updateData = { ...req.body };
+
+    // Handle image uploads if files are present
+    if (req.files && req.files.length > 0) {
+      // Append new images to existing ones instead of replacing entirely, or replace entirely based on your design
+      const newImages = req.files.map(file => `/uploads/${file.filename}`);
+
+      // We will replace all images for simplicity or merge them. Let's merge if some existed
+      if (property.images && Array.isArray(property.images)) {
+        updateData.images = [...property.images, ...newImages];
+      } else {
+        updateData.images = newImages;
+      }
+    }
+
     const updatedProperty = await Property.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     ).populate("createdBy", "name email");
 
@@ -236,9 +252,9 @@ const updateProperty = async (req, res) => {
       data: updatedProperty
     });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };
@@ -246,7 +262,7 @@ const updateProperty = async (req, res) => {
 const deleteProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
-    
+
     if (!property) {
       return res.status(404).json({ message: "Property not found" });
     }
@@ -256,16 +272,16 @@ const deleteProperty = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to delete this property" });
     }
 
-    await property.remove();
-    
+    await property.deleteOne();
+
     res.json({
       success: true,
       message: "Property deleted successfully"
     });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };
@@ -283,7 +299,7 @@ const toggleFavorite = async (req, res) => {
     }
 
     const isFavorite = user.favorites.includes(propertyId);
-    
+
     if (isFavorite) {
       // Remove from favorites
       user.favorites = user.favorites.filter(id => id.toString() !== propertyId);
@@ -303,9 +319,9 @@ const toggleFavorite = async (req, res) => {
       favoriteCount: property.favoriteCount
     });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };
@@ -325,9 +341,9 @@ const getFavorites = async (req, res) => {
       data: user.favorites
     });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };

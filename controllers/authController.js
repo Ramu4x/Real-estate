@@ -30,6 +30,21 @@ exports.registerUser = async (req, res) => {
       { expiresIn: "30d" }
     );
 
+    // Send a welcome email notification
+    try {
+      const sendEmail = require("../utils/sendEmail");
+      const message = `Hi ${user.name},\n\nWelcome to our Real Estate Platform! Your account has been successfully created.\n\nThank you for joining us!`;
+      await sendEmail({
+        email: user.email,
+        subject: "Welcome to Real Estate Platform",
+        message: message,
+        htmlMessage: `<p>Hi ${user.name},</p><p>Welcome to our Real Estate Platform! Your account has been successfully created.</p><p>Thank you for joining us!</p>`
+      });
+    } catch (emailError) {
+      console.error("Error sending welcome email:", emailError);
+      // We don't fail the registration if the email fails to send
+    }
+
     res.status(201).json({
       message: "User registered successfully",
       token,

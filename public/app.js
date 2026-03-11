@@ -455,6 +455,18 @@ function displayPropertyDetail(property) {
     const bathrooms = property.bathrooms || 0;
     const area = property.area || 0;
 
+    let actionButtons = '';
+    if (authToken && currentUser?._id && property.createdBy?._id && currentUser._id === property.createdBy._id) {
+        actionButtons = `
+            <button class="btn btn-primary" onclick="window.editProperty('${property._id}')" style="margin-left: 10px; background-color: #f39c12;">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn btn-secondary" onclick="window.deleteProperty('${property._id}')" style="margin-left: 10px; background-color: #e74c3c; border-color: #e74c3c;">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        `;
+    }
+
     content.innerHTML = `
         <div class="property-detail">
             <div class="property-detail-image" style="background-image: url('${images?.[0] || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}')"></div>
@@ -501,6 +513,7 @@ function displayPropertyDetail(property) {
                     <button class="btn btn-secondary" onclick="getAIAnalysis('${property._id}')" style="margin-left: 10px;">
                         <i class="fas fa-robot"></i> AI Analysis
                     </button>
+                    ${actionButtons}
                 </div>
             </div>
         </div>
@@ -858,6 +871,61 @@ function showMessage(message, type = 'info') {
 
 // Property Form Functions
 let selectedImages = [];
+let currentEditPropertyId = null;
+
+window.editProperty = async function (propertyId) {
+    try {
+        const response = await fetch(`${API_BASE}/properties/${propertyId}`);
+        const data = await response.json();
+        if (response.ok) {
+            const property = data.data;
+            document.getElementById('propertyTitle').value = property.title;
+            document.getElementById('propertyDescription').value = property.description;
+            document.getElementById('propertyPrice').value = property.price;
+            document.getElementById('propertyTypeSelect').value = property.type;
+            document.getElementById('propertyLocation').value = property.location;
+            document.getElementById('propertyBedrooms').value = property.bedrooms || '';
+            document.getElementById('propertyBathrooms').value = property.bathrooms || '';
+            document.getElementById('propertyArea').value = property.area || '';
+            document.getElementById('propertyAmenities').value = property.amenities ? property.amenities.join(', ') : '';
+
+            currentEditPropertyId = propertyId;
+            const modalTitle = document.querySelector('#addPropertyModal h2');
+            if (modalTitle) modalTitle.textContent = 'Edit Property';
+            const submitBtn = document.querySelector('#addPropertyForm button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Update Property';
+
+            document.getElementById('propertyModal').style.display = 'none';
+            openModal('addPropertyModal');
+        }
+    } catch (error) {
+        showMessage('Failed to load property for editing', 'error');
+    }
+};
+
+window.deleteProperty = async function (propertyId) {
+    if (!confirm('Are you sure you want to delete this property?')) return;
+    try {
+        const response = await fetch(`${API_BASE}/properties/${propertyId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (response.ok) {
+            showMessage('Property deleted successfully', 'success');
+            closeModal();
+            const myPropertiesBtn = document.getElementById('myPropertiesBtn');
+            if (myPropertiesBtn && myPropertiesBtn.textContent === 'All Properties') {
+                loadProperties({ 'myProperties': 'true' });
+            } else {
+                loadProperties();
+            }
+        } else {
+            showMessage('Failed to delete property', 'error');
+        }
+    } catch (error) {
+        showMessage('Network error while deleting', 'error');
+    }
+};
 
 function handleImagePreview(e) {
     const files = e.target.files;
@@ -908,7 +976,7 @@ async function handleAddProperty(e) {
     formData.append('title', document.getElementById('propertyTitle').value);
     formData.append('description', document.getElementById('propertyDescription').value);
     formData.append('price', document.getElementById('propertyPrice').value);
-    formData.append('type', document.getElementById('propertyType').value);
+    formData.append('type', document.getElementById('propertyTypeSelect').value);
     formData.append('location', document.getElementById('propertyLocation').value);
 
     const bedrooms = document.getElementById('propertyBedrooms').value;
@@ -932,8 +1000,13 @@ async function handleAddProperty(e) {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/properties`, {
-            method: 'POST',
+        const url = currentEditPropertyId
+            ? `${API_BASE}/properties/${currentEditPropertyId}`
+            : `${API_BASE}/properties`;
+        const method = currentEditPropertyId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Authorization': `Bearer ${authToken}`
             },
@@ -969,6 +1042,11 @@ function resetPropertyForm() {
     document.getElementById('addPropertyForm').reset();
     document.getElementById('imagePreview').innerHTML = '';
     selectedImages = [];
+    currentEditPropertyId = null;
+    const modalTitle = document.querySelector('#addPropertyModal h2');
+    if (modalTitle) modalTitle.textContent = 'Add New Property';
+    const submitBtn = document.querySelector('#addPropertyForm button[type="submit"]');
+    if (submitBtn) submitBtn.textContent = 'Add Property';
 }
 
 // Mobile navigation

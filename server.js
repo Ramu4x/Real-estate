@@ -28,7 +28,6 @@ app.use("/api/properties", require("./routes/propertyRoutes"));
 app.use("/api/ai", require("./routes/aiRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/location", require("./routes/locationRoutes"));
-
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ 
