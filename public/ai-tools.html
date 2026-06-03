@@ -1,460 +1,716 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Tools - Real Estate Marketplace</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="premium.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Tools — Real Estate Platform</title>
+  <meta name="description" content="AI-powered real estate tools: price prediction, smart recommendations, and description generation." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- AOS (Animate On Scroll) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Page CSS -->
+  <link rel="stylesheet" href="premium-v2.css" />
+
+  <style>
+    /* ──────────────────────────────────────────
+       ROOT VARIABLES
+    ────────────────────────────────────────── */
+    :root {
+      --blue:   #1a56db;
+      --purple: #7c3aed;
+      --orange: #f97316;
+      --green:  #22c55e;
+      --dark:   #111827;
+      --body-bg:#f1f5f9;
+      --white:  #ffffff;
+      --radius: 20px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.14);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--body-bg);
+      color: #374151;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; }
+
+    /* ──────────────────────────────────────────
+       NAVBAR
+    ────────────────────────────────────────── */
+    .at-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 4rem;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .at-nav .logo { display: flex; align-items: center; gap: 0.5rem; font-weight: 800; font-size: 1.2rem; color: var(--blue); }
+    .at-nav .logo span { font-size: 1.5rem; }
+    .at-nav ul { list-style: none; display: flex; gap: 2rem; }
+    .at-nav ul a { font-weight: 500; color: #374151; transition: color 0.2s; }
+    .at-nav ul a:hover, .at-nav ul a.active { color: var(--blue); }
+    .at-nav .nav-cta {
+      background: var(--blue); color: var(--white);
+      padding: 0.5rem 1.2rem; border-radius: 8px;
+      font-weight: 600; transition: opacity 0.2s;
+    }
+    .at-nav .nav-cta:hover { opacity: 0.88; }
+
+    /* ──────────────────────────────────────────
+       HERO
+    ────────────────────────────────────────── */
+    .at-hero {
+      position: relative;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a56db 0%, #2563eb 40%, #7c3aed 100%);
+      display: flex; align-items: center;
+      padding: 8rem 4rem 4rem;
+      overflow: hidden;
+    }
+    #tsparticles {
+      position: absolute; inset: 0; z-index: 0;
+    }
+    .at-hero-inner {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; max-width: 1200px; margin: 0 auto; gap: 3rem;
+    }
+    .at-hero-text { flex: 1; }
+    .at-hero-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.15); color: #fff;
+      padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600;
+      margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(6px);
+    }
+    .at-hero-text h1 {
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-weight: 800; color: #fff; line-height: 1.15;
+      margin-bottom: 1.2rem;
+      text-shadow: 0 0 40px rgba(255,255,255,0.25);
+      animation: heroGlow 3s ease-in-out infinite alternate;
+    }
+    @keyframes heroGlow {
+      from { text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+      to   { text-shadow: 0 0 50px rgba(255,255,255,0.5); }
+    }
+    .at-hero-text p {
+      font-size: 1.15rem; color: rgba(255,255,255,0.85);
+      max-width: 480px; line-height: 1.7;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .at-hero-btns {
+      display: flex; gap: 1rem; margin-top: 2rem;
+      opacity: 0; animation: fadeUp 0.8s ease forwards 0.7s;
+    }
+    .at-hero-btns a {
+      padding: 0.85rem 1.8rem; border-radius: 12px; font-weight: 700; font-size: 1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .at-hero-btns .btn-primary {
+      background: #fff; color: var(--blue);
+    }
+    .at-hero-btns .btn-secondary {
+      background: rgba(255,255,255,0.15); color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    .at-hero-btns a:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+    .at-hero-image { flex: 1; display: flex; justify-content: center; align-items: center; }
+    .at-hero-image img {
+      width: 100%; max-width: 460px;
+      filter: drop-shadow(0 20px 60px rgba(0,0,0,0.3));
+      animation: floatRobot 5s ease-in-out infinite;
+    }
+    @keyframes floatRobot {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-22px); }
+    }
+
+    /* ──────────────────────────────────────────
+       SECTION WRAPPER
+    ────────────────────────────────────────── */
+    .at-section {
+      padding: 6rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .at-section-full { padding: 6rem 4rem; }
+    .section-label {
+      display: inline-block; color: var(--blue);
+      font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 800; color: var(--dark); margin-bottom: 0.75rem;
+    }
+    .section-sub {
+      color: #6b7280; font-size: 1.05rem; max-width: 560px; line-height: 1.7;
+    }
+
+    /* ──────────────────────────────────────────
+       AI CARDS
+    ────────────────────────────────────────── */
+    .cards-bg { background: var(--white); }
+    .cards-inner { max-width: 1200px; margin: 0 auto; padding: 6rem 4rem; }
+    .cards-header { text-align: center; margin-bottom: 3.5rem; }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+    .at-card {
+      position: relative;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem 2rem 2rem;
+      text-align: center;
+      transition: transform 0.35s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s;
+      cursor: default;
+      overflow: hidden;
+    }
+    .at-card::before {
+      content: '';
+      position: absolute; inset: 0; opacity: 0;
+      transition: opacity 0.35s;
+      border-radius: var(--radius);
+    }
+    .at-card:hover { transform: translateY(-12px); box-shadow: var(--shadow-lg); }
+    .at-card:hover::before { opacity: 1; }
+
+    /* Card colour schemes */
+    .at-card.blue  { background: linear-gradient(145deg, #ffffff, #eff6ff); }
+    .at-card.blue::before  { background: linear-gradient(145deg, #eff6ff, #dbeafe); }
+    .at-card.purple{ background: linear-gradient(145deg, #ffffff, #f5f3ff); }
+    .at-card.purple::before { background: linear-gradient(145deg, #f5f3ff, #ede9fe); }
+    .at-card.orange{ background: linear-gradient(145deg, #ffffff, #fff7ed); }
+    .at-card.orange::before { background: linear-gradient(145deg, #fff7ed, #ffedd5); }
+
+    .at-card .stat-badge {
+      position: absolute; top: 1.2rem; right: 1.2rem;
+      background: var(--green); color: #fff;
+      padding: 0.28rem 0.7rem; border-radius: 9999px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .at-card .icon-wrap {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.4rem;
+      font-size: 2.2rem;
+      animation: iconFloat 4s ease-in-out infinite;
+    }
+    .at-card:nth-child(1) .icon-wrap { background: linear-gradient(135deg, #60a5fa, #3b82f6); animation-delay: 0s; }
+    .at-card:nth-child(2) .icon-wrap { background: linear-gradient(135deg, #a78bfa, #8b5cf6); animation-delay: 0.5s; }
+    .at-card:nth-child(3) .icon-wrap { background: linear-gradient(135deg, #fb923c, #f97316); animation-delay: 1s; }
+    @keyframes iconFloat {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-8px) scale(1.05); }
+    }
+    .at-card:hover .icon-wrap { animation: iconPulse 0.6s ease infinite alternate; }
+    @keyframes iconPulse {
+      from { transform: scale(1); }
+      to   { transform: scale(1.12); }
+    }
+
+    .at-card h3 {
+      font-size: 1.3rem; font-weight: 700; color: var(--dark); margin-bottom: 0.6rem;
+    }
+    .at-card .preview {
+      font-size: 0.92rem; color: #6b7280; line-height: 1.6; margin-bottom: 1.6rem;
+    }
+    .at-card .card-btn {
+      display: inline-block; padding: 0.75rem 1.6rem;
+      border-radius: 12px; font-weight: 700; font-size: 0.9rem; color: #fff;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .at-card.blue   .card-btn { background: linear-gradient(135deg, var(--blue), #1e40af); }
+    .at-card.purple .card-btn { background: linear-gradient(135deg, var(--purple), #6d28d9); }
+    .at-card.orange .card-btn { background: linear-gradient(135deg, var(--orange), #ea580c); }
+    .at-card .card-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Stagger card reveal */
+    .at-card:nth-child(1) { transition-delay: 0s; }
+    .at-card:nth-child(2) { transition-delay: 0.1s; }
+    .at-card:nth-child(3) { transition-delay: 0.2s; }
+
+    /* ──────────────────────────────────────────
+       HOW IT WORKS
+    ────────────────────────────────────────── */
+    .how-bg { background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+    .how-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 2rem; margin-top: 3rem; position: relative;
+    }
+    .how-grid::before {
+      content: '';
+      position: absolute; top: 2.2rem; left: 15%; right: 15%;
+      height: 2px; background: linear-gradient(90deg, var(--blue), var(--purple), var(--orange));
+      z-index: 0;
+    }
+    .how-step {
+      background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 2rem 1.5rem; text-align: center;
+      position: relative; z-index: 1;
+    }
+    .how-step .step-num {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1rem; color: #fff; margin: 0 auto 1rem;
+    }
+    .how-step:nth-child(1) .step-num { background: var(--blue); }
+    .how-step:nth-child(2) .step-num { background: var(--purple); }
+    .how-step:nth-child(3) .step-num { background: var(--orange); }
+    .how-step h4 { font-size: 1.05rem; font-weight: 700; color: var(--dark); margin-bottom: 0.5rem; }
+    .how-step p  { font-size: 0.9rem; color: #6b7280; line-height: 1.6; }
+
+    /* ──────────────────────────────────────────
+       AI CHAT PREVIEW
+    ────────────────────────────────────────── */
+    .chat-bg { background: var(--white); }
+    .chat-inner {
+      max-width: 1200px; margin: 0 auto; padding: 6rem 4rem;
+      display: flex; gap: 4rem; align-items: center;
+    }
+    .chat-text { flex: 1; }
+    .chat-widget {
+      flex: 1; background: #f8fafc; border-radius: var(--radius);
+      padding: 1.5rem; box-shadow: var(--shadow-lg);
+    }
+    .chat-header {
+      display: flex; align-items: center; gap: 0.7rem;
+      margin-bottom: 1.2rem; padding-bottom: 0.8rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .chat-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); }
+    .chat-header span { font-weight: 700; font-size: 0.9rem; color: var(--dark); }
+    .chat-messages { display: flex; flex-direction: column; gap: 0.8rem; }
+    .msg { padding: 0.75rem 1rem; border-radius: 14px; font-size: 0.88rem; line-height: 1.5; max-width: 85%; }
+    .msg.user { background: var(--blue); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .msg.bot  { background: #fff; color: var(--dark); align-self: flex-start; box-shadow: var(--shadow); border-bottom-left-radius: 4px; }
+    .chat-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      margin-top: 2rem; padding: 0.85rem 1.8rem;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: #fff; border-radius: 12px; font-weight: 700;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .chat-cta:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(26,86,219,0.35); }
+
+    /* ──────────────────────────────────────────
+       TESTIMONIALS
+    ────────────────────────────────────────── */
+    .testi-bg { background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .testi-card {
+      background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 2rem;
+      position: relative; transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .testi-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .testi-stars { color: #fbbf24; font-size: 1rem; margin-bottom: 0.8rem; }
+    .testi-card p { font-size: 0.95rem; color: #374151; line-height: 1.7; margin-bottom: 1.2rem; }
+    .testi-author { display: flex; align-items: center; gap: 0.8rem; }
+    .testi-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      font-weight: 700; color: #fff; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .testi-author-info strong { font-size: 0.9rem; display: block; color: var(--dark); }
+    .testi-author-info span  { font-size: 0.78rem; color: #9ca3af; }
+
+    /* ──────────────────────────────────────────
+       MARKET CHART
+    ────────────────────────────────────────── */
+    .chart-bg { background: var(--dark); }
+    .chart-inner {
+      max-width: 1200px; margin: 0 auto; padding: 6rem 4rem;
+      display: flex; gap: 4rem; align-items: center;
+    }
+    .chart-text { flex: 1; }
+    .chart-text .section-label { color: #93c5fd; }
+    .chart-text .section-title { color: #fff; }
+    .chart-text .section-sub   { color: #9ca3af; }
+    .chart-stat-row { display: flex; gap: 2rem; margin-top: 2rem; }
+    .chart-stat { }
+    .chart-stat strong { font-size: 1.8rem; font-weight: 800; color: #fff; }
+    .chart-stat span   { font-size: 0.82rem; color: #9ca3af; display: block; }
+    .chart-wrap {
+      flex: 1.2; background: #1f2937; border-radius: var(--radius);
+      padding: 1.5rem; box-shadow: var(--shadow-lg);
+    }
+    .chart-wrap canvas { width: 100% !important; }
+
+    /* ──────────────────────────────────────────
+       FOOTER
+    ────────────────────────────────────────── */
+    .at-footer {
+      background: #0f172a; color: #9ca3af;
+      text-align: center; padding: 2rem; font-size: 0.88rem;
+    }
+    .at-footer a { color: #60a5fa; }
+
+    /* ──────────────────────────────────────────
+       RESPONSIVE
+    ────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .cards-grid, .how-grid, .testi-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-grid::before { display: none; }
+      .at-hero-inner { flex-direction: column; text-align: center; }
+      .at-hero-text p { margin: 0 auto; }
+      .at-hero-btns { justify-content: center; }
+      .chat-inner, .chart-inner { flex-direction: column; }
+      .at-nav { padding: 1rem 2rem; }
+    }
+    @media (max-width: 640px) {
+      .cards-grid, .how-grid, .testi-grid { grid-template-columns: 1fr; }
+      .at-section, .cards-inner, .chat-inner, .chart-inner { padding: 4rem 1.5rem; }
+      .at-nav ul { display: none; }
+    }
+  </style>
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <i class="fas fa-home"></i>
-                <span>RealEstatePro</span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="properties.html" class="nav-link">Properties</a></li>
-                <li><a href="ai-tools.html" class="nav-link active">AI Tools</a></li>
-                <li><a href="about.html" class="nav-link">About</a></li>
-            </ul>
-            <div class="nav-auth">
-                <button id="themeToggle" class="theme-toggle" title="Toggle dark/light theme">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button id="loginBtn" class="btn btn-outline">Login</button>
-                <button id="registerBtn" class="btn btn-primary">Register</button>
-                <div id="userMenu" class="user-menu" style="display: none;">
-                    <span id="userName"></span>
-                    <button id="addPropertyBtn" class="btn btn-primary" style="display: none;">Add Property</button>
-                    <button id="logoutBtn" class="btn btn-outline">Logout</button>
-                </div>
-            </div>
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Back Button -->
-    <div class="container">
-        <a href="index.html" class="back-button">
-            ←
-        </a>
+  <!-- ── NAVBAR ── -->
+  <nav class="at-nav">
+    <div class="logo">
+      <span>🏠</span> EstateAI
     </div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="properties.html">Properties</a></li>
+      <li><a href="premium.html">Premium</a></li>
+      <li><a href="ai-tools.html" class="active">AI Tools</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a href="login.html" class="nav-cta">Sign In</a>
+  </nav>
 
-    <!-- AI Tools Hero Section -->
-    <section class="hero-section">
-        <div class="container">
-            <h1>AI-Powered Real Estate Tools</h1>
-            <p>Leverage artificial intelligence to make smarter real estate decisions</p>
+  <!-- ── HERO ── -->
+  <section class="at-hero">
+    <div id="tsparticles"></div>
+    <div class="at-hero-inner">
+      <div class="at-hero-text" data-aos="fade-right" data-aos-duration="900">
+        <div class="at-hero-badge">✦ Powered by Advanced AI</div>
+        <h1>AI-Powered<br/>Real Estate Tools</h1>
+        <p>Harness artificial intelligence to predict prices, discover perfect homes, and generate compelling listings — all in seconds.</p>
+        <div class="at-hero-btns">
+          <a href="#cards" class="btn-primary">Explore Tools</a>
+          <a href="ai-prediction.html" class="btn-secondary">Try Price Predictor →</a>
         </div>
-    </section>
+      </div>
+      <div class="at-hero-image" data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
+        <img src="assets/ai_robot_illustration.png" alt="AI Robot" onerror="this.style.fontSize='8rem';this.alt='🤖';this.removeAttribute('src');" />
+      </div>
+    </div>
+  </section>
 
-    <!-- AI Tools Section -->
-    <section class="ai-tools-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>Our AI Solutions</h2>
-                <p>Harness the power of AI to enhance your real estate experience</p>
+  <!-- ── AI CARDS ── -->
+  <div class="cards-bg" id="cards">
+    <div class="cards-inner">
+      <div class="cards-header" data-aos="fade-up">
+        <div class="section-label">Our AI Toolkit</div>
+        <div class="section-title">Three Powerful AI Tools</div>
+        <p class="section-sub" style="margin:0 auto;">Choose the tool that fits your need and let AI do the heavy lifting for you.</p>
+      </div>
+      <div class="cards-grid">
+
+        <!-- Card 1 -->
+        <div class="at-card blue" data-aos="fade-up" data-aos-delay="0">
+          <span class="stat-badge">95% Accuracy</span>
+          <div class="icon-wrap">📈</div>
+          <h3>Price Prediction</h3>
+          <p class="preview">Enter location &amp; specs → Get an instant AI-powered market estimate</p>
+          <a href="ai-prediction.html" class="card-btn">Try Now →</a>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="at-card purple" data-aos="fade-up" data-aos-delay="100">
+          <span class="stat-badge">10K+ Users</span>
+          <div class="icon-wrap">🧠</div>
+          <h3>Smart Recommendations</h3>
+          <p class="preview">Set your preferences → Get matched properties tailored to you</p>
+          <a href="ai-recommendations.html" class="card-btn">Explore →</a>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="at-card orange" data-aos="fade-up" data-aos-delay="200">
+          <span class="stat-badge">50K+ Generated</span>
+          <div class="icon-wrap">✨</div>
+          <h3>Description Generator</h3>
+          <p class="preview">Enter features → AI writes a compelling property description for you</p>
+          <a href="ai-description.html" class="card-btn">Create →</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS ── -->
+  <div class="how-bg">
+    <div class="at-section">
+      <div data-aos="fade-up" style="text-align:center;margin-bottom:0.5rem;">
+        <div class="section-label">Simple Process</div>
+        <div class="section-title">How It Works</div>
+        <p class="section-sub" style="margin:0 auto 0;">Three easy steps from input to insight.</p>
+      </div>
+      <div class="how-grid">
+        <div class="how-step" data-aos="fade-up" data-aos-delay="0">
+          <div class="step-num">1</div>
+          <h4>Input Your Preferences</h4>
+          <p>Tell us your location, budget, bedroom count, and any desired amenities.</p>
+        </div>
+        <div class="how-step" data-aos="fade-up" data-aos-delay="100">
+          <div class="step-num">2</div>
+          <h4>AI Analyses the Market</h4>
+          <p>Our model crunches thousands of live listings, sales history, and market trends.</p>
+        </div>
+        <div class="how-step" data-aos="fade-up" data-aos-delay="200">
+          <div class="step-num">3</div>
+          <h4>Receive Tailored Results</h4>
+          <p>Get an accurate price estimate, matched properties, or a polished description instantly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI CHAT PREVIEW ── -->
+  <div class="chat-bg">
+    <div class="chat-inner">
+      <div class="chat-text" data-aos="fade-right">
+        <div class="section-label">Live AI Chat</div>
+        <div class="section-title">Ask Our AI Anything</div>
+        <p class="section-sub">From budgeting to neighbourhood comparisons — our AI advisor is available 24 / 7 to guide your real estate journey.</p>
+        <a href="ai-chat.html" class="chat-cta">💬 Try the Live Chat</a>
+      </div>
+      <div class="chat-widget" data-aos="fade-left" data-aos-delay="150">
+        <div class="chat-header">
+          <div class="chat-dot"></div>
+          <span>EstateAI Assistant</span>
+          <span style="margin-left:auto;font-size:0.75rem;color:#9ca3af;">Online</span>
+        </div>
+        <div class="chat-messages">
+          <div class="msg user">I want a 3 BHK in Hyderabad under ₹2 Cr. Any good areas?</div>
+          <div class="msg bot">Great choice! Based on your budget, I'd recommend Kondapur, Gachibowli, and Miyapur. Kondapur has the best price appreciation — around 12% last year. Want me to show listings?</div>
+          <div class="msg user">Yes! Show me options with a gym.</div>
+          <div class="msg bot">Found 14 properties with gyms in those areas. The top pick saved ₹5L compared to similar listings 🎯</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TESTIMONIALS ── -->
+  <div class="testi-bg">
+    <div class="at-section">
+      <div data-aos="fade-up" style="text-align:center;margin-bottom:0.5rem;">
+        <div class="section-label">User Stories</div>
+        <div class="section-title">What Our Users Say</div>
+      </div>
+      <div class="testi-grid">
+
+        <div class="testi-card" data-aos="zoom-in" data-aos-delay="0">
+          <div class="testi-stars">★★★★★</div>
+          <p>"The price predictor was spot on. It saved me ₹5L on my purchase by confirming the seller was overcharging."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--blue);">R</div>
+            <div class="testi-author-info">
+              <strong>Riya Sharma</strong>
+              <span>First-time Buyer, Hyderabad</span>
             </div>
+          </div>
+        </div>
 
-            <div class="ai-tools-grid">
-                <div class="ai-tool-card">
-                    <div class="tool-icon">💰</div>
-                    <h3>Price Prediction</h3>
-                    <p>Get accurate property valuations using advanced AI algorithms that analyze market trends,
-                        location factors, and property features.</p>
-                    <button class="btn btn-primary" onclick="openTool('price-prediction')">Try Now</button>
-                </div>
-
-                <div class="ai-tool-card">
-                    <div class="tool-icon">🤖</div>
-                    <h3>Smart Recommendations</h3>
-                    <p>Receive personalized property suggestions based on your preferences, budget, and search history.
-                    </p>
-                    <button class="btn btn-primary" onclick="openTool('recommendations')">Try Now</button>
-                </div>
-
-                <div class="ai-tool-card">
-                    <div class="tool-icon">📝</div>
-                    <h3>Description Generator</h3>
-                    <p>Create compelling property descriptions automatically from basic property details and features.
-                    </p>
-                    <button class="btn btn-primary" onclick="openTool('description-generator')">Try Now</button>
-                </div>
-
-                <div class="ai-tool-card">
-                    <div class="tool-icon">📊</div>
-                    <h3>Market Analysis</h3>
-                    <p>Get comprehensive market insights, trends, and investment opportunities in your target areas.</p>
-                    <button class="btn btn-primary" onclick="openTool('market-analysis')">Try Now</button>
-                </div>
+        <div class="testi-card" data-aos="zoom-in" data-aos-delay="100">
+          <div class="testi-stars">★★★★★</div>
+          <p>"Smart Recommendations matched me with 3 properties within my exact criteria in under 60 seconds. Incredible!"</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--purple);">A</div>
+            <div class="testi-author-info">
+              <strong>Arjun Mehta</strong>
+              <span>Property Investor, Mumbai</span>
             </div>
+          </div>
         </div>
-    </section>
 
-    <!-- AI Tool Modals -->
-    <div id="pricePredictionModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>AI Price Prediction</h2>
-            <form id="pricePredictionForm">
-                <div class="form-group">
-                    <label>Property Location</label>
-                    <input type="text" id="predictionLocation" placeholder="Enter city or address" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Property Type</label>
-                        <select id="predictionType" required>
-                            <option value="">Select Type</option>
-                            <option value="house">House</option>
-                            <option value="apartment">Apartment</option>
-                            <option value="condo">Condo</option>
-                            <option value="townhouse">Townhouse</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Bedrooms</label>
-                        <input type="number" id="predictionBedrooms" min="0" placeholder="Number of bedrooms">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Bathrooms</label>
-                        <input type="number" id="predictionBathrooms" min="0" placeholder="Number of bathrooms">
-                    </div>
-                    <div class="form-group">
-                        <label>Area (sq ft)</label>
-                        <input type="number" id="predictionArea" min="0" placeholder="Square footage">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">Get Price Estimate</button>
-            </form>
-            <div id="predictionResult" class="result-display" style="display: none;"></div>
-        </div>
-    </div>
-
-    <div id="recommendationsModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>AI Recommendations</h2>
-            <form id="recommendationsForm">
-                <div class="form-group">
-                    <label>Preferred Location</label>
-                    <input type="text" id="recLocation" placeholder="Enter preferred area" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Budget Range</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="number" id="minBudget" placeholder="Min ₹" style="flex: 1;">
-                            <input type="number" id="maxBudget" placeholder="Max ₹" style="flex: 1;">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Property Type</label>
-                        <select id="recType">
-                            <option value="">Any Type</option>
-                            <option value="house">House</option>
-                            <option value="apartment">Apartment</option>
-                            <option value="condo">Condo</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Preferences (comma separated)</label>
-                    <input type="text" id="preferences" placeholder="e.g., near schools, parking, garden">
-                </div>
-                <button type="submit" class="btn btn-primary">Get Recommendations</button>
-            </form>
-            <div id="recommendationsResult" class="result-display" style="display: none;"></div>
-        </div>
-    </div>
-
-    <div id="descriptionGeneratorModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>AI Description Generator</h2>
-            <form id="descriptionForm">
-                <div class="form-group">
-                    <label>Property Type</label>
-                    <select id="descType" required>
-                        <option value="">Select Type</option>
-                        <option value="house">House</option>
-                        <option value="apartment">Apartment</option>
-                        <option value="condo">Condo</option>
-                        <option value="commercial">Commercial</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Key Features</label>
-                    <textarea id="features" rows="4"
-                        placeholder="List key features (e.g., 3 bedrooms, modern kitchen, backyard, garage...)"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Location Highlights</label>
-                    <input type="text" id="locationHighlights" placeholder="Near schools, shopping centers, etc.">
-                </div>
-                <button type="submit" class="btn btn-primary">Generate Description</button>
-            </form>
-            <div id="descriptionResult" class="result-display" style="display: none;">
-                <h4>Generated Description:</h4>
-                <div id="generatedDescription"></div>
-                <button class="btn btn-secondary" onclick="copyToClipboard('generatedDescription')">Copy to
-                    Clipboard</button>
+        <div class="testi-card" data-aos="zoom-in" data-aos-delay="200">
+          <div class="testi-stars">★★★★★</div>
+          <p>"The Description Generator wrote better copy than my agency. Sold my property 3 weeks faster than expected."</p>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:var(--orange);">P</div>
+            <div class="testi-author-info">
+              <strong>Priya Nair</strong>
+              <span>Seller, Bangalore</span>
             </div>
+          </div>
         </div>
+
+      </div>
     </div>
+  </div>
 
-    <div id="marketAnalysisModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Market Analysis</h2>
-            <form id="marketAnalysisForm">
-                <div class="form-group">
-                    <label>Area/City</label>
-                    <input type="text" id="analysisArea" placeholder="Enter area or city name" required>
-                </div>
-                <div class="form-group">
-                    <label>Analysis Type</label>
-                    <select id="analysisType" required>
-                        <option value="">Select Analysis Type</option>
-                        <option value="price-trends">Price Trends</option>
-                        <option value="investment-opportunities">Investment Opportunities</option>
-                        <option value="market-forecast">Market Forecast</option>
-                        <option value="neighborhood-comparison">Neighborhood Comparison</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Analyze Market</button>
-            </form>
-            <div id="analysisResult" class="result-display" style="display: none;"></div>
+  <!-- ── MARKET CHART ── -->
+  <div class="chart-bg">
+    <div class="chart-inner">
+      <div class="chart-text" data-aos="fade-right">
+        <div class="section-label">Live Data</div>
+        <div class="section-title">Real-Time Market Insights</div>
+        <p class="section-sub">Our AI tracks price movements across 50+ cities so you always know when to buy or sell.</p>
+        <div class="chart-stat-row">
+          <div class="chart-stat">
+            <strong id="citiesStat">0</strong>
+            <span>Cities Tracked</span>
+          </div>
+          <div class="chart-stat">
+            <strong id="listingsStat">0</strong>
+            <span>Listings Analysed</span>
+          </div>
+          <div class="chart-stat">
+            <strong id="accuracyStat">0</strong>
+            <span>Prediction Accuracy</span>
+          </div>
         </div>
+      </div>
+      <div class="chart-wrap" data-aos="fade-left" data-aos-delay="150">
+        <canvas id="priceChart"></canvas>
+      </div>
     </div>
+  </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>RealEstatePro</h3>
-                    <p>Your trusted partner in finding the perfect property.</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="properties.html">Properties</a></li>
-                        <li><a href="ai-tools.html">AI Tools</a></li>
-                        <li><a href="about.html">About Us</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contact</h4>
-                    <p>Email: info@realestatepro.com</p>
-                    <p>Phone: (555) 123-4567</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 RealEstatePro. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+  <!-- ── FOOTER ── -->
+  <footer class="at-footer">
+    <p>© 2026 EstateAI Platform · <a href="privacy.html">Privacy</a> · <a href="contact.html">Contact</a></p>
+  </footer>
 
-    <!-- Auth Modals -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Login</h2>
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Email" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-        </div>
-    </div>
+  <!-- ── SCRIPTS ── -->
+  <!-- AOS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Register</h2>
-            <form id="registerForm">
-                <input type="text" id="registerName" placeholder="Full Name" required>
-                <input type="email" id="registerEmail" placeholder="Email" required>
-                <input type="password" id="registerPassword" placeholder="Password" required>
-                <select id="registerRole" required>
-                    <option value="">Select Role</option>
-                    <option value="buyer">Buyer</option>
-                    <option value="seller">Seller</option>
-                </select>
-                <button type="submit" class="btn btn-primary">Register</button>
-            </form>
-        </div>
-    </div>
+  <!-- tsParticles — load then init -->
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.11.1/umd/tsparticles.min.js" onload="initParticles()"></script>
 
-    <div id="addPropertyModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Add New Property</h2>
-            <form id="addPropertyForm">
-                <div class="form-group">
-                    <label for="propertyTitle">Property Title *</label>
-                    <input type="text" id="propertyTitle" placeholder="Enter property title" required>
-                </div>
+  <!-- VanillaTilt -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
 
-                <div class="form-group">
-                    <label for="propertyDescription">Description *</label>
-                    <textarea id="propertyDescription" placeholder="Describe the property in detail" rows="4"
-                        required></textarea>
-                </div>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="propertyPrice">Price (₹) *</label>
-                        <input type="number" id="propertyPrice" placeholder="Enter price" min="0" required>
-                    </div>
+  <script>
+    /* AOS */
+    AOS.init({ duration: 800, once: true, offset: 60 });
 
-                    <div class="form-group">
-                        <label for="propertyType">Property Type *</label>
-                        <select id="propertyTypeSelect" required>
-                            <option value="">Select Type</option>
-                            <option value="house">House</option>
-                            <option value="flat">Flat/Apartment</option>
-                            <option value="plot">Plot/Land</option>
-                            <option value="commercial">Commercial</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="propertyLocation">Location *</label>
-                    <input type="text" id="propertyLocation" placeholder="City, State (e.g., Miami, FL)" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="propertyBedrooms">Bedrooms</label>
-                        <input type="number" id="propertyBedrooms" placeholder="Number of bedrooms" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="propertyBathrooms">Bathrooms</label>
-                        <input type="number" id="propertyBathrooms" placeholder="Number of bathrooms" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="propertyArea">Area (sq ft)</label>
-                        <input type="number" id="propertyArea" placeholder="Square footage" min="0">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="propertyAmenities">Amenities</label>
-                    <input type="text" id="propertyAmenities"
-                        placeholder="Comma-separated (e.g., swimming pool, garage, garden)">
-                </div>
-
-                <div class="form-group">
-                    <label for="propertyImages">Property Images</label>
-                    <input type="file" id="propertyImages" accept="image/*" multiple>
-                    <small>Upload up to 10 images (5MB max each)</small>
-                    <div id="imagePreview" class="image-preview"></div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" id="cancelPropertyBtn" class="btn btn-outline">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Property</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- AI Assistant Widget -->
-    <div class="ai-assistant-widget">
-        <button class="ai-toggle" id="aiToggle">
-            <i class="fas fa-robot"></i>
-        </button>
-        <div class="ai-chat-window" id="aiChatWindow">
-            <div class="ai-chat-header">
-                <i class="fas fa-robot"></i>
-                <div>
-                    <h4 style="margin:0">RealEstate Assistant</h4>
-                    <small style="color:rgba(255,255,255,0.7)">Online | Powered by GenAI</small>
-                </div>
-            </div>
-            <div class="ai-chat-messages" id="aiMessages">
-                <div class="message ai">
-                    Hello! I'm your AI property assistant. How can I help you find your dream home today?
-                </div>
-            </div>
-            <form class="ai-chat-input" id="aiChatForm">
-                <input type="text" id="aiInput" placeholder="Ask about properties, areas..." autocomplete="off">
-                <button type="submit">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
-    <script>
-        // AI Tools specific functionality
-        function openTool(toolName) {
-            const modalMap = {
-                'price-prediction': 'pricePredictionModal',
-                'recommendations': 'recommendationsModal',
-                'description-generator': 'descriptionGeneratorModal',
-                'market-analysis': 'marketAnalysisModal'
-            };
-
-            const modalId = modalMap[toolName];
-            if (modalId) {
-                openModal(modalId);
-            }
+    /* Particles — called via onload above */
+    function initParticles() {
+      tsParticles.load("tsparticles", {
+        background: { color: { value: "transparent" } },
+        fpsLimit: 60,
+        particles: {
+          number: { value: 55, density: { enable: true, area: 900 } },
+          color: { value: "#ffffff" },
+          opacity: { value: 0.25 },
+          size: { value: { min: 1, max: 3 } },
+          move: { enable: true, speed: 0.8, direction: "none", random: true, outModes: "out" },
+          links: { enable: true, color: "#ffffff", opacity: 0.12, distance: 120 }
+        },
+        interactivity: {
+          events: { onHover: { enable: true, mode: "repulse" } },
+          modes:  { repulse: { distance: 80 } }
         }
+      });
+    }
 
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            const text = element.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                showMessage('Copied to clipboard!', 'success');
-            });
-        }
-
-        // Set active nav link and back button
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            document.querySelector('[href="ai-tools.html"]').classList.add('active');
-
-            // Back button functionality
-            const backButton = document.querySelector('.back-button');
-            if (backButton) {
-                backButton.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    window.history.back();
-                });
-            }
-
-            // Initialize mobile navigation
-            setupMobileNavigation();
+    /* VanillaTilt on cards */
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.VanillaTilt) {
+        VanillaTilt.init(document.querySelectorAll('.at-card'), {
+          max: 10, speed: 400, glare: true, 'max-glare': 0.15
         });
-    </script>
-</body>
+      }
+    });
 
+    /* Count-up on scroll */
+    const countTargets = [
+      { id: 'citiesStat',    target: 50,   suffix: '+' },
+      { id: 'listingsStat',  target: 120,  suffix: 'K+' },
+      { id: 'accuracyStat',  target: 95,   suffix: '%' },
+    ];
+    const counted = new Set();
+    const countObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          countTargets.forEach(({ id, target, suffix }) => {
+            if (counted.has(id)) return;
+            counted.add(id);
+            const el = document.getElementById(id);
+            if (!el) return;
+            let n = 0; const step = target / 60;
+            const iv = setInterval(() => {
+              n = Math.min(n + step, target);
+              el.textContent = Math.floor(n) + suffix;
+              if (n >= target) clearInterval(iv);
+            }, 16);
+          });
+        }
+      });
+    }, { threshold: 0.5 });
+    const chartSection = document.querySelector('.chart-bg');
+    if (chartSection) countObs.observe(chartSection);
+
+    /* Chart.js market chart */
+    window.addEventListener('load', () => {
+      const ctx = document.getElementById('priceChart');
+      if (!ctx || !window.Chart) return;
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+          datasets: [{
+            label: 'Avg Price (₹ Cr)',
+            data: [1.75, 1.88, 2.05, 1.95, 2.18, 2.30, 2.45],
+            borderColor: '#60a5fa',
+            backgroundColor: 'rgba(96,165,250,0.12)',
+            pointBackgroundColor: '#3b82f6',
+            pointRadius: 5,
+            tension: 0.45,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1f2937',
+              titleColor: '#f9fafb',
+              bodyColor: '#d1d5db'
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    });
+  </script>
+
+</body>
 </html>

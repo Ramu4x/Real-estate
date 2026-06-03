@@ -28,6 +28,13 @@ app.use("/api/properties", require("./routes/propertyRoutes"));
 app.use("/api/ai", require("./routes/aiRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/location", require("./routes/locationRoutes"));
+app.use("/api/bookings", require("./routes/bookingRoutes"));
+app.use("/api/dashboard", require("./routes/dashboardRoutes"));
+app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/conversations", require("./routes/conversationRoutes"));
+app.use("/api/inquiries", require("./routes/inquiryRoutes"));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
+app.use("/api/calls", require("./routes/callRoutes"));
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ 

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Property | RealEstatePro</title>
+  <link rel="stylesheet" href="premium-v2.css" />
+  <link rel="stylesheet" href="wizard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root { color-scheme: light; }
+    body { background: linear-gradient(135deg,#f8fbff 0%,#eef4ff 45%,#fff 100%); font-family: Inter, Arial, sans-serif; }
+    .wizard-page { min-height: 100vh; padding: 24px; }
+    .wizard-card { max-width: 1200px; margin: 0 auto; background: #fff; border-radius: 24px; box-shadow: 0 18px 45px rgba(15,23,42,0.10); overflow: hidden; border: 1px solid #e5eefb; }
+    .wizard-header { padding: 28px 28px 18px; border-bottom: 1px solid #edf2f7; }
+    .wizard-header h1 { margin: 0 0 8px; font-size: 2rem; color: #111827; }
+    .wizard-header p { color: #4b5563; margin: 0 0 18px; }
+    .progress-container { position: relative; display:flex; gap: 12px; align-items:flex-start; }
+    .progress-line { position: absolute; left: 18px; right: 18px; top: 18px; height: 3px; background: #e5edf9; z-index: 0; }
+    .progress-fill { position: absolute; left: 18px; top: 18px; height: 3px; background: linear-gradient(90deg,#2563eb,#22c55e); z-index: 1; transition: width 0.25s ease; }
+    .step-indicator { flex:1; position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; gap:8px; color:#64748b; }
+    .step-circle { width: 36px; height: 36px; border-radius: 999px; display:grid; place-items:center; background:#fff; border:2px solid #cbd5e1; font-weight:700; color:#475569; }
+    .step-indicator.active .step-circle { background:#eff6ff; border-color:#2563eb; color:#2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,0.12); }
+    .step-indicator.completed .step-circle { background:#dcfce7; border-color:#22c55e; color:#16a34a; }
+    .step-indicator.completed .step-circle::after { content:'✓'; font-weight:800; }
+    .step-indicator.active .step-label, .step-indicator.completed .step-label { color:#111827; font-weight:700; }
+    .step-label { font-size: 0.92rem; }
+    .wizard-body { padding: 22px 28px 12px; }
+    .wizard-step { display:none; animation: slideIn .25s ease; }
+    .wizard-step.active { display:block; }
+    .step-title { font-size: 1.35rem; color:#111827; margin:0 0 6px; }
+    .step-subtitle { color:#6b7280; margin:0 0 18px; }
+    .grid-2, .grid-3 { display:grid; gap:16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .field-card { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:16px; box-shadow: 0 10px 28px rgba(15,23,42,.04); }
+    .field-label { display:block; font-size: 0.94rem; font-weight:700; color:#374151; margin-bottom:6px; }
+    .field-label .required { color:#ef4444; margin-left:2px; }
+    .field-input, .field-select, .field-textarea { width:100%; border:1px solid #d1d5db; border-radius:10px; padding:12px 14px; font-size:0.98rem; color:#111827; background:#fff; transition: border-color .2s, box-shadow .2s; }
+    .field-input:focus, .field-select:focus, .field-textarea:focus { outline:none; border-color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.12); }
+    .field-input.invalid, .field-select.invalid, .field-textarea.invalid { border-color:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.10); }
+    .field-error { color:#dc2626; font-size:0.82rem; min-height: 1em; margin-top: 6px; }
+    .field-row { display:flex; gap:16px; align-items:center; }
+    .tag-group { display:flex; gap:10px; flex-wrap:wrap; }
+    .tag-chip { border:1px solid #d1d5db; border-radius:999px; padding:10px 12px; background:#fff; font-weight:600; color:#374151; cursor:pointer; transition: all .15s ease; }
+    .tag-chip.active { background:#eff6ff; color:#1d4ed8; border-color:#2563eb; }
+    .type-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
+    .type-card { position:relative; }
+    .type-card input { position:absolute; opacity:0; inset:0; cursor:pointer; }
+    .type-card .card-face { border:1px solid #dbe4f0; border-radius:16px; background:#fff; padding:14px; display:flex; gap:12px; align-items:center; box-shadow: 0 12px 26px rgba(15,23,42,.04); transition: all .2s; }
+    .type-card .card-face i { font-size:1.25rem; color:#64748b; }
+    .type-card input:checked + .card-face { border-color:#2563eb; background:#eff6ff; box-shadow:0 0 0 4px rgba(37,99,235,.12); }
+    .type-card input:checked + .card-face i, .type-card input:checked + .card-face strong { color:#1d4ed8; }
+    .amenities-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; }
+    .amenity-card { display:flex; align-items:center; gap:10px; border:1px solid #e5e7eb; padding:10px 12px; border-radius:12px; background:#fff; cursor:pointer; }
+    .amenity-card input { display:none; }
+    .amenity-card i { color:#64748b; }
+    .amenity-card span { font-weight:600; color:#374151; font-size:0.92rem; }
+    .amenity-card.active { border-color:#2563eb; background:#eff6ff; }
+    .amenity-card.active i { color:#2563eb; }
+    .upload-zone { border:2px dashed #bfdbfe; background:linear-gradient(135deg,#f8fbff,#eef5ff); border-radius:18px; padding:18px; text-align:center; cursor:pointer; transition: all .2s; }
+    .upload-zone.dragover { border-color:#2563eb; background:#eff6ff; transform: translateY(-2px); }
+    .upload-zone .upload-icon { font-size:2rem; color:#2563eb; }
+    .preview-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap:12px; margin-top:14px; }
+    .preview-item { position:relative; border-radius:14px; overflow:hidden; border:1px solid #e5e7eb; background:#fff; box-shadow:0 12px 24px rgba(15,23,42,.06); cursor:grab; }
+    .preview-item img { width:100%; height:120px; object-fit:cover; display:block; }
+    .preview-item .remove-btn { position:absolute; top:6px; right:6px; border:none; background:rgba(239,68,68,.92); color:#fff; border-radius:999px; width:26px; height:26px; display:grid; place-items:center; cursor:pointer; }
+    .preview-item .drag-label { position:absolute; left:6px; bottom:6px; font-size:0.72rem; background:rgba(15,23,42,.75); color:#fff; padding:4px 6px; border-radius:999px; }
+    .review-card { border:1px solid #e5e7eb; background:#f9fbff; border-radius:16px; padding:14px; margin-bottom:10px; }
+    .review-grid { display:grid; gap: 12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .review-label { color:#6b7280; font-size:0.88rem; text-transform:uppercase; letter-spacing:.08em; }
+    .review-value { color:#111827; font-weight:700; }
+    .wizard-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 12px 28px 24px; border-top:1px solid #edf2f7; }
+    .btn-wizard { border-radius:10px; border:1px solid #d1d5db; background:#fff; color:#111827; padding:10px 14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+    .btn-wizard.primary { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border-color:#1d4ed8; }
+    .btn-wizard:hover { transform: translateY(-1px); }
+    .btn-wizard:disabled { opacity:.65; cursor:not-allowed; transform:none; }
+    .toast { position:fixed; right:18px; bottom:18px; background:#111827; color:#fff; padding:12px 14px; border-radius:12px; box-shadow: 0 12px 30px rgba(15,23,42,.2); opacity:0; transform: translateY(8px); transition: .25s; z-index:9999; }
+    .toast.show { opacity:1; transform: translateY(0); }
+    .shake { animation: shake .35s ease; }
+    @keyframes shake { 20% { transform: translateX(-4px);} 40% { transform: translateX(4px);} 60% { transform: translateX(-4px);} 80% { transform: translateX(4px);} }
+    @media (max-width: 980px) { .grid-2, .grid-3, .review-grid, .type-grid, .amenities-grid { grid-template-columns: 1fr; } .wizard-actions { flex-wrap:wrap; } }
+  </style>
+</head>
+<body class="wizard-page">
+  <div class="wizard-card">
+    <header class="wizard-header">
+      <h1>List Your Property</h1>
+      <p>Professionally list a home, apartment, villa, plot or commercial space in four simple steps.</p>
+      <div class="progress-container" aria-label="Property listing progress">
+        <div class="progress-line"></div>
+        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        <div class="step-indicator active" data-step="1"><div class="step-circle">1</div><span class="step-label">Basic Info</span></div>
+        <div class="step-indicator" data-step="2"><div class="step-circle">2</div><span class="step-label">Details & Pricing</span></div>
+        <div class="step-indicator" data-step="3"><div class="step-circle">3</div><span class="step-label">Location & Amenities</span></div>
+        <div class="step-indicator" data-step="4"><div class="step-circle">4</div><span class="step-label">Images & Review</span></div>
+      </div>
+    </header>
+
+    <form id="propertyWizardForm" novalidate>
+      <section class="wizard-body">
+        <div class="wizard-step active" data-step="1">
+          <h2 class="step-title">Step 1 — Basic Info</h2>
+          <p class="step-subtitle">Give your listing a strong title and choose the right property type.</p>
+          <div class="grid-2">
+            <div class="field-card">
+              <label class="field-label" for="title">Property Title <span class="required">*</span></label>
+              <input id="title" name="title" class="field-input" type="text" placeholder="Luxury 3BHK apartment near IT hub" required />
+              <div class="field-error" data-for="title"></div>
+            </div>
+            <div class="field-card">
+              <label class="field-label" for="purpose">Listing Purpose <span class="required">*</span></label>
+              <select id="purpose" name="purpose" class="field-select" required>
+                <option value="">Choose</option>
+                <option value="sale">For Sale</option>
+                <option value="rent">For Rent</option>
+              </select>
+              <div class="field-error" data-for="purpose"></div>
+            </div>
+          </div>
+          <div class="field-card" style="margin-top:16px;">
+            <label class="field-label" for="description">Description <span class="required">*</span></label>
+            <textarea id="description" name="description" class="field-textarea" rows="5" minlength="500" placeholder="Describe the property, location advantages, nearby schools, transport and key highlights." required></textarea>
+            <div class="field-error" data-for="description"></div>
+          </div>
+          <div class="field-card" style="margin-top:16px;">
+            <label class="field-label">Property Type <span class="required">*</span></label>
+            <div class="type-grid">
+              <label class="type-card"><input type="radio" name="type" value="house" /> <span class="card-face"><i class="fa-solid fa-house"></i><strong>House</strong></span></label>
+              <label class="type-card"><input type="radio" name="type" value="apartment" /> <span class="card-face"><i class="fa-solid fa-building"></i><strong>Apartment</strong></span></label>
+              <label class="type-card"><input type="radio" name="type" value="villa" /> <span class="card-face"><i class="fa-solid fa-tree-city"></i><strong>Villa</strong></span></label>
+              <label class="type-card"><input type="radio" name="type" value="plot" /> <span class="card-face"><i class="fa-solid fa-map-location-dot"></i><strong>Plot</strong></span></label>
+              <label class="type-card"><input type="radio" name="type" value="commercial" /> <span class="card-face"><i class="fa-solid fa-store"></i><strong>Commercial</strong></span></label>
+            </div>
+            <div class="field-error" data-for="type"></div>
+          </div>
+        </div>
+
+        <div class="wizard-step" data-step="2">
+          <h2 class="step-title">Step 2 — Details & Pricing</h2>
+          <p class="step-subtitle">Add bedrooms, bathrooms, area and the asking price.</p>
+          <div class="grid-3">
+            <div class="field-card"><label class="field-label" for="price">Price (₹) <span class="required">*</span></label><input id="price" name="price" class="field-input" type="text" inputmode="numeric" placeholder="2500000" required /><div class="field-error" data-for="price"></div></div>
+            <div class="field-card"><label class="field-label" for="area">Area (sqft)</label><input id="area" name="area" class="field-input" type="number" min="1" placeholder="1200" /></div>
+            <div class="field-card"><label class="field-label" for="yearBuilt">Year Built</label><input id="yearBuilt" name="yearBuilt" class="field-input" type="number" min="1900" max="2100" placeholder="2020" /></div>
+          </div>
+          <div class="grid-3" style="margin-top:16px;">
+            <div class="field-card"><label class="field-label">Bedrooms <span class="required">*</span></label><div class="tag-group" id="bedroomsGroup"></div><div class="field-error" data-for="bedrooms"></div></div>
+            <div class="field-card"><label class="field-label">Bathrooms <span class="required">*</span></label><div class="tag-group" id="bathroomsGroup"></div><div class="field-error" data-for="bathrooms"></div></div>
+            <div class="field-card"><label class="field-label" for="status">Status</label><select id="status" name="status" class="field-select"><option value="available">Available</option><option value="pending">Pending</option><option value="sold">Sold</option></select></div>
+          </div>
+          <div class="grid-2" style="margin-top:16px;">
+            <div class="field-card"><label class="field-label" for="furnishing">Furnishing</label><select id="furnishing" name="furnishing" class="field-select"><option value="unfurnished">Unfurnished</option><option value="semi-furnished">Semi-Furnished</option><option value="furnished">Furnished</option></select></div>
+            <div class="field-card"><label class="field-label">Price / sqft</label><div id="pricePerSqft" style="font-weight:800; color:#1d4ed8; font-size:1.05rem;">—</div><small style="color:#6b7280;">Auto-calculated from price and area.</small></div>
+          </div>
+        </div>
+
+        <div class="wizard-step" data-step="3">
+          <h2 class="step-title">Step 3 — Location & Amenities</h2>
+          <p class="step-subtitle">Pin the exact location and highlight the amenities sellers care about.</p>
+          <div class="grid-2">
+            <div class="field-card"><label class="field-label" for="address">Address <span class="required">*</span></label><input id="address" name="address" class="field-input" type="text" placeholder="Flat 101, MG Road, Gachibowli" required /><div class="field-error" data-for="address"></div></div>
+            <div class="field-card"><label class="field-label" for="city">City</label><input id="city" name="city" class="field-input" type="text" placeholder="Hyderabad" /></div>
+            <div class="field-card"><label class="field-label" for="state">State</label><input id="state" name="state" class="field-input" type="text" placeholder="Telangana" /></div>
+            <div class="field-card"><label class="field-label" for="zipCode">ZIP / PIN</label><input id="zipCode" name="zipCode" class="field-input" type="text" placeholder="500032" /></div>
+          </div>
+          <div class="field-card" style="margin-top:16px;">
+            <label class="field-label">Click the map to set the exact property position</label>
+            <div id="propertyMap" style="height:320px; border-radius:14px; border:1px solid #e5e7eb; overflow:hidden;"></div>
+            <div class="field-row" style="margin-top:10px; gap:12px; flex-wrap:wrap;">
+              <span style="color:#6b7280; font-size:0.92rem;">Latitude: <strong id="latValue">17.3850</strong></span>
+              <span style="color:#6b7280; font-size:0.92rem;">Longitude: <strong id="lngValue">78.4867</strong></span>
+            </div>
+          </div>
+          <div class="field-card" style="margin-top:16px;">
+            <label class="field-label">Amenities</label>
+            <div class="amenities-grid" id="amenitiesGrid"></div>
+          </div>
+        </div>
+
+        <div class="wizard-step" data-step="4">
+          <h2 class="step-title">Step 4 — Images & Review</h2>
+          <p class="step-subtitle">Upload multiple photos, preview them, then confirm everything before listing.</p>
+          <div class="field-card">
+            <label class="field-label">Drag & drop your images</label>
+            <div id="uploadZone" class="upload-zone">
+              <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <strong>Drop photos here</strong>
+              <p style="color:#6b7280; margin:6px 0 0;">PNG, JPG or WEBP — up to 10 images and 5MB each</p>
+              <input id="imageInput" type="file" accept="image/*" multiple hidden />
+            </div>
+            <div id="previewGrid" class="preview-grid"></div>
+          </div>
+          <div class="field-card" style="margin-top:16px;">
+            <label class="field-label">Review your listing</label>
+            <div id="reviewSummary" class="review-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="wizard-actions">
+        <button type="button" id="prevBtn" class="btn-wizard" disabled>← Previous</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" id="draftBtn" class="btn-wizard">Save as Draft</button>
+          <button type="button" id="nextBtn" class="btn-wizard primary">Next →</button>
+          <button type="submit" id="submitBtn" class="btn-wizard primary" style="display:none;">Publish Listing</button>
+        </div>
+      </footer>
+    </form>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    lucide.createIcons();
+    const API_BASE = '/api';
+
+    const totalSteps = 4;
+    let currentStep = 1;
+    const form = document.getElementById('propertyWizardForm');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const progressFill = document.getElementById('progressFill');
+    const toast = document.getElementById('toast');
+    const amenities = ['Parking','Pool','Gym','Garden','Security','AC','WiFi','Elevator','Power Backup','Club House','Play Area','CCTV','Intercom','Fire Safety','Rain Water Harvesting','Maintenance Staff','Waste Disposal','Broadband','Pet Friendly','Balcony'];
+    const amenityIcons = ['fa-square-parking','fa-water-ladder','fa-dumbbell','fa-seedling','fa-shield-halved','fa-snowflake','fa-wifi','fa-elevator','fa-plug-circle-bolt','fa-building','fa-futbol','fa-video','fa-phone-volume','fa-fire-extinguisher','fa-droplet','fa-users-gear','fa-trash-can','fa-globe','fa-paw','fa-umbrella-beach'];
+    let selectedAmenities = [];
+    let selectedBedrooms = '';
+    let selectedBathrooms = '';
+    let imageFiles = [];
+    const defaultLat = 17.3850, defaultLng = 78.4867;
+    let map, marker;
+
+    function setToast(msg) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(setToast._t); setToast._t = setTimeout(() => toast.classList.remove('show'), 2600); }
+    function updateProgress() {
+      document.querySelectorAll('.step-indicator').forEach((item, index) => {
+        item.classList.remove('active', 'completed');
+        if (index + 1 < currentStep) item.classList.add('completed');
+        if (index + 1 === currentStep) item.classList.add('active');
+      });
+      const pct = ((currentStep - 1) / (totalSteps - 1)) * 100;
+      progressFill.style.width = `${Number.isFinite(pct) ? pct : 0}%`;
+      prevBtn.disabled = currentStep === 1;
+      nextBtn.style.display = currentStep === totalSteps ? 'none' : 'inline-flex';
+      submitBtn.style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+      document.querySelectorAll('.wizard-step').forEach((step, idx) => step.classList.toggle('active', idx + 1 === currentStep));
+      if (currentStep === 3 && !map) initMap();
+      updateReview();
+    }
+
+    function showFieldError(fieldId, msg) {
+      const input = document.getElementById(fieldId);
+      const errorEl = document.querySelector(`.field-error[data-for="${fieldId}"]`);
+      if (input) input.classList.toggle('invalid', Boolean(msg));
+      if (errorEl) errorEl.textContent = msg || '';
+    }
+
+    function validateField(fieldId) {
+      const el = document.getElementById(fieldId);
+      if (fieldId === 'type') {
+        const chosen = document.querySelector('input[name="type"]:checked');
+        showFieldError('type', chosen ? '' : 'Please select a property type.');
+        return Boolean(chosen);
+      }
+      if (!el) return true;
+      if (fieldId === 'title' && !el.value.trim()) return showFieldError(fieldId, 'Property title is required.'), false;
+      if (fieldId === 'purpose' && !el.value.trim()) return showFieldError(fieldId, 'Select a listing purpose.'), false;
+      if (fieldId === 'description') {
+        const ok = el.value.trim().length >= 500;
+        showFieldError(fieldId, ok ? '' : 'Please enter at least 500 characters for the description.');
+        return ok;
+      }
+      if (fieldId === 'address' && !el.value.trim()) return showFieldError(fieldId, 'Address is required.'), false;
+      if (fieldId === 'price' && !el.value.trim()) return showFieldError(fieldId, 'Price is required.'), false;
+      if (fieldId === 'bedrooms' && !selectedBedrooms) return showFieldError(fieldId, 'Choose the number of bedrooms.'), false;
+      if (fieldId === 'bathrooms' && !selectedBathrooms) return showFieldError(fieldId, 'Choose the number of bathrooms.'), false;
+      if (fieldId === 'type') {
+        const chosen = document.querySelector('input[name="type"]:checked');
+        showFieldError(fieldId, chosen ? '' : 'Please select a property type.');
+        return Boolean(chosen);
+      }
+      showFieldError(fieldId, '');
+      return true;
+    }
+
+    function validateStep(step) {
+      const checks = [];
+      if (step === 1) { checks.push(validateField('title')); checks.push(validateField('purpose')); checks.push(validateField('description')); checks.push(validateField('type')); }
+      if (step === 2) { checks.push(validateField('price')); checks.push(validateField('bedrooms')); checks.push(validateField('bathrooms')); }
+      if (step === 3) { checks.push(validateField('address')); }
+      return checks.every(Boolean);
+    }
+
+    function moveStep(dir) {
+      if (dir === 1) {
+        if (!validateStep(currentStep)) { document.querySelector('.wizard-step.active').classList.add('shake'); setTimeout(()=>document.querySelector('.wizard-step.active').classList.remove('shake'), 350); return; }
+        currentStep = Math.min(totalSteps, currentStep + 1);
+      } else {
+        currentStep = Math.max(1, currentStep - 1);
+      }
+      updateProgress();
+    }
+
+    nextBtn.addEventListener('click', () => moveStep(1));
+    prevBtn.addEventListener('click', () => moveStep(0));
+
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      el.addEventListener('input', () => {
+        if (el.id === 'price') updatePricePerSqft();
+        if (el.name === 'type') validateField('type');
+        if (el.id === 'title' || el.id === 'purpose' || el.id === 'description' || el.id === 'address' || el.id === 'price') validateField(el.id);
+      });
+      el.addEventListener('change', () => {
+        if (el.id === 'price') updatePricePerSqft();
+      });
+    });
+
+    function buildChoiceGroup(containerId, options, selectedValue, onSelect) {
+      const container = document.getElementById(containerId);
+      options.forEach(value => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tag-chip' + (selectedValue === value ? ' active' : '');
+        btn.textContent = value;
+        btn.addEventListener('click', () => {
+          const current = selectedValue;
+          const next = current === value ? '' : value;
+          onSelect(next);
+          buildChoiceGroup(containerId, options, next, onSelect);
+          if (containerId === 'bedroomsGroup') { selectedBedrooms = next; validateField('bedrooms'); }
+          if (containerId === 'bathroomsGroup') { selectedBathrooms = next; validateField('bathrooms'); }
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    buildChoiceGroup('bedroomsGroup', ['1','2','3','4','5+'], selectedBedrooms, (v) => { selectedBedrooms = v; });
+    buildChoiceGroup('bathroomsGroup', ['1','2','3','4','5+'], selectedBathrooms, (v) => { selectedBathrooms = v; });
+
+    function renderAmenities() {
+      const grid = document.getElementById('amenitiesGrid');
+      grid.innerHTML = amenities.map((item, i) => `
+        <label class="amenity-card ${selectedAmenities.includes(item) ? 'active' : ''}">
+          <input type="checkbox" value="${item}" ${selectedAmenities.includes(item) ? 'checked' : ''} />
+          <i class="fa-solid ${amenityIcons[i]}"></i>
+          <span>${item}</span>
+        </label>`).join('');
+      lucide.createIcons();
+      grid.querySelectorAll('input').forEach(cb => cb.addEventListener('change', () => {
+        selectedAmenities = Array.from(grid.querySelectorAll('input:checked')).map(x => x.value);
+        renderAmenities();
+      }));
+    }
+    renderAmenities();
+
+    function updatePricePerSqft() {
+      const price = parseFloat(document.getElementById('price').value.replace(/[₹,\s]/g, ''));
+      const area = parseFloat(document.getElementById('area').value || 0);
+      const el = document.getElementById('pricePerSqft');
+      if (price && area) el.textContent = `₹${Math.round(price / area).toLocaleString()} / sqft`;
+      else el.textContent = '—';
+    }
+
+    function initMap() {
+      if (map) return;
+      map = L.map('propertyMap').setView([defaultLat, defaultLng], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+      marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+      document.getElementById('latValue').textContent = defaultLat.toFixed(4);
+      document.getElementById('lngValue').textContent = defaultLng.toFixed(4);
+      map.on('click', (e) => { marker.setLatLng(e.latlng); updateCoords(); });
+      marker.on('dragend', updateCoords);
+      function updateCoords() { const { lat, lng } = marker.getLatLng(); document.getElementById('latValue').textContent = lat.toFixed(4); document.getElementById('lngValue').textContent = lng.toFixed(4); }
+    }
+
+    const uploadZone = document.getElementById('uploadZone');
+    const imageInput = document.getElementById('imageInput');
+    const previewGrid = document.getElementById('previewGrid');
+    uploadZone.addEventListener('click', () => imageInput.click());
+    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.classList.remove('dragover'); handleImageFiles(e.dataTransfer.files); });
+    imageInput.addEventListener('change', (e) => handleImageFiles(e.target.files));
+
+    function handleImageFiles(files) {
+      const valid = Array.from(files).filter(file => file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024);
+      if (valid.length !== Array.from(files).length) setToast('Some files were skipped because they are too large or not images.');
+      if (imageFiles.length + valid.length > 10) { setToast('You can upload up to 10 images only.'); return; }
+      valid.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          imageFiles.push({ file, preview: e.target.result });
+          renderPreview();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function renderPreview() {
+      previewGrid.innerHTML = imageFiles.map((img, index) => `
+        <article class="preview-item" draggable="true" data-index="${index}">
+          <img src="${img.preview}" alt="Preview ${index + 1}" />
+          <button type="button" class="remove-btn" data-remove="${index}" aria-label="Remove image">×</button>
+          <span class="drag-label">Drag to reorder</span>
+        </article>`).join('');
+      previewGrid.querySelectorAll('.remove-btn').forEach(btn => btn.addEventListener('click', () => { imageFiles.splice(Number(btn.dataset.remove), 1); renderPreview(); }));
+      previewGrid.querySelectorAll('.preview-item').forEach(item => {
+        item.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', item.dataset.index); item.style.opacity = '0.6'; });
+        item.addEventListener('dragend', () => item.style.opacity = '1');
+        item.addEventListener('dragover', (e) => e.preventDefault());
+        item.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const from = Number(e.dataTransfer.getData('text/plain'));
+          const to = Number(item.dataset.index);
+          if (from === to) return;
+          const moved = imageFiles.splice(from, 1)[0];
+          imageFiles.splice(to, 0, moved);
+          renderPreview();
+        });
+      });
+    }
+
+    function updateReview() {
+      const title = document.getElementById('title').value || '—';
+      const type = document.querySelector('input[name="type"]:checked')?.value || '—';
+      const price = document.getElementById('price').value || '—';
+      const address = document.getElementById('address').value || '—';
+      const city = document.getElementById('city').value || '—';
+      const status = document.getElementById('status').value || 'available';
+      document.getElementById('reviewSummary').innerHTML = `
+        <div class="review-card"><div class="review-label">Title</div><div class="review-value">${title}</div></div>
+        <div class="review-card"><div class="review-label">Type</div><div class="review-value">${type}</div></div>
+        <div class="review-card"><div class="review-label">Price</div><div class="review-value">₹${price}</div></div>
+        <div class="review-card"><div class="review-label">Location</div><div class="review-value">${address}, ${city}</div></div>
+        <div class="review-card"><div class="review-label">Bedrooms</div><div class="review-value">${selectedBedrooms || '—'}</div></div>
+        <div class="review-card"><div class="review-label">Amenities</div><div class="review-value">${selectedAmenities.length ? selectedAmenities.join(', ') : 'None selected'}</div></div>
+        <div class="review-card"><div class="review-label">Status</div><div class="review-value">${status}</div></div>
+        <div class="review-card"><div class="review-label">Images</div><div class="review-value">${imageFiles.length} selected</div></div>`;
+    }
+
+    document.getElementById('price').addEventListener('input', updateReview);
+    document.getElementById('address').addEventListener('input', updateReview);
+    document.getElementById('city').addEventListener('input', updateReview);
+    document.getElementById('status').addEventListener('change', updateReview);
+    document.getElementById('title').addEventListener('input', updateReview);
+    document.querySelectorAll('input[name="type"]').forEach(r => r.addEventListener('change', updateReview));
+
+    // Replace existing submit handler with JSON-based publish flow
+    async function publishProperty() {
+      // Get auth token from known storage keys
+      const token = localStorage.getItem('authToken')
+        || localStorage.getItem('token')
+        || (function(){ try { return JSON.parse(localStorage.getItem('user') || '{}').token; } catch { return null; } })()
+        || (function(){ try { return JSON.parse(localStorage.getItem('currentUser') || '{}').token; } catch { return null; } })();
+      console.log('Token check:', token ? 'Found' : 'MISSING');
+      if (!token) {
+        alert('Please login first');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const propertyData = {
+        title: document.getElementById('title')?.value?.trim(),
+        description: document.getElementById('description')?.value?.trim(),
+        type: document.querySelector('input[name="type"]:checked')?.value || '',
+        price: Number(document.getElementById('price')?.value.replace(/[₹,\s]/g, '')) || 0,
+        location: document.getElementById('address')?.value?.trim() || document.getElementById('location')?.value?.trim(),
+        city: document.getElementById('city')?.value?.trim(),
+        state: document.getElementById('state')?.value?.trim(),
+        bedrooms: Number(selectedBedrooms) || 0,
+        bathrooms: Number(selectedBathrooms) || 0,
+        area: Number(document.getElementById('area')?.value) || Number(document.getElementById('sqft')?.value) || 0,
+        amenities: selectedAmenities || [],
+        purpose: document.getElementById('purpose')?.value || 'sale',
+        status: 'available'
+      };
+
+      // Validate required fields
+      if (!propertyData.title || !propertyData.price || !propertyData.location) {
+        alert('Please fill all required fields: Title, Price, Location');
+        return;
+      }
+
+      const publishBtn = document.getElementById('submitBtn');
+      const originalText = publishBtn.textContent;
+      publishBtn.disabled = true;
+      publishBtn.textContent = 'Publishing...';
+
+      function clearAuthAndRedirect() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('username');
+        window.location.href = 'index.html';
+      }
+
+      if (!token || token === 'demo-token' || token.split('.').length !== 3) {
+        alert('Please login first with a real account');
+        clearAuthAndRedirect();
+        return;
+      }
+
+      try {
+        // Build FormData with property data AND image files
+        const formData = new FormData();
+        
+        // Add property fields
+        formData.append('title', propertyData.title);
+        formData.append('description', propertyData.description);
+        formData.append('type', propertyData.type);
+        formData.append('price', propertyData.price);
+        formData.append('location', propertyData.location);
+        formData.append('city', propertyData.city);
+        formData.append('state', propertyData.state);
+        formData.append('bedrooms', propertyData.bedrooms);
+        formData.append('bathrooms', propertyData.bathrooms);
+        formData.append('area', propertyData.area);
+        formData.append('amenities', JSON.stringify(propertyData.amenities));
+        formData.append('purpose', propertyData.purpose);
+        formData.append('status', propertyData.status);
+        
+        // Add image files
+        imageFiles.forEach((img, idx) => {
+          formData.append('images', img.file);
+        });
+
+        console.log('Publishing property with', imageFiles.length, 'images');
+        const res = await fetch(`${API_BASE}/properties`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+            // Don't set Content-Type; browser will set it with boundary
+          },
+          body: formData
+        });
+
+        const responseText = await res.text();
+        console.log('Response status:', res.status);
+        console.log('Response text:', responseText);
+
+        let data;
+        try {
+          data = responseText ? JSON.parse(responseText) : {};
+        } catch (e) {
+          throw new Error('Server returned invalid JSON: ' + responseText);
+        }
+
+        if (!res.ok) {
+          if (res.status === 401 || res.status === 403) {
+            clearAuthAndRedirect();
+            throw new Error(data.message || 'You are not authorized. Please login again.');
+          }
+          throw new Error(data.message || `HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        alert('Property published successfully!');
+        console.log('Created property:', data);
+        window.location.href = 'seller-dashboard.html';
+
+      } catch (err) {
+        console.error('Publish error:', err);
+        alert('Error publishing: ' + err.message);
+      } finally {
+        publishBtn.disabled = false;
+        publishBtn.textContent = originalText;
+      }
+    }
+
+    // Attach the new handler to form submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateStep(currentStep)) { document.querySelector('.wizard-step.active').classList.add('shake'); setTimeout(()=>document.querySelector('.wizard-step.active').classList.remove('shake'), 350); return; }
+      // Ensure user role is seller or admin
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!['seller','admin'].includes(user.role)) { setToast('Only sellers can add properties. Upgrade your account.'); return; }
+      await publishProperty();
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>

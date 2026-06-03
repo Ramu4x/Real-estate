@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const Property = require("../models/Property");
+const SearchHistory = require("../models/SearchHistory");
+const { logActivity } = require("./activityLogger");
 
 exports.getProfile = async (req, res) => {
   try {
@@ -79,29 +81,30 @@ exports.updatePreferences = async (req, res) => {
 
 exports.addSearchHistory = async (req, res) => {
   try {
-    const { query } = req.body;
-    
-    if (!query) {
-      return res.status(400).json({ message: "Search query is required" });
-    }
-    
-    const user = await User.findById(req.user.id);
-    
-    // Add to search history (limit to 20 recent searches)
-    user.searchHistory.unshift({
-      query: query,
-      timestamp: new Date()
+    const { location, minPrice, maxPrice, bedrooms, propertyType, resultsCount } = req.body;
+
+    const record = await SearchHistory.create({
+      user: req.user.id,
+      location,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      propertyType,
+      resultsCount,
     });
-    
-    if (user.searchHistory.length > 20) {
-      user.searchHistory = user.searchHistory.slice(0, 20);
-    }
-    
-    await user.save();
-    
+
+    await logActivity(req.user.id, "search", {
+      location,
+      minPrice,
+      maxPrice,
+      bedrooms,
+      propertyType,
+      resultsCount,
+    });
+
     res.json({
       success: true,
-      message: "Search history updated"
+      data: record,
     });
   } catch (error) {
     res.status(500).json({ 
@@ -113,11 +116,13 @@ exports.addSearchHistory = async (req, res) => {
 
 exports.getSearchHistory = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-    
+    const items = await SearchHistory.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .limit(50);
+
     res.json({
       success: true,
-      data: user.searchHistory
+      data: items,
     });
   } catch (error) {
     res.status(500).json({ 

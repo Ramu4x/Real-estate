@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Seller Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 24px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+        input:focus, select:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px #eff6ff; }
+        .btn { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 16px; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-secondary { background: #64748b; margin-top: 8px; }
+        .btn-secondary:hover { background: #475569; }
+        .info { background: #f0fdf4; color: #166534; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><i class="fas fa-building"></i> Seller Login</h1>
+    
+    <div class="info">
+        <strong>Test Mode:</strong> Click "Create Seller" to simulate a seller login, then visit the dashboard.
+    </div>
+    
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="ganesh@example.com" value="ganesh@example.com">
+    </div>
+    
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="seller123" value="seller123">
+    </div>
+    
+    <div class="form-group">
+        <label>User Role</label>
+        <select id="role">
+            <option value="seller">Seller</option>
+            <option value="buyer">Buyer</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+    
+    <button class="btn" onclick="createSellerSession()">
+        <i class="fas fa-lock"></i> Create Seller Session
+    </button>
+    
+    <button class="btn btn-secondary" onclick="viewDashboard()">
+        <i class="fas fa-arrow-right"></i> Go to Seller Dashboard
+    </button>
+    
+    <button class="btn btn-secondary" onclick="clearSession()" style="background: #ef4444;">
+        <i class="fas fa-trash"></i> Clear Session
+    </button>
+</div>
+
+<script>
+function createSellerSession() {
+    const email = document.getElementById('email').value || 'ganesh@example.com';
+    const password = document.getElementById('password').value || 'seller123';
+    const role = document.getElementById('role').value || 'seller';
+    
+    const user = {
+        email: email,
+        name: email.split('@')[0],
+        role: role,
+        userType: role,
+        _id: 'seller-' + Date.now(),
+        token: 'seller-token-' + Date.now()
+    };
+    
+    // Save to localStorage
+    localStorage.setItem('authToken', user.token);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    // Mock listings data
+    const mockListings = [
+        {
+            _id: 'prop-1',
+            title: '3BHK Modern Apartment',
+            price: 7500000,
+            location: 'Hyderabad, Telangana',
+            city: 'Hyderabad',
+            type: 'Apartment',
+            status: 'available',
+            views: 142,
+            viewCount: 142,
+            images: ['https://images.unsplash.com/photo-1562183241-b0121b6b186c?w=200']
+        },
+        {
+            _id: 'prop-2',
+            title: '2BHK Villa',
+            price: 12000000,
+            location: 'Bangalore, Karnataka',
+            city: 'Bangalore',
+            type: 'Villa',
+            status: 'available',
+            views: 89,
+            viewCount: 89,
+            images: ['https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=200']
+        },
+        {
+            _id: 'prop-3',
+            title: '1BHK Commercial Space',
+            price: 3000000,
+            location: 'Delhi, Delhi',
+            city: 'Delhi',
+            type: 'Commercial',
+            status: 'pending',
+            views: 45,
+            viewCount: 45,
+            images: ['https://images.unsplash.com/photo-1554224311-beee415c15db?w=200']
+        },
+        {
+            _id: 'prop-4',
+            title: '4BHK Luxury Penthouse',
+            price: 25000000,
+            location: 'Mumbai, Maharashtra',
+            city: 'Mumbai',
+            type: 'Apartment',
+            status: 'available',
+            views: 256,
+            viewCount: 256,
+            images: ['https://images.unsplash.com/photo-1512917774080-9b41861e8e29?w=200']
+        }
+    ];
+    
+    localStorage.setItem('myListings', JSON.stringify(mockListings));
+    
+    // Mock inquiries
+    const mockInquiries = [
+        {
+            _id: 'inq-1',
+            buyerName: 'Rajesh Kumar',
+            propertyTitle: '3BHK Modern Apartment',
+            message: 'Interested in the property. Can we schedule a visit?',
+            content: 'Interested in the property. Can we schedule a visit?',
+            date: new Date(Date.now() - 2*60*60*1000),
+            createdAt: new Date(Date.now() - 2*60*60*1000)
+        },
+        {
+            _id: 'inq-2',
+            buyerName: 'Priya Sharma',
+            propertyTitle: '2BHK Villa',
+            message: 'What is the negotiation scope on this property?',
+            content: 'What is the negotiation scope on this property?',
+            date: new Date(Date.now() - 5*60*60*1000),
+            createdAt: new Date(Date.now() - 5*60*60*1000)
+        }
+    ];
+    
+    localStorage.setItem('sellerInquiries', JSON.stringify(mockInquiries));
+    
+    console.log('[Test] Seller session created:', user);
+    console.log('[Test] Mock listings added:', mockListings.length);
+    console.log('[Test] Mock inquiries added:', mockInquiries.length);
+    
+    alert(`✓ Seller session created!\n\nEmail: ${email}\nRole: ${role}\n\nLocalStorage updated with:\n- User info\n- 4 test properties\n- 2 test inquiries`);
+}
+
+function viewDashboard() {
+    const user = localStorage.getItem('user');
+    if (!user) {
+        alert('No session found. Create a seller session first.');
+        return;
+    }
+    
+    const userData = JSON.parse(user);
+    if (userData.role !== 'seller' && userData.userType !== 'seller') {
+        alert('Not a seller account. Please create a seller session first.');
+        return;
+    }
+    
+    window.location.href = 'seller-dashboard.html';
+}
+
+function clearSession() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('myListings');
+    localStorage.removeItem('sellerInquiries');
+    alert('Session cleared!');
+    location.reload();
+}
+</script>
+
+</body>
+</html>

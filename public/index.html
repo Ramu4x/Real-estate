@@ -1,338 +1,1163 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RealEstatePro - AI-Powered Property Marketplace</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="premium.css">
+    <title>RealEstatePro | Modern Real Estate Marketplace</title>
+    <meta name="description" content="Discover luxury properties and city skyline living with RealEstatePro. The ultimate real estate marketplace for buying, renting, and commercial plots.">
+    <link rel="stylesheet" href="premium-v2.css">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+                /* Floating label styles */
+                .floating-label-group {
+                    position: relative;
+                }
+                .floating-input {
+                    border: 1.5px solid #e5e7eb;
+                    border-radius: 10px;
+                    padding: 1.1rem 1rem 0.6rem 1rem;
+                    font-size: 1rem;
+                    width: 100%;
+                    background: none;
+                    outline: none;
+                    transition: border 0.2s;
+                }
+                .floating-label {
+                    position: absolute;
+                    left: 1rem;
+                    top: 1.1rem;
+                    color: #6b7280;
+                    font-size: 1rem;
+                    pointer-events: none;
+                    background: #fff;
+                    padding: 0 0.2rem;
+                    transition: 0.2s cubic-bezier(0.16,1,0.3,1);
+                }
+                .floating-input:focus + .floating-label,
+                .floating-input:not(:placeholder-shown) + .floating-label {
+                    top: -0.5rem;
+                    left: 0.8rem;
+                    font-size: 0.82rem;
+                    color: #2563EB;
+                    background: #fff;
+                }
+                .login-modal-box {
+                    backdrop-filter: blur(6px);
+                    animation: fadeInModal 0.2s cubic-bezier(0.16,1,0.3,1);
+                }
+                @keyframes fadeInModal {
+                    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+                    to   { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                body.modal-open {
+                    overflow: hidden !important;
+                }
+        /* ---- Auth Modals ---- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.18s ease;
+            pointer-events: none;
+        }
+        .modal-overlay.open {
+            display: flex;
+            opacity: 1;
+            pointer-events: auto;
+            animation: fadeInModal 0.18s ease;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            position: relative;
+            animation: modalIn 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes modalIn {
+            from { opacity:0; transform:translateY(20px) scale(0.97); }
+            to   { opacity:1; transform:translateY(0) scale(1); }
+        }
+        .modal-box h2 { font-size:1.7rem; font-weight:800; margin-bottom:0.3rem; color:#111827; }
+        .modal-box p  { color:#6b7280; margin-bottom:1.8rem; font-size:0.95rem; }
+        .modal-close {
+            position:absolute; top:1.2rem; right:1.4rem;
+            background:none; border:none; font-size:1.4rem;
+            cursor:pointer; color:#9ca3af; line-height:1;
+        }
+        .modal-close:hover { color:#111827; }
+        .form-group { margin-bottom:1.2rem; }
+        .form-group label { display:block; font-weight:600; font-size:0.88rem; color:#374151; margin-bottom:0.4rem; }
+        .form-group input, .form-group select {
+            width:100%; padding:0.75rem 1rem;
+            border:1.5px solid #e5e7eb; border-radius:10px;
+            font-size:0.97rem; outline:none; transition:border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color:#1a56db; }
+        .role-selector {
+            display:grid;
+            grid-template-columns:repeat(2, minmax(0, 1fr));
+            gap:1rem;
+            margin-top:0.4rem;
+        }
+        .role-option {
+            display:block;
+            cursor:pointer;
+            position:relative;
+        }
+        .role-option input {
+            position:absolute;
+            opacity:0;
+            pointer-events:none;
+        }
+        .role-card {
+            border:1.5px solid #e5e7eb;
+            border-radius:18px;
+            padding:1.1rem 1rem;
+            background:#fff;
+            min-height:170px;
+            display:flex;
+            flex-direction:column;
+            gap:0.8rem;
+            transition:all 0.2s ease;
+        }
+        .role-option:hover .role-card { border-color:#c7d2fe; }
+        .role-card.selected {
+            border-color:#2563eb;
+            box-shadow:0 18px 45px rgba(37,99,235,0.12);
+        }
+        .role-card i {
+            font-size:1.5rem;
+            color:#2563eb;
+        }
+        .role-card h4 {
+            margin:0;
+            font-size:1rem;
+            color:#111827;
+        }
+        .role-card p {
+            margin:0;
+            color:#6b7280;
+            font-size:0.93rem;
+            line-height:1.45;
+        }
+        .btn-modal-submit {
+            width:100%; padding:0.85rem;
+            background:#1a56db; color:#fff;
+            border:none; border-radius:12px;
+            font-size:1rem; font-weight:700;
+            cursor:pointer; transition:all 0.3s;
+            margin-top:0.5rem;
+        }
+        .btn-modal-submit:hover { background:#1e429f; transform:translateY(-1px); }
+        .btn-modal-submit:disabled { opacity:0.75; cursor:wait; transform:none; }
+        .auth-inline-row { display:flex; justify-content:space-between; align-items:center; gap:0.75rem; margin-bottom:1rem; flex-wrap:wrap; }
+        .auth-check { display:flex; align-items:center; gap:0.45rem; color:#374151; font-size:0.92rem; }
+        .auth-check input { width:16px; height:16px; accent-color:#2563EB; }
+        .auth-link { font-size:0.92rem; color:#1a56db; text-decoration:none; font-weight:600; }
+        .auth-link:hover { text-decoration:underline; }
+        .auth-divider { display:flex; align-items:center; gap:0.75rem; color:#94a3b8; font-size:0.88rem; margin:1rem 0; }
+        .auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:#e5e7eb; }
+        .auth-social-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+        .auth-social-btn { display:flex; align-items:center; justify-content:center; gap:0.5rem; border:1px solid #e5e7eb; background:#fff; border-radius:12px; padding:0.75rem 0.9rem; font-weight:600; color:#111827; cursor:pointer; transition:all 0.2s; }
+        .auth-social-btn:hover { background:#f8fafc; transform:translateY(-1px); }
+        .password-wrap { position:relative; }
+        .password-wrap .floating-input { padding-right:3.2rem; }
+        .password-toggle { position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); border:none; background:transparent; color:#64748b; cursor:pointer; font-size:0.95rem; }
+        .field-error { color:#dc2626; font-size:0.92rem; min-height:0.95rem; margin-top:0.25rem; }
+        .field-error.active { display:block; }
+        .input-error { border-color:#dc2626 !important; box-shadow:0 0 0 3px rgba(220,38,38,0.08); }
+        .btn-spinner { display:inline-flex; align-items:center; gap:0.45rem; }
+        .btn-spinner::after { content:''; width:0.9rem; height:0.9rem; border:2px solid rgba(255,255,255,0.65); border-top-color:#fff; border-radius:999px; animation:spin 0.8s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .modal-switch { text-align:center; margin-top:1.2rem; font-size:0.92rem; color:#6b7280; }
+        .modal-switch a { color:#1a56db; font-weight:600; cursor:pointer; text-decoration:none; }
+        .modal-switch a:hover { text-decoration:underline; }
+        .modal-error { color:#ef4444; font-size:0.92rem; line-height:1.4; margin-bottom:0.8rem; display:none; }
+        .header-login-link,
+        .mobile-login-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0.6rem 1.1rem;
+            border-radius: 8px;
+            background: #2563EB;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.98rem;
+            line-height: 1;
+            cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18);
+            transition: transform 0.12s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+        .header-login-link:hover,
+        .mobile-login-link:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .header-login-link:active,
+        .mobile-login-link:active {
+            transform: scale(0.98);
+        }
+        /* ---- Toast ---- */
+        #toast {
+            position:fixed; bottom:2rem; left:50%; transform:translateX(-50%);
+            background:#111827; color:#fff; padding:0.75rem 1.8rem;
+            border-radius:50px; font-weight:600; font-size:0.92rem;
+            z-index:99999; opacity:0; transition:opacity 0.3s;
+            pointer-events:none;
+        }
+        #toast.show { opacity:1; }
+        /* ---- Autocomplete ---- */
+        .autocomplete-list {
+            position:absolute; top:100%; left:0; right:0;
+            background:#fff; border:1px solid #e5e7eb; border-radius:12px;
+            box-shadow:0 8px 20px rgba(0,0,0,0.1); z-index:500;
+            max-height:220px; overflow-y:auto; display:none;
+        }
+        .autocomplete-list.open { display:block; }
+        .autocomplete-item {
+            padding:0.65rem 1rem; cursor:pointer; font-size:0.93rem;
+            display:flex; align-items:center; gap:0.6rem;
+        }
+        .autocomplete-item:hover { background:#f3f4f6; }
+        .search-field { position:relative; }
+        /* ---- Stats Section ---- */
+        .stats-strip {
+            background:#1a56db; color:#fff;
+            display:flex; justify-content:center; gap:5rem;
+            padding:3rem 4rem; flex-wrap:wrap;
+        }
+        .stat-pill { text-align:center; }
+        .stat-pill .num { font-size:2.5rem; font-weight:800; }
+        .stat-pill .lbl { font-size:0.95rem; opacity:0.85; margin-top:0.2rem; }
+        /* ---- AI Banner ---- */
+        .ai-banner {
+            background:linear-gradient(135deg,#0f172a 0%,#1e429f 50%,#1a56db 100%);
+            padding:5rem 4rem; display:flex; align-items:center;
+            gap:3rem; flex-wrap:wrap; justify-content:center;
+        }
+        .ai-banner-text { color:#fff; max-width:520px; }
+        .ai-banner-text h2 { font-size:2.2rem; font-weight:800; margin-bottom:1rem; }
+        .ai-banner-text p { color:rgba(255,255,255,0.8); font-size:1.05rem; line-height:1.7; margin-bottom:1.8rem; }
+        .ai-banner img { width:300px; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,0.4); }
+        .btn-ai {
+            background:#f97316; color:#fff; padding:0.85rem 2rem;
+            border:none; border-radius:50px; font-size:1rem;
+            font-weight:700; cursor:pointer; text-decoration:none;
+            display:inline-block; transition:all 0.3s;
+        }
+        .btn-ai:hover { background:#ea580c; transform:translateY(-2px); }
+        /* ---- Loading skeleton ---- */
+        .skeleton-card {
+            background:#fff; border-radius:20px; overflow:hidden;
+            box-shadow:0 4px 20px rgba(0,0,0,0.05); border:1px solid #f1f5f9;
+        }
+        .skeleton-img { height:250px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; }
+        .skeleton-text { height:14px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; margin:1rem 1.5rem; }
+        .skeleton-text.short { width:60%; }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        /* ---- Hamburger Mobile Nav ---- */
+        .hamburger { display:none; background:none; border:none; font-size:1.5rem; cursor:pointer; color:#111827; z-index:1020; }
+        .mobile-sidebar {
+            position:fixed; top:0; left:-280px; width:280px; height:100vh;
+            background:#fff; z-index:9998; box-shadow:5px 0 20px rgba(0,0,0,0.1);
+            transition:left 0.3s ease; padding:2rem 1.5rem; overflow-y:auto;
+        }
+        .mobile-sidebar.open { left:0; }
+        .mobile-sidebar .sidebar-logo { font-size:1.4rem; font-weight:800; color:#111827; margin-bottom:2rem; display:flex; align-items:center; gap:0.5rem; }
+        .mobile-sidebar .sidebar-logo span { color:#1a56db; }
+        .mobile-nav-link { display:block; padding:0.85rem 0; color:#374151; font-weight:600; text-decoration:none; border-bottom:1px solid #f3f4f6; font-size:1rem; }
+        .mobile-nav-link:hover { color:#1a56db; }
+        .mobile-sidebar-close { position:absolute; top:1.2rem; right:1.2rem; background:none; border:none; font-size:1.4rem; cursor:pointer; }
+        .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:9997; }
+        .sidebar-overlay.open { display:block; }
+        @media (max-width:768px) {
+            .hamburger { display:flex; }
+            .nav-center, .auth-btns { display:none !important; }
+            nav { padding:0.8rem 1.5rem !important; }
+            .hero-content h1 { font-size:2rem !important; }
+            .stats-strip { gap:2rem; padding:2rem; }
+            .ai-banner { padding:3rem 1.5rem; }
+            .ai-banner img { display:none; }
+            .featured-properties { padding:4rem 1.5rem; }
+        }
+        /* User dropdown */
+        .user-dropdown-wrap { position:relative; }
+        .user-avatar-btn {
+            display:flex; align-items:center; gap:0.6rem;
+            background:none; border:none; cursor:pointer; font-size:0.95rem;
+            font-weight:600; color:#111827;
+        }
+        .user-avatar-btn img { width:36px; height:36px; border-radius:50%; object-fit:cover; border:2px solid #e5e7eb; }
+        .user-dropdown-menu {
+            position:absolute; top:calc(100% + 10px); right:0;
+            background:#fff; border:1px solid #e5e7eb; border-radius:14px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.12); min-width:200px;
+            padding:0.5rem; z-index:2000; display:none;
+        }
+        .user-dropdown-menu.open { display:block; }
+        .user-dropdown-menu a, .user-dropdown-menu button {
+            display:flex; align-items:center; gap:0.7rem;
+            padding:0.7rem 1rem; border-radius:8px; width:100%;
+            color:#374151; font-size:0.92rem; font-weight:600;
+            text-decoration:none; background:none; border:none; cursor:pointer;
+            transition:background 0.2s;
+        }
+        .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background:#f3f4f6; }
+        .user-dropdown-menu .divider { height:1px; background:#f3f4f6; margin:0.3rem 0; }
+        .user-dropdown-menu .logout-btn { color:#ef4444; }
+        .nav-dashboard { display:none; }
+        .nav-dashboard.visible { display:block; }
+        .guest-actions, .auth-actions { display:flex; align-items:center; gap:0.75rem; transition:opacity 0.2s ease; }
+        .guest-actions.hidden, .auth-actions.hidden { opacity:0; visibility:hidden; pointer-events:none; position:absolute; }
+        .btn-pill {
+            display:inline-flex; align-items:center; justify-content:center; gap:0.45rem;
+            border-radius:999px; padding:0.55rem 1rem; font-size:0.95rem; font-weight:600;
+            cursor:pointer; text-decoration:none; transition:all 0.2s ease;
+        }
+        .btn-pill-login { border:1.5px solid #2563eb; background:#fff; color:#2563eb; }
+        .btn-pill-login:hover { background:#eff6ff; }
+        .btn-pill-register { border:none; background:#2563eb; color:#fff; }
+        .btn-pill-register:hover { background:#1d4ed8; }
+        .btn-pill-dashboard { border:1.5px solid #2563eb; background:#fff; color:#2563eb; }
+        .btn-pill-dashboard:hover { background:#eff6ff; }
+        .btn-pill-logout { border:1.5px solid #e5e7eb; background:#fff; color:#6b7280; }
+        .btn-pill-logout:hover { border-color:#ef4444; color:#ef4444; background:#fef2f2; }
+        .username-chip { color:#374151; font-weight:600; font-size:0.95rem; padding:0.25rem 0.35rem; }
+    </style>
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <i class="fas fa-home"></i>
-                <span>RealEstatePro</span>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link active">Home</a></li>
-                <li><a href="properties.html" class="nav-link">Properties</a></li>
-                <li><a href="ai-tools.html" class="nav-link">AI Tools</a></li>
-                <li><a href="about.html" class="nav-link">About</a></li>
-            </ul>
-            <div class="nav-auth">
-                <button id="themeToggle" class="theme-toggle" title="Toggle dark/light theme">
-                    <i class="fas fa-moon"></i>
-                </button>
-                <button id="loginBtn" class="btn btn-outline">Login</button>
-                <button id="registerBtn" class="btn btn-primary">Register</button>
-                <div id="userMenu" class="user-menu" style="display: none;">
-                    <span id="userName"></span>
-                    <button id="addPropertyBtn" class="btn btn-primary" style="display: none;">Add Property</button>
-                    <button id="logoutBtn" class="btn btn-outline">Logout</button>
-                </div>
-            </div>
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Find Your Dream Property with AI</h1>
-            <p>Smart property search powered by artificial intelligence</p>
-            <div class="search-box">
-                <input type="text" id="heroSearch" placeholder="Search by location, property type...">
-                <button id="heroSearchBtn" class="btn btn-primary">
+<!-- ==================== NAVBAR ==================== -->
+<nav id="mainNav" style="background:#FFFFFF; border-bottom:1px solid #e5e7eb; height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 1.5rem;">
+    <a href="index.html" class="logo" style="font-size:1.4rem; font-weight:800; color:#111827; text-decoration:none; display:flex; align-items:center; gap:0.4rem;">
+        <i class="fas fa-home" style="color:#2563EB;"></i>
+        RealEstate<span style="color:#2563EB; font-weight:700;">Pro</span>
+    </a>
+    <div class="nav-center" style="display:flex; gap:2rem;">
+        <a href="properties.html" class="nav-link" style="color:#6b7280; font-weight:500; text-decoration:none; font-family:Inter, sans-serif;">Properties</a>
+        <a href="ai-tools.html" class="nav-link" style="color:#6b7280; font-weight:500; text-decoration:none; font-family:Inter, sans-serif;">AI Tools</a>
+        <a href="about.html" class="nav-link" style="color:#6b7280; font-weight:500; text-decoration:none; font-family:Inter, sans-serif;">About</a>
+        <a href="dashboard.html" class="nav-link nav-dashboard" id="navDashboard">Dashboard</a>
+    </div>
+    <div class="nav-right" style="display:flex; align-items:center; gap:1rem;">
+        <button id="darkModeToggle" style="background:none; border:none; font-size:1.3rem; color:#111827; cursor:pointer;">
+            <i class="fas fa-moon"></i>
+        </button>
+        <div id="guestActions" class="guest-actions">
+            <button id="loginBtn" type="button" class="btn-pill btn-pill-login" aria-label="Login" onclick="handleLoginClick(event)">Login</button>
+            <button id="registerBtn" type="button" class="btn-pill btn-pill-register" aria-label="Register" onclick="openRegisterModal()">Register</button>
+        </div>
+        <div id="authActions" class="auth-actions hidden">
+            <span id="usernameDisplay" class="username-chip">Guest</span>
+            <a href="dashboard.html" class="btn-pill btn-pill-dashboard" id="btnDashboard">Dashboard</a>
+            <button id="logoutBtn" type="button" class="btn-pill btn-pill-logout" onclick="handleLogout()">Logout</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="mobile-sidebar" id="mobileSidebar">
+    <button class="mobile-sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+    <div class="sidebar-logo"><i class="fas fa-home" style="color:#1a56db"></i> RealEstate<span>Pro</span></div>
+    <a href="properties.html?purpose=buy" class="mobile-nav-link">🏠 Buy</a>
+    <a href="properties.html?purpose=rent" class="mobile-nav-link">🔑 Rent</a>
+    <a href="add-property-wizard.html" class="mobile-nav-link">📋 Sell / List</a>
+    <a href="ai-tools.html" class="mobile-nav-link">🤖 AI Tools</a>
+    <a href="dashboard.html" class="mobile-nav-link" id="mobileDashboardLink">📊 Dashboard</a>
+    <a href="about.html" class="mobile-nav-link">ℹ️ About</a>
+    <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.8rem;">
+        <button type="button" class="mobile-login-link" style="width:100%;" onclick="openLoginModal()">Login</button>
+        <button class="btn-signup" onclick="openRegisterModal()" style="width:100%; background:#f97316;">Sign Up</button>
+    </div>
+</div>
+
+<!-- ==================== HERO ==================== -->
+<div id="demoBanner" style="background:#fff7ed; color:#9a5b00; border-bottom:1px solid #fed7aa; text-align:center; padding:0.65rem 1rem; font-size:0.92rem; font-weight:600;">Demo Mode: no backend server is connected. Login and property cards are simulated locally for preview.</div>
+<section class="hero" id="heroSection">
+    <div class="hero-content">
+        <h1>Find Your Dream Home in India</h1>
+
+        <div class="search-container">
+            <!-- Property Type Pills -->
+            <div class="property-types">
+                <button class="pill active" data-type="all">All</button>
+                <button class="pill" data-type="apartment">Buy</button>
+                <button class="pill" data-type="rent">Rent</button>
+                <button class="pill" data-type="plot">Plot</button>
+                <button class="pill" data-type="commercial">Commercial</button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar" id="heroSearchBar">
+                <div class="search-field">
+                    <label>Location</label>
+                    <input type="text" id="heroLocation" placeholder="City, neighbourhood..." autocomplete="off">
+                    <div class="autocomplete-list" id="locationSuggestions"></div>
+                </div>
+                <div class="search-field">
+                    <label>Property Type</label>
+                    <select id="heroPropertyType">
+                        <option value="">Any Type</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="house">House / Villa</option>
+                        <option value="plot">Plot / Land</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="flat">Flat</option>
+                    </select>
+                </div>
+                <div class="search-field">
+                    <label>Max Budget</label>
+                    <select id="heroMaxPrice">
+                        <option value="">Any Budget</option>
+                        <option value="2000000">Up to ₹20 L</option>
+                        <option value="5000000">Up to ₹50 L</option>
+                        <option value="10000000">Up to ₹1 Cr</option>
+                        <option value="20000000">Up to ₹2 Cr</option>
+                        <option value="50000000">Up to ₹5 Cr</option>
+                    </select>
+                </div>
+                <button class="btn-search" id="heroSearchBtn">
                     <i class="fas fa-search"></i> Search
                 </button>
             </div>
-            <div class="hero-buttons">
-                <a href="properties.html" class="btn btn-secondary">
-                    <i class="fas fa-home"></i> Browse Properties
-                </a>
-                <a href="ai-tools.html" class="btn btn-outline">
-                    <i class="fas fa-robot"></i> Try AI Tools
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features">
-        <div class="container">
-            <h2>Why Choose RealEstatePro?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <i class="fas fa-robot"></i>
-                    <h3>AI Price Prediction</h3>
-                    <p>Get accurate property valuations using advanced AI algorithms</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-magic"></i>
-                    <h3>Smart Recommendations</h3>
-                    <p>Personalized property suggestions based on your preferences</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-comments"></i>
-                    <h3>Virtual Assistant</h3>
-                    <p>24/7 AI-powered property tour assistant</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Market Analysis</h3>
-                    <p>Real-time insights and market trends</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number">10,000+</div>
-                    <div class="stat-label">Properties Listed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">5,000+</div>
-                    <div class="stat-label">Happy Clients</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">50+</div>
-                    <div class="stat-label">Cities Covered</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">99.9%</div>
-                    <div class="stat-label">Uptime</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="container">
-            <h2>Ready to Find Your Perfect Property?</h2>
-            <p>Join thousands of satisfied customers who found their dream homes with us</p>
-            <div class="cta-buttons">
-                <a href="properties.html" class="btn btn-primary btn-large">
-                    <i class="fas fa-search"></i> Start Searching
-                </a>
-                <a href="register.html" class="btn btn-secondary btn-large">
-                    <i class="fas fa-user-plus"></i> Create Account
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>RealEstatePro</h3>
-                    <p>Your AI-powered real estate marketplace</p>
-                </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="properties.html">Properties</a></li>
-                        <li><a href="ai-tools.html">AI Tools</a></li>
-                        <li><a href="about.html">About</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Contact</h4>
-                    <p><i class="fas fa-envelope"></i> info@realestatepro.com</p>
-                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 RealEstatePro. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Modals -->
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Login</h2>
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Email" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
         </div>
     </div>
+</section>
 
-    <!-- Register Modal -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Register</h2>
-            <form id="registerForm">
-                <input type="text" id="regName" placeholder="Full Name" required>
-                <input type="email" id="regEmail" placeholder="Email" required>
-                <input type="password" id="regPassword" placeholder="Password" required>
-                <select id="regRole" required>
-                    <option value="">Select Role</option>
-                    <option value="buyer">Buyer</option>
-                    <option value="seller">Seller</option>
-                </select>
-                <button type="submit" class="btn btn-primary">Register</button>
-            </form>
+<!-- ==================== STATS STRIP ==================== -->
+<div class="stats-strip">
+    <div class="stat-pill"><div class="num" id="statListings">—</div><div class="lbl">Properties Listed</div></div>
+    <div class="stat-pill"><div class="num">500+</div><div class="lbl">Happy Buyers</div></div>
+    <div class="stat-pill"><div class="num">50+</div><div class="lbl">Cities Covered</div></div>
+    <div class="stat-pill"><div class="num">4.9★</div><div class="lbl">User Rating</div></div>
+</div>
+
+<!-- ==================== FEATURED PROPERTIES ==================== -->
+<section class="featured-properties" id="featuredSection">
+    <div class="section-header-premium">
+        <div class="section-title">
+            <h2>Featured Properties</h2>
+            <p>Hand-picked listings across India's top cities</p>
         </div>
+        <a href="properties.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
     </div>
+    <div class="property-grid" id="featuredGrid">
+        <!-- Skeleton loaders -->
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+        <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text short"></div></div>
+    </div>
+</section>
 
-    <!-- Add Property Modal -->
-    <div id="addPropertyModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Add New Property</h2>
-            <form id="addPropertyForm">
-                <div class="form-group">
-                    <label for="propertyTitle">Property Title *</label>
-                    <input type="text" id="propertyTitle" placeholder="Enter property title" required>
+<!-- ==================== AI BANNER ==================== -->
+<section class="ai-banner">
+    <div class="ai-banner-text">
+        <h2>🤖 AI-Powered Real Estate Tools</h2>
+        <p>Get instant property price predictions, neighbourhood analysis, and smart recommendations — all powered by our advanced AI models trained on real Indian market data.</p>
+        <a href="ai-tools.html" class="btn-ai"><i class="fas fa-robot"></i> &nbsp;Try AI Tools</a>
+    </div>
+    <img src="ai-robot.png" alt="AI Robot" onerror="this.style.display='none'">
+</section>
+
+<!-- ==================== LOGIN MODAL ==================== -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal-box login-modal-box" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+        <button class="modal-close" id="loginModalClose" aria-label="Close login" type="button">×</button>
+        <h2 id="loginTitle" style="margin-bottom:1.2rem;">Sign In</h2>
+        <form id="loginForm" autocomplete="on" style="margin-bottom:0.5rem;">
+            <div class="form-group floating-label-group">
+                <input type="email" id="loginEmail" required autocomplete="email" class="floating-input" placeholder=" " />
+                <label for="loginEmail" class="floating-label">Email</label>
+                <div class="field-error" id="loginEmailError"></div>
+            </div>
+            <div class="form-group floating-label-group">
+                <div class="password-wrap">
+                    <input type="password" id="loginPassword" required autocomplete="current-password" class="floating-input" placeholder=" " />
+                    <label for="loginPassword" class="floating-label">Password</label>
+                    <button type="button" class="password-toggle" id="loginPasswordToggle" aria-label="Toggle password visibility">Show</button>
                 </div>
-
-                <div class="form-group">
-                    <label for="propertyDescription">Description *</label>
-                    <textarea id="propertyDescription" placeholder="Describe the property in detail" rows="4"
-                        required></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="propertyPrice">Price (₹) *</label>
-                        <input type="number" id="propertyPrice" placeholder="Enter price" min="0" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="propertyType">Property Type *</label>
-                        <select id="propertyType" required>
-                            <option value="">Select Type</option>
-                            <option value="house">House</option>
-                            <option value="flat">Flat/Apartment</option>
-                            <option value="plot">Plot/Land</option>
-                            <option value="commercial">Commercial</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="propertyLocation">Location *</label>
-                    <input type="text" id="propertyLocation" placeholder="City, State (e.g., Miami, FL)" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="propertyBedrooms">Bedrooms</label>
-                        <input type="number" id="propertyBedrooms" placeholder="Number of bedrooms" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="propertyBathrooms">Bathrooms</label>
-                        <input type="number" id="propertyBathrooms" placeholder="Number of bathrooms" min="0">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="propertyArea">Area (sq ft)</label>
-                        <input type="number" id="propertyArea" placeholder="Square footage" min="0">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="propertyAmenities">Amenities</label>
-                    <input type="text" id="propertyAmenities"
-                        placeholder="Comma-separated (e.g., swimming pool, garage, garden)">
-                </div>
-
-                <div class="form-group">
-                    <label for="propertyImages">Property Images</label>
-                    <input type="file" id="propertyImages" accept="image/*" multiple>
-                    <small>Upload up to 10 images (5MB max each)</small>
-                    <div id="imagePreview" class="image-preview"></div>
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" id="cancelPropertyBtn" class="btn btn-outline">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Property</button>
-                </div>
-            </form>
+                <div class="field-error" id="loginPasswordError"></div>
+            </div>
+            <div class="auth-inline-row">
+                <label class="auth-check"><input type="checkbox" id="rememberMe"> Remember me</label>
+                <a href="#" class="auth-link">Forgot password?</a>
+            </div>
+            <button class="btn-modal-submit" type="submit" id="loginSubmit">Sign In</button>
+            <div class="auth-divider">OR USE EMAIL</div>
+            <div class="auth-social-grid">
+                <button type="button" class="auth-social-btn" id="googleOAuthBtn"><i class="fab fa-google"></i> Google</button>
+                <button type="button" class="auth-social-btn" id="facebookOAuthBtn"><i class="fab fa-facebook-f"></i> Facebook</button>
+            </div>
+        </form>
+        <div class="modal-switch" style="font-size:0.95rem;">
+            Don’t have an account? <a href="#" id="toRegisterLink" style="color:#2563EB;">Sign Up</a>
         </div>
+        <div class="modal-error" id="loginError"></div>
     </div>
+</div>
 
-    <!-- AI Assistant Widget -->
-    <div class="ai-assistant-widget">
-        <button class="ai-toggle" id="aiToggle">
-            <i class="fas fa-robot"></i>
-        </button>
-        <div class="ai-chat-window" id="aiChatWindow">
-            <div class="ai-chat-header">
-                <i class="fas fa-robot"></i>
-                <div>
-                    <h4 style="margin:0">RealEstate Assistant</h4>
-                    <small style="color:rgba(255,255,255,0.7)">Online | Powered by GenAI</small>
+<!-- ==================== REGISTER MODAL ==================== -->
+<div class="modal-overlay" id="registerModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeRegisterModal()">×</button>
+        <h2>Create Account</h2>
+        <p>Join RealEstatePro as a buyer or seller</p>
+        <div class="modal-error" id="registerError"></div>
+        <form id="registerForm">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="Your full name" required>
+                <div class="field-error" id="regNameError"></div>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="you@example.com" required>
+                <div class="field-error" id="regEmailError"></div>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" placeholder="Min. 6 characters" required>
+                <div class="field-error" id="regPasswordError"></div>
+            </div>
+            <div class="form-group">
+                <label>Select your role</label>
+                <div class="role-selector" id="roleSelector">
+                    <label class="role-option">
+                        <input type="radio" name="role" value="buyer" checked>
+                        <div class="role-card">
+                            <i data-lucide="search"></i>
+                            <h4>I'm a Buyer</h4>
+                            <p>Looking to buy or rent properties</p>
+                        </div>
+                    </label>
+                    <label class="role-option">
+                        <input type="radio" name="role" value="seller">
+                        <div class="role-card">
+                            <i data-lucide="home"></i>
+                            <h4>I'm a Seller</h4>
+                            <p>List and manage my properties</p>
+                        </div>
+                    </label>
                 </div>
             </div>
-            <div class="ai-chat-messages" id="aiMessages">
-                <div class="message ai">
-                    Hello! I'm your AI property assistant. How can I help you find your dream home today?
-                </div>
-            </div>
-            <form class="ai-chat-input" id="aiChatForm">
-                <input type="text" id="aiInput" placeholder="Ask about properties, areas..." autocomplete="off">
-                <button type="submit">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </form>
+            <button class="btn-modal-submit" type="submit" id="registerSubmit">Create Account</button>
+        </form>
+        <div class="modal-switch">
+            Already have an account? <a href="#" id="toLoginLink">Login</a>
         </div>
     </div>
+</div>
 
-    <script src="app.js"></script>
-    <script>
-        // Simplified home page JavaScript
-        document.addEventListener('DOMContentLoaded', function () {
-            initializeApp();
-            setupMobileNavigation();
+<!-- Toast -->
+<div id="toast"></div>
 
-            // Hero search functionality
-            document.getElementById('heroSearchBtn')?.addEventListener('click', function () {
-                const searchTerm = document.getElementById('heroSearch').value;
-                if (searchTerm) {
-                    // Redirect to properties page with search term
-                    window.location.href = `properties.html?search=${encodeURIComponent(searchTerm)}`;
-                } else {
-                    window.location.href = 'properties.html';
-                }
-            });
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+const DEMO_MODE = true;
+const mockProperties = [
+  { _id: 'm1', title: 'Luxury 3BHK in Powai', price: 24500000, location: 'Mumbai, Maharashtra', type: 'Apartment', bedrooms: 3, bathrooms: 3, area: 1650, images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Aarav Shah' } },
+  { _id: 'm2', title: 'Modern Villa in Whitefield', price: 18500000, location: 'Bengaluru, Karnataka', type: 'Villa', bedrooms: 4, bathrooms: 4, area: 2600, images: ['https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Priya Rao' } },
+  { _id: 'm3', title: 'Smart Flat near Cyber City', price: 7800000, location: 'Gurugram, Haryana', type: 'Flat', bedrooms: 2, bathrooms: 2, area: 1100, images: ['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Rahul Mehta' } },
+  { _id: 'm4', title: 'Spacious 2BHK in South Delhi', price: 9200000, location: 'Delhi', type: 'Apartment', bedrooms: 2, bathrooms: 2, area: 1250, images: ['https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Nisha Verma' } },
+  { _id: 'm5', title: 'Studio Home in Pune', price: 5400000, location: 'Pune, Maharashtra', type: 'Apartment', bedrooms: 1, bathrooms: 1, area: 700, images: ['https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Kunal Joshi' } },
+  { _id: 'm6', title: 'Premium Plot in Hyderabad', price: 4200000, location: 'Hyderabad, Telangana', type: 'Plot', bedrooms: 0, bathrooms: 1, area: 1800, images: ['https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Sanjay Kumar' } },
+  { _id: 'm7', title: 'Family House in Chennai', price: 11200000, location: 'Chennai, Tamil Nadu', type: 'House', bedrooms: 3, bathrooms: 3, area: 1900, images: ['https://images.unsplash.com/photo-1448630360428-65456885c650?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Lakshmi Nair' } },
+  { _id: 'm8', title: 'Commercial Office Space in Noida', price: 15000000, location: 'Noida, Uttar Pradesh', type: 'Commercial', bedrooms: 0, bathrooms: 2, area: 2200, images: ['https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Anita Singh' } }
+];
+let authToken = localStorage.getItem('authToken') || '';
+let currentUser = null;
+try { currentUser = JSON.parse(localStorage.getItem('user') || localStorage.getItem('currentUser') || 'null'); } catch(e) { currentUser = null; }
 
-            // Allow Enter key in search box
-            document.getElementById('heroSearch')?.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    document.getElementById('heroSearchBtn').click();
-                }
-            });
+// ---------- Init ----------
+document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    updateNavUI();
+    loadFeaturedProperties();
+    loadStats();
+    setupPills();
+    setupAutocomplete();
+    setupHeroSearch();
+    setupMobileNav();
+    setupUserDropdown();
+    setupRoleSelector();
+});
+
+// ---------- Nav UI ----------
+function setAuthState(username, isLoggedIn = true) {
+    localStorage.setItem('isLoggedIn', String(isLoggedIn));
+    localStorage.setItem('username', username || 'User');
+    updateNavUI();
+}
+
+function getDashboardTarget(user = currentUser) {
+    const role = (user?.role || user?.userType || '').toString().toLowerCase();
+    return role === 'seller' ? 'seller-dashboard.html' : 'dashboard.html';
+}
+
+function getStoredDemoUser(email, password) {
+    try {
+        const users = JSON.parse(localStorage.getItem('demoUsers') || '[]');
+        return users.find(user =>
+            user.email?.toLowerCase() === email.toLowerCase() &&
+            String(user.password || '') === String(password)
+        ) || null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function saveDemoUser(user) {
+    try {
+        const existing = JSON.parse(localStorage.getItem('demoUsers') || '[]');
+        const filtered = existing.filter(item => item.email?.toLowerCase() !== user.email.toLowerCase());
+        filtered.push(user);
+        localStorage.setItem('demoUsers', JSON.stringify(filtered));
+    } catch (e) {
+        console.warn('Unable to persist demo user', e);
+    }
+}
+
+function updateNavUI() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || Boolean(authToken && currentUser);
+    const username = localStorage.getItem('username') || currentUser?.name || 'User';
+    const guestActions = document.getElementById('guestActions');
+    const authActions = document.getElementById('authActions');
+    const usernameDisplay = document.getElementById('usernameDisplay');
+    const btnDashboard = document.getElementById('btnDashboard');
+    const navDashboard = document.getElementById('navDashboard');
+    const mobileDashboard = document.getElementById('mobileDashboardLink');
+    const dashboardTarget = getDashboardTarget(currentUser);
+
+    guestActions?.classList.toggle('hidden', isLoggedIn);
+    authActions?.classList.toggle('hidden', !isLoggedIn);
+    if (usernameDisplay) usernameDisplay.textContent = username;
+    btnDashboard?.classList.toggle('visible', isLoggedIn);
+    navDashboard?.classList.toggle('visible', isLoggedIn);
+    if (btnDashboard) btnDashboard.setAttribute('href', dashboardTarget);
+    if (navDashboard) navDashboard.setAttribute('href', dashboardTarget);
+    if (mobileDashboard) mobileDashboard.setAttribute('href', dashboardTarget);
+}
+
+function handleLogout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('username');
+    authToken = '';
+    currentUser = null;
+    updateNavUI();
+    window.location.reload();
+}
+
+// ---------- User Dropdown ----------
+function setupUserDropdown() {
+    const btn  = document.getElementById('userAvatarBtn');
+    const menu = document.getElementById('userDropdownMenu');
+    btn?.addEventListener('click', (e) => { e.stopPropagation(); menu.classList.toggle('open'); });
+    document.addEventListener('click', () => menu?.classList.remove('open'));
+}
+
+function doLogout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('username');
+    authToken = '';
+    currentUser = null;
+    updateNavUI();
+    showToast('Logged out successfully');
+}
+
+// ---------- Mobile Nav ----------
+function setupMobileNav() {
+    const ham     = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('mobileSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const close   = document.getElementById('sidebarClose');
+    ham?.addEventListener('click',     () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
+    close?.addEventListener('click',   () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+    overlay?.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+}
+
+// ---------- Pills ----------
+function setupPills() {
+    document.querySelectorAll('.pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            const type = pill.dataset.type;
+            const typeSelect = document.getElementById('heroPropertyType');
+            if (type && type !== 'all') typeSelect.value = (type === 'rent') ? '' : type;
         });
-    </script>
-</body>
+    });
+}
 
+// ---------- Hero Search ----------
+function setupHeroSearch() {
+    document.getElementById('heroSearchBtn').addEventListener('click', () => {
+        const location = document.getElementById('heroLocation').value.trim();
+        const type     = document.getElementById('heroPropertyType').value;
+        const maxPrice = document.getElementById('heroMaxPrice').value;
+        const params   = new URLSearchParams();
+        if (location) params.set('location', location);
+        if (type)     params.set('type', type);
+        if (maxPrice) params.set('maxPrice', maxPrice);
+        window.location.href = `properties.html?${params.toString()}`;
+    });
+
+    document.getElementById('heroLocation').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('heroSearchBtn').click();
+    });
+}
+
+// ---------- Autocomplete ----------
+const CITY_SUGGESTIONS = ['Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Chennai', 'Pune', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Noida', 'Gurugram', 'Chandigarh', 'Kochi', 'Indore'];
+
+function setupAutocomplete() {
+    const input = document.getElementById('heroLocation');
+    const list  = document.getElementById('locationSuggestions');
+
+    input.addEventListener('input', () => {
+        const q = input.value.toLowerCase();
+        if (!q) { list.classList.remove('open'); return; }
+        const matches = CITY_SUGGESTIONS.filter(c => c.toLowerCase().startsWith(q));
+        if (matches.length === 0) { list.classList.remove('open'); return; }
+        list.innerHTML = matches.map(c => `<div class="autocomplete-item" onclick="selectCity('${c}')"><i class="fas fa-map-marker-alt" style="color:#1a56db;font-size:0.8rem;"></i> ${c}</div>`).join('');
+        list.classList.add('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-field')) list.classList.remove('open');
+    });
+}
+
+function selectCity(city) {
+    document.getElementById('heroLocation').value = city;
+    document.getElementById('locationSuggestions').classList.remove('open');
+}
+
+// ---------- Featured Properties ----------
+async function loadFeaturedProperties() {
+    try {
+        const res = await fetch('/api/properties/featured');
+        const json = await res.json();
+        
+        if (json.success && json.data && json.data.length > 0) {
+            renderFeatured(json.data);
+        } else {
+            renderFeatured([]);
+        }
+    } catch (err) {
+        console.error('Failed to load featured properties:', err);
+        renderFeatured([]);
+    }
+}
+
+function renderFeatured(props) {
+    const grid = document.getElementById('featuredGrid');
+    if (!props.length) {
+        grid.innerHTML = '<p style="color:#6b7280; grid-column:1/-1; text-align:center; padding:2rem;">No properties found. <a href="add-property-wizard.html" style="color:#1a56db;">Be the first to list!</a></p>';
+        return;
+    }
+    grid.innerHTML = props.map(p => {
+        const img    = p.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80';
+        const price  = `₹${Number(p.price || 0).toLocaleString('en-IN')}`;
+        const loc    = p.location || p.city || 'India';
+        const beds   = p.bedrooms ?? p.bhk ?? '—';
+        const baths  = p.bathrooms ?? '—';
+        const area   = p.area ? `${p.area} sq.ft` : '';
+        const seller = p.createdBy?.name || 'Owner';
+        const avatar = p.createdBy?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(seller)}&background=1a56db&color=fff&size=80`;
+        const type   = (p.type || p.propertyType || 'Property');
+        return `
+        <div class="property-card-premium" onclick="window.location.href='property-detail.html?id=${p._id}'">
+            <div class="property-image-wrapper">
+                <img src="${img}" alt="${p.title}" onerror="this.src='https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80'">
+                <button class="favorite-btn" onclick="event.stopPropagation(); toggleFav(this, '${p._id}')">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <div class="price-badge">${price}</div>
+            </div>
+            <div class="property-details-premium">
+                <div class="property-location-premium">
+                    <i class="fas fa-map-marker-alt" style="color:#1a56db;font-size:0.8rem;"></i> ${loc}
+                    &nbsp;·&nbsp; <span style="background:#f0f4ff;color:#1a56db;padding:2px 8px;border-radius:6px;font-size:0.8rem;font-weight:600;">${type}</span>
+                </div>
+                <h3>${p.title || 'Untitled Property'}</h3>
+                <div class="specs-row">
+                    ${beds !== '—' ? `<div class="spec-item"><i class="fas fa-bed"></i> ${beds} Beds</div>` : ''}
+                    ${baths !== '—' ? `<div class="spec-item"><i class="fas fa-bath"></i> ${baths} Baths</div>` : ''}
+                    ${area ? `<div class="spec-item"><i class="fas fa-vector-square"></i> ${area}</div>` : ''}
+                </div>
+                <div class="agent-row">
+                    <div class="agent-info">
+                        <img class="agent-avatar" src="${avatar}" alt="${seller}" onerror="this.src='https://i.pravatar.cc/80'">
+                        <span class="agent-name">${seller}</span>
+                    </div>
+                    <button class="contact-agent-btn" onclick="event.stopPropagation(); window.location.href='property-detail.html?id=${p._id}'">View Details</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ---------- Stats ----------
+function loadStats() {
+    const statListings = document.getElementById('statListings');
+    if (statListings) statListings.textContent = '120+';
+}
+
+// ---------- Favourites ----------
+function toggleFav(btn, id) {
+    btn.classList.toggle('faved');
+    btn.style.color = btn.classList.contains('faved') ? '#ef4444' : '';
+}
+
+// ---------- Login ----------
+function clearErrors() {
+    document.querySelectorAll('.modal-error').forEach(el => { el.textContent=''; el.style.display='none'; });
+    document.querySelectorAll('.field-error').forEach(el => { el.textContent=''; el.classList.remove('active'); });
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+}
+
+// Header Login button logic
+const loginBtn = document.getElementById('loginBtn');
+const loginModal = document.getElementById('loginModal');
+const loginModalClose = document.getElementById('loginModalClose');
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const toRegisterLink = document.getElementById('toRegisterLink');
+
+function trapFocus(modal) {
+    const focusable = modal.querySelectorAll('input, button, a, textarea, select, [tabindex]:not([tabindex="-1"])');
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    function handler(e) {
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+            } else {
+                if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        }
+    }
+    modal.addEventListener('keydown', handler);
+    return () => modal.removeEventListener('keydown', handler);
+}
+
+let removeTrap = null;
+
+function openLoginModal() {
+    console.log('[Login] opening modal');
+    clearErrors();
+    loginModal.style.display = 'flex';
+    loginModal.classList.add('open');
+    document.body.classList.add('modal-open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => { loginEmail?.focus(); }, 120);
+    if (removeTrap) removeTrap();
+    removeTrap = trapFocus(loginModal);
+}
+function closeLoginModal() {
+    console.log('[Login] closing modal');
+    loginModal.classList.remove('open');
+    loginModal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = '';
+    if (removeTrap) removeTrap();
+    removeTrap = null;
+    clearErrors();
+}
+function openRegisterModal() {
+    clearErrors();
+    document.getElementById('registerModal').classList.add('open');
+    document.body.classList.add('modal-open');
+}
+function closeRegisterModal() {
+    document.getElementById('registerModal').classList.remove('open');
+    document.body.classList.remove('modal-open');
+    clearErrors();
+}
+function switchToRegister() {
+    closeLoginModal();
+    openRegisterModal();
+}
+function switchToLogin() {
+    closeRegisterModal();
+    openLoginModal();
+}
+function handleLoginClick(e) {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    console.log('[Login] handleLoginClick fired', { target: e?.currentTarget?.id || 'loginBtn', disabled: e?.currentTarget?.disabled || false });
+    openLoginModal();
+}
+
+if (loginBtn) {
+    loginBtn.disabled = false;
+    loginBtn.style.pointerEvents = 'auto';
+    loginBtn.style.zIndex = '1001';
+    loginBtn.addEventListener('click', handleLoginClick);
+}
+if (loginModalClose) loginModalClose.addEventListener('click', closeLoginModal);
+if (toRegisterLink) toRegisterLink.addEventListener('click', function(e) { e.preventDefault(); switchToRegister(); });
+document.getElementById('toLoginLink')?.addEventListener('click', function(e) { e.preventDefault(); switchToLogin(); });
+
+// Close on backdrop click
+loginModal.addEventListener('click', function(e) { if (e.target === loginModal) closeLoginModal(); });
+// Close on ESC
+document.addEventListener('keydown', function(e) {
+    if (loginModal.classList.contains('open') && e.key === 'Escape') closeLoginModal();
+});
+
+// Floating label polyfill for autofill
+document.querySelectorAll('.floating-input').forEach(input => {
+    input.addEventListener('input', function() {
+        if (input.value) input.classList.add('has-value');
+        else input.classList.remove('has-value');
+    });
+    if (input.value) input.classList.add('has-value');
+});
+document.getElementById('registerBtn')?.addEventListener('click', openRegisterModal);
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+    ov.addEventListener('click', e => { if (e.target === ov) { closeLoginModal(); closeRegisterModal(); } });
+});
+
+function setFieldError(input, message) {
+    const err = document.getElementById(input.id + 'Error');
+    if (!err) return;
+    err.textContent = message;
+    err.classList.toggle('active', Boolean(message));
+    input.classList.toggle('input-error', Boolean(message));
+}
+
+function validateLoginEmail() {
+    const input = document.getElementById('loginEmail');
+    const value = input.value.trim();
+    if (!value) setFieldError(input, 'Email is required.');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) setFieldError(input, 'Enter a valid email address.');
+    else setFieldError(input, '');
+    return !input.classList.contains('input-error');
+}
+
+function validateLoginPassword() {
+    const input = document.getElementById('loginPassword');
+    const value = input.value;
+    if (!value) setFieldError(input, 'Password is required.');
+    else if (value.length < 6) setFieldError(input, 'Password must be at least 6 characters.');
+    else setFieldError(input, '');
+    return !input.classList.contains('input-error');
+}
+
+function bindLoginValidation() {
+    document.getElementById('loginEmail')?.addEventListener('blur', validateLoginEmail);
+    document.getElementById('loginPassword')?.addEventListener('blur', validateLoginPassword);
+    document.getElementById('loginEmail')?.addEventListener('input', () => { if (document.getElementById('loginEmail').value.trim()) validateLoginEmail(); });
+    document.getElementById('loginPassword')?.addEventListener('input', () => { if (document.getElementById('loginPassword').value) validateLoginPassword(); });
+    document.getElementById('loginPasswordToggle')?.addEventListener('click', () => {
+        const input = document.getElementById('loginPassword');
+        const btn = document.getElementById('loginPasswordToggle');
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.textContent = isHidden ? 'Hide' : 'Show';
+    });
+}
+
+bindLoginValidation();
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const valid = validateLoginEmail() && validateLoginPassword();
+    if (!valid) return;
+    const btn = document.getElementById('loginSubmit');
+    const errEl = document.getElementById('loginError');
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+
+    console.log('[Auth] login attempt:', { email, passwordLen: password.length });
+    btn.textContent = 'Signing in...';
+    btn.classList.add('btn-spinner');
+    btn.disabled = true;
+    try {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 6) {
+            throw new Error('Please enter a valid email and a password of at least 6 characters.');
+        }
+        console.log('[Auth] sending login POST to /api/auth/login');
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        console.log('[Auth] login response status:', res.status);
+        const body = await res.json();
+        console.log('[Auth] login response body:', body);
+        if (!res.ok) {
+            throw new Error(body.message || 'Login failed.');
+        }
+
+        const user = body.user;
+        const token = body.token;
+        if (!token || !user) {
+            throw new Error('Invalid login response from server.');
+        }
+
+        user.token = token;
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', user.name || user.email);
+        authToken = token;
+        currentUser = user;
+        closeLoginModal();
+        updateNavUI();
+        showToast(`Welcome back, ${user.name || user.email}! Redirecting to your dashboard...`);
+        window.location.href = getDashboardTarget(user);
+    } catch (err) {
+        errEl.textContent = err.message || 'Login failed.';
+        errEl.style.display = 'block';
+    } finally {
+        btn.classList.remove('btn-spinner');
+        btn.textContent = 'Sign In';
+        btn.disabled = false;
+    }
+});
+
+function validateRegisterName() {
+    const input = document.getElementById('regName');
+    const value = input.value.trim();
+    if (!value) setFieldError(input, 'Full name is required.');
+    else setFieldError(input, '');
+    return !input.classList.contains('input-error');
+}
+function validateRegisterEmail() {
+    const input = document.getElementById('regEmail');
+    const value = input.value.trim();
+    if (!value) setFieldError(input, 'Email is required.');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) setFieldError(input, 'Enter a valid email address.');
+    else setFieldError(input, '');
+    return !input.classList.contains('input-error');
+}
+function validateRegisterPassword() {
+    const input = document.getElementById('regPassword');
+    const value = input.value;
+    if (!value) setFieldError(input, 'Password is required.');
+    else if (value.length < 6) setFieldError(input, 'Password must be at least 6 characters.');
+    else setFieldError(input, '');
+    return !input.classList.contains('input-error');
+}
+
+function bindRegisterValidation() {
+    document.getElementById('regName')?.addEventListener('blur', validateRegisterName);
+    document.getElementById('regEmail')?.addEventListener('blur', validateRegisterEmail);
+    document.getElementById('regPassword')?.addEventListener('blur', validateRegisterPassword);
+}
+bindRegisterValidation();
+
+function setupRoleSelector() {
+    document.querySelectorAll('.role-option').forEach(option => {
+        const input = option.querySelector('input[name="role"]');
+        const card = option.querySelector('.role-card');
+        if (!input || !card) return;
+        if (input.checked) card.classList.add('selected');
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.role-card.selected').forEach(c => c.classList.remove('selected'));
+            input.checked = true;
+            card.classList.add('selected');
+        });
+        input.addEventListener('change', () => {
+            if (input.checked) {
+                document.querySelectorAll('.role-card.selected').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            }
+        });
+    });
+}
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const valid = validateRegisterName() & validateRegisterEmail() & validateRegisterPassword();
+    if (!valid) return;
+    const btn = document.getElementById('registerSubmit');
+    const errEl = document.getElementById('registerError');
+    btn.textContent = 'Creating...'; btn.disabled = true;
+    try {
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 6) {
+            throw new Error('Please enter a valid name, email, and password of at least 6 characters.');
+        }
+        const role = (document.querySelector('input[name="role"]:checked')?.value || 'buyer').toLowerCase();
+        const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password, role })
+        });
+
+        const body = await res.json();
+        if (!res.ok) {
+            throw new Error(body.message || 'Registration failed.');
+        }
+
+        const user = body.user;
+        const token = body.token;
+        if (!token || !user) {
+            throw new Error('Invalid registration response from server.');
+        }
+
+        user.token = token;
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', user.name || user.email);
+        authToken = token;
+        currentUser = user;
+        closeRegisterModal();
+        updateNavUI();
+        showToast(`Account created! Redirecting to your dashboard...`);
+        window.location.href = getDashboardTarget(user);
+    } catch (err) {
+        errEl.textContent = err.message || 'Registration failed.';
+        errEl.style.display = 'block';
+    } finally {
+        btn.textContent = 'Create Account'; btn.disabled = false;
+    }
+});
+
+// ---------- Toast ----------
+function showToast(msg, duration = 3000) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+}
+</script>
+
+</body>
 </html>

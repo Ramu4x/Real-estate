@@ -22,7 +22,7 @@ const propertySchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ["flat", "house", "plot", "commercial"]
+    enum: ["house", "apartment", "villa", "plot", "commercial", "flat"]
   },
   bedrooms: {
     type: Number,
@@ -40,6 +40,18 @@ const propertySchema = new mongoose.Schema({
     type: String,
     trim: true
   }],
+  purpose: {
+    type: String,
+    enum: ["sale", "rent"],
+    default: "sale"
+  },
+  furnishing: {
+    type: String,
+    enum: ["furnished", "semi-furnished", "unfurnished"],
+    default: "unfurnished"
+  },
+  yearBuilt: Number,
+  pricePerSqft: Number,
   status: {
     type: String,
     enum: ["available", "pending", "sold"],

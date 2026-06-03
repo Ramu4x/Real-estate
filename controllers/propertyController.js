@@ -2,22 +2,43 @@ const Property = require("../models/Property");
 const User = require("../models/User");
 const cloudinaryService = require("../services/cloudinaryService");
 const locationService = require("../services/locationService");
+const { createNotification } = require("./notificationController");
 
 const addProperty = async (req, res) => {
   try {
-    // Parse form data values - convert strings to appropriate types
+    // Only sellers are allowed to add properties
+    if (!req.user || req.user.role !== 'seller') {
+      return res.status(403).json({ success: false, message: 'Only sellers can add properties' });
+    }
+    const rawAmenities = typeof req.body.amenities === 'string' ? JSON.parse(req.body.amenities) : req.body.amenities;
+    const price = parseFloat(req.body.price || 0);
+    const area = req.body.area ? parseInt(req.body.area, 10) : 0;
+
     const propertyData = {
       title: req.body.title,
       description: req.body.description,
-      price: parseFloat(req.body.price), // Convert to number
-      location: req.body.location,
+      price,
+      location: req.body.location || req.body.address || '',
       type: req.body.type,
-      bedrooms: req.body.bedrooms ? parseInt(req.body.bedrooms) : undefined,
-      bathrooms: req.body.bathrooms ? parseInt(req.body.bathrooms) : undefined,
-      area: req.body.area ? parseInt(req.body.area) : undefined,
-      amenities: req.body.amenities ? req.body.amenities : [],
+      purpose: req.body.purpose || 'sale',
+      bedrooms: req.body.bedrooms ? parseInt(req.body.bedrooms, 10) : undefined,
+      bathrooms: req.body.bathrooms ? parseInt(req.body.bathrooms, 10) : undefined,
+      area,
+      yearBuilt: req.body.yearBuilt ? parseInt(req.body.yearBuilt, 10) : undefined,
+      furnishing: req.body.furnishing || 'unfurnished',
+      status: req.body.status || 'available',
+      amenities: Array.isArray(rawAmenities) ? rawAmenities : [],
+      pricePerSqft: area > 0 ? Math.round(price / area) : undefined,
       createdBy: req.user.id,
-      status: 'available' // Ensure new properties are available by default
+      latitude: req.body.latitude ? parseFloat(req.body.latitude) : undefined,
+      longitude: req.body.longitude ? parseFloat(req.body.longitude) : undefined,
+      address: {
+        street: req.body.address || '',
+        city: req.body.city || '',
+        state: req.body.state || '',
+        zipCode: req.body.zipCode || '',
+        country: 'India'
+      }
     };
 
     // Handle image uploads if files are present
@@ -29,29 +50,36 @@ const addProperty = async (req, res) => {
       // propertyData.images = uploadedImages.map(img => img.url);
     }
 
-    // Add geolocation data if location is provided
-    if (propertyData.location) {
-      // const locationCoords = locationService.getLocationCoordinates(propertyData.location);
-      // Temporarily disable geolocation due to index conflicts
-      // propertyData.latitude = locationCoords.lat;
-      // propertyData.longitude = locationCoords.lng;
+    // If no uploaded files but client provided image URLs in the JSON body, accept them
+    if ((!propertyData.images || propertyData.images.length === 0) && req.body.images) {
+      try {
+        const bodyImages = Array.isArray(req.body.images) ? req.body.images : JSON.parse(req.body.images || '[]');
+        if (Array.isArray(bodyImages) && bodyImages.length) {
+          propertyData.images = bodyImages.map(url => String(url));
+        }
+      } catch (e) {
+        // ignore parse errors and proceed without images
+      }
+    }
+
+    if (propertyData.location && (!propertyData.address || !propertyData.address.city)) {
       propertyData.address = locationService.parseAddress(propertyData.location);
     }
 
     const property = await Property.create(propertyData);
-
-    // Populate createdBy field
-    await property.populate("createdBy", "name email");
-
+    
+    // Populate createdBy (seller) info for the response
+    await property.populate("createdBy", "name email phone avatar");
+    
     res.status(201).json({
       success: true,
       data: property
     });
   } catch (error) {
     console.error('Error creating property:', error);
-    res.status(500).json({
+    res.status(500).json({ 
       success: false,
-      message: error.message
+      message: error.message 
     });
   }
 };
@@ -76,16 +104,19 @@ const getProperties = async (req, res) => {
     } = req.query;
 
     // Build filter object
-    let filter = { status: "available" };
+    let filter = {};
 
     // If user wants to see only their own properties (for sellers)
     if (myProperties === 'true' && req.user) {
       filter.createdBy = req.user.id;
+    } else {
+      // Public property search should only show available listings
+      filter.status = "available";
     }
-
+    
     if (type) filter.type = type;
     if (bedrooms) filter.bedrooms = parseInt(bedrooms);
-
+    
     // Handle location-based search
     if (latitude && longitude) {
       // Geospatial search
@@ -110,7 +141,7 @@ const getProperties = async (req, res) => {
     } else if (state) {
       filter["address.state"] = { $regex: state, $options: "i" };
     }
-
+    
     if (minPrice || maxPrice) {
       filter.price = {};
       if (minPrice) filter.price.$gte = parseInt(minPrice);
@@ -177,9 +208,31 @@ const getProperties = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       success: false,
-      message: error.message
+      message: error.message 
+    });
+  }
+};
+
+const getFeaturedProperties = async (req, res) => {
+  try {
+    const properties = await Property.find({ 
+      status: 'available',
+      // featured: true // Optional if you have a featured flag in schema
+    })
+    .populate('createdBy', 'name avatar')
+    .sort({ createdAt: -1 })
+    .limit(6);
+    
+    res.json({
+      success: true,
+      data: properties
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
     });
   }
 };
@@ -188,11 +241,11 @@ const getProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id)
       .populate("createdBy", "name email phone avatar");
-
+    
     if (!property) {
-      return res.status(404).json({
+      return res.status(404).json({ 
         success: false,
-        message: "Property not found"
+        message: "Property not found" 
       });
     }
 
@@ -205,9 +258,9 @@ const getProperty = async (req, res) => {
       data: property
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       success: false,
-      message: error.message
+      message: error.message 
     });
   }
 };
@@ -215,7 +268,7 @@ const getProperty = async (req, res) => {
 const updateProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
-
+    
     if (!property) {
       return res.status(404).json({ message: "Property not found" });
     }
@@ -225,25 +278,9 @@ const updateProperty = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to update this property" });
     }
 
-    // Prepare update data
-    const updateData = { ...req.body };
-
-    // Handle image uploads if files are present
-    if (req.files && req.files.length > 0) {
-      // Append new images to existing ones instead of replacing entirely, or replace entirely based on your design
-      const newImages = req.files.map(file => `/uploads/${file.filename}`);
-
-      // We will replace all images for simplicity or merge them. Let's merge if some existed
-      if (property.images && Array.isArray(property.images)) {
-        updateData.images = [...property.images, ...newImages];
-      } else {
-        updateData.images = newImages;
-      }
-    }
-
     const updatedProperty = await Property.findByIdAndUpdate(
       req.params.id,
-      updateData,
+      req.body,
       { new: true, runValidators: true }
     ).populate("createdBy", "name email");
 
@@ -252,9 +289,9 @@ const updateProperty = async (req, res) => {
       data: updatedProperty
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       success: false,
-      message: error.message
+      message: error.message 
     });
   }
 };
@@ -262,7 +299,7 @@ const updateProperty = async (req, res) => {
 const deleteProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
-
+    
     if (!property) {
       return res.status(404).json({ message: "Property not found" });
     }
@@ -272,16 +309,16 @@ const deleteProperty = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to delete this property" });
     }
 
-    await property.deleteOne();
-
+    await property.remove();
+    
     res.json({
       success: true,
       message: "Property deleted successfully"
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       success: false,
-      message: error.message
+      message: error.message 
     });
   }
 };
@@ -299,7 +336,7 @@ const toggleFavorite = async (req, res) => {
     }
 
     const isFavorite = user.favorites.includes(propertyId);
-
+    
     if (isFavorite) {
       // Remove from favorites
       user.favorites = user.favorites.filter(id => id.toString() !== propertyId);
@@ -308,6 +345,19 @@ const toggleFavorite = async (req, res) => {
       // Add to favorites
       user.favorites.push(propertyId);
       property.favoriteCount += 1;
+
+      // Notify the property owner that someone favorited their listing
+      if (property.createdBy && property.createdBy.toString() !== userId.toString()) {
+        await createNotification({
+          recipient: property.createdBy,
+          sender: userId,
+          type: "favorite",
+          property: property._id,
+          title: "Your property was favorited",
+          message: `${user.name || "Someone"} favorited "${property.title}"`,
+          actionUrl: `/dashboard.html#dashboard-home`,
+        });
+      }
     }
 
     await user.save();
@@ -319,9 +369,9 @@ const toggleFavorite = async (req, res) => {
       favoriteCount: property.favoriteCount
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       success: false,
-      message: error.message
+      message: error.message 
     });
   }
 };
@@ -341,9 +391,9 @@ const getFavorites = async (req, res) => {
       data: user.favorites
     });
   } catch (error) {
-    res.status(500).json({
+    res.status(500).json({ 
       success: false,
-      message: error.message
+      message: error.message 
     });
   }
 };
@@ -352,6 +402,7 @@ const getFavorites = async (req, res) => {
 module.exports = {
   addProperty,
   getProperties,
+  getFeaturedProperties,
   getProperty,
   updateProperty,
   deleteProperty,

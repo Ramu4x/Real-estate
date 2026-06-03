@@ -2,9 +2,16 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-key";
+
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email: rawEmail, password, role } = req.body;
+    const email = rawEmail?.trim().toLowerCase();
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Name, email, and password are required" });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -25,8 +32,14 @@ exports.registerUser = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      {
+        id: user._id,
+        _id: user._id,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+      },
+      JWT_SECRET,
       { expiresIn: "30d" }
     );
 
@@ -49,6 +62,7 @@ exports.registerUser = async (req, res) => {
       message: "User registered successfully",
       token,
       user: {
+        _id: user._id,
         id: user._id,
         name: user.name,
         email: user.email,
@@ -62,7 +76,12 @@ exports.registerUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email: rawEmail, password } = req.body;
+    const email = rawEmail?.trim().toLowerCase();
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
 
     // Find user by email
     const user = await User.findOne({ email });
@@ -72,14 +91,21 @@ exports.loginUser = async (req, res) => {
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    const legacyPlaintextMatch = !user.password.startsWith("$2a$") && !user.password.startsWith("$2b$") && !user.password.startsWith("$2y$") && password === user.password;
+    if (!isMatch && !legacyPlaintextMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      {
+        id: user._id,
+        _id: user._id,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+      },
+      JWT_SECRET,
       { expiresIn: "30d" }
     );
 
@@ -87,6 +113,7 @@ exports.loginUser = async (req, res) => {
       message: "Login successful",
       token,
       user: {
+        _id: user._id,
         id: user._id,
         name: user.name,
         email: user.email,

@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skyline Modern Villa | RealEstatePro</title>
+    <link rel="stylesheet" href="premium-v2.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ── Modal overlay – HIDDEN by default ── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: modalPop 0.22s ease;
+            position: relative;
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.92); opacity: 0; }
+            to   { transform: scale(1);    opacity: 1; }
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+            line-height: 1;
+        }
+        .modal-close-btn:hover { color: #1a56db; }
+        /* ── Seller card ── */
+        .seller-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+        .seller-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1a56db;
+            margin-bottom: 12px;
+        }
+        .btn-call {
+            background: #22c55e;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-message {
+            background: #1a56db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-call.disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .btn-tour {
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-tour:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(249,115,22,0.3);
+        }
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .time-slot {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .time-slot:hover  { border-color:#1a56db; color:#1a56db; }
+        .time-slot.selected { background:#1a56db; color:white; border-color:#1a56db; }
+        .form-group-premium { margin-bottom: 1rem; }
+        .form-group-premium label { display:block; font-weight:600; margin-bottom:6px; font-size:0.9rem; color:#374151; }
+        .form-input-premium { width:100%; padding:10px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:0.95rem; outline:none; box-sizing:border-box; }
+        .form-input-premium:focus { border-color:#1a56db; }
+        .btn-gradient-auth { width:100%; padding:13px; background:linear-gradient(135deg,#1a56db,#3b82f6); color:white; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; margin-top:8px; }
+        .btn-gradient-auth:hover { opacity:0.9; }
+        .auth-header h2 { margin:0 0 4px; font-size:1.5rem; }
+        .auth-header p  { margin:0 0 1.2rem; color:#64748b; font-size:0.9rem; }
+        .gallery-empty-state {
+            display:flex; align-items:center; justify-content:center; height:100%;
+            background:linear-gradient(135deg,#f8fafc,#eff6ff); border-radius:24px;
+            color:#64748b; flex-direction:column; gap:0.75rem; text-align:center; padding:1rem;
+        }
+        .gallery-empty-state small { color:#475569; max-width:260px; }
+        .buyer-skeleton { display:grid; gap:0.6rem; }
+        .buyer-skeleton-line { height:12px; border-radius:999px; background:linear-gradient(90deg,#e5e7eb,#f8fafc,#e5e7eb); animation:pulse 1.2s infinite; }
+        .buyer-skeleton-line.short { width:65%; }
+        .nav-links a:hover, .nav-links a.active { color:#1a56db; }
+        .nav-right button:hover, .nav-links a:hover { transform:translateY(-1px); }
+        .user-dropdown.open { display:block; }
+        .action-icon-btn:focus-visible, .contact-agent-main:focus-visible, .nav-right button:focus-visible { outline:2px solid #1a56db; outline-offset:2px; }
+        .contact-agent-main { min-width:180px; justify-content:center; }
+        .action-icon-btn.active { color:#ef4444; border-color:#fecaca; background:#fff1f2; }
+        @keyframes pulse { 0%{opacity:.6;} 50%{opacity:1;} 100%{opacity:.6;} }
+        
+        .property-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 100%; margin-top: 5px; }
+        .action-btn { padding: 10px; border-radius: 10px; border: 1px solid #e5e7eb; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; font-size: 1.1rem; color: #64748b; transition: all 0.2s; }
+        .action-btn:hover { border-color: #1a56db; color: #1a56db; }
+        .btn-contact { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #1a56db; background: white; color: #1a56db; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-message { flex: 1; justify-content: center; }
+        .btn-tour { flex: 1; margin-top: 0 !important; }
+    </style>
+    <link rel="stylesheet" href="navbar.css">
+</head>
+<body class="property-detail-page">
+
+   <nav class="navbar" style="background: white; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+     <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 24px; font-weight: 700;">
+       <svg width="32" height="32" viewBox="0 0 24 24" fill="#1a56db">
+         <path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/>
+       </svg>
+       <span style="color: #1a56db;">RealEstate</span>
+       <span style="color: #f97316;">Pro</span>
+     </a>
+
+     <div class="nav-links" style="display: flex; gap: 30px; align-items: center;">
+       <a href="index.html">Home</a>
+       <a href="properties.html" class="active">Properties</a>
+       <a href="ai-tools.html">AI Tools</a>
+       <a href="about.html">About</a>
+     </div>
+
+     <div class="nav-right" style="display: flex; align-items: center; gap: 12px;">
+       <div class="user-menu" style="position: relative; display: flex; align-items: center; gap: 10px;">
+         <img id="userAvatar" src="https://i.pravatar.cc/40" class="user-avatar" onclick="toggleUserMenu()" alt="User avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid #e5e7eb;">
+         <span id="userName" style="color: #4b5563; font-size: 14px; font-weight: 500;">Guest</span>
+         <div class="user-dropdown" id="userDropdown" style="position: absolute; right: 0; top: calc(100% + 8px); min-width: 180px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 12px 28px rgba(15,23,42,0.12); display: none; overflow: hidden; z-index: 120;">
+           <a href="dashboard.html" style="display: block; width: 100%; text-align: left; padding: 0.75rem 0.9rem; text-decoration: none; color: #111827; font-weight: 600;">Dashboard</a>
+           <a href="about.html" style="display: block; width: 100%; text-align: left; padding: 0.75rem 0.9rem; text-decoration: none; color: #111827; font-weight: 600;">Profile</a>
+           <button type="button" onclick="logout()" style="display: block; width: 100%; text-align: left; padding: 0.75rem 0.9rem; border: 0; background: none; color: #111827; font-weight: 600; cursor: pointer;">Logout</button>
+         </div>
+       </div>
+     </div>
+   </nav>
+
+    <main class="detail-container">
+        <!-- Gallery -->
+        <section class="property-gallery-premium">
+            <div class="gallery-main" id="galleryMain">
+                <img src="" alt="Main Property View" id="mainImage" style="display:none;">
+                <div id="galleryNoImage" class="gallery-empty-state" style="display:flex;">
+                    <i data-lucide="image-off" style="width:48px;height:48px;"></i>
+                    <span style="font-size:1rem; font-weight:600; color:#111827;">Add images to showcase this property</span>
+                    <small>Seller uploads will appear here automatically. Until then, a premium placeholder keeps the gallery polished.</small>
+                </div>
+            </div>
+            <div class="thumbnail-nav" id="thumbnailNav">
+                <!-- Thumbnails injected dynamically by app.js -->
+            </div>
+        </section>
+
+        <!-- Header Info -->
+        <section class="property-header-premium">
+            <div class="header-left">
+                <div class="header-location" id="pd-location">
+                    <i data-lucide="map-pin"></i>
+                    Jubilee Hills, Hyderabad, TS 500033
+                </div>
+                <h1 id="pd-title">Skyline Modern Villa</h1>
+            </div>
+            <div class="header-right">
+                <div class="detail-price" id="pd-price">₹4,50,00,000</div>
+                <div class="header-actions">
+                    <button class="action-icon-btn" id="favoriteBtn" type="button" aria-label="Save to favorites"><i data-lucide="heart"></i></button>
+                    <button class="action-icon-btn" id="shareBtn" type="button" aria-label="Share this listing"><i data-lucide="share-2"></i></button>
+                    <button class="contact-agent-main" type="button" onclick="showContactInfo()">Contact Agent</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Specs Row -->
+        <section class="detail-specs-row">
+            <div class="detail-spec-item">
+                <i data-lucide="bed"></i>
+                <div class="spec-info">
+                    <span>Bedrooms</span>
+                    <strong id="pd-beds">4 Beds</strong>
+                </div>
+            </div>
+            <div class="detail-spec-item">
+                <i data-lucide="bath"></i>
+                <div class="spec-info">
+                    <span>Bathrooms</span>
+                    <strong id="pd-baths">3 Baths</strong>
+                </div>
+            </div>
+            <div class="detail-spec-item">
+                <i data-lucide="maximize"></i>
+                <div class="spec-info">
+                    <span>Square Footage</span>
+                    <strong id="pd-area">3,200 sq ft</strong>
+                </div>
+            </div>
+            <div class="detail-spec-item">
+                <i data-lucide="home"></i>
+                <div class="spec-info">
+                    <span>Property Type</span>
+                    <strong id="pd-type">Luxury Villa</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Grid -->
+        <section class="detail-content-wrapper">
+            <!-- Left Column -->
+            <div class="left-content-column">
+                <div class="property-description-premium">
+                    <h2 style="color: var(--text-dark); margin-bottom: 1.5rem; font-size: 1.8rem;">About this Property</h2>
+                    <p id="pd-description">
+                        Experience the pinnacle of luxury living in this architectural masterpiece located in the heart of Jubilee Hills. 
+                        This stunning villa features expansive floor-to-ceiling windows that offer breathtaking views of the city skyline. 
+                        With meticulously designed interiors, a private infinity pool, and state-of-the-art smart home integration, 
+                        this property is perfect for those who seek elegance and comfort.
+                    </p>
+                </div>
+
+                <div class="amenities-section-premium">
+                    <h3>Amenities</h3>
+                    <div class="amenities-grid-premium">
+                        <div class="amenity-item-premium">
+                            <i data-lucide="wifi"></i>
+                            <span>High-speed WiFi</span>
+                        </div>
+                        <div class="amenity-item-premium">
+                            <i data-lucide="car"></i>
+                            <span>Parking Space</span>
+                        </div>
+                        <div class="amenity-item-premium">
+                            <i data-lucide="waves"></i>
+                            <span>Infinity Pool</span>
+                        </div>
+                        <div class="amenity-item-premium">
+                            <i data-lucide="dumbbell"></i>
+                            <span>Fitness Center</span>
+                        </div>
+                        <div class="amenity-item-premium">
+                            <i data-lucide="leaf"></i>
+                            <span>Private Garden</span>
+                        </div>
+                        <div class="amenity-item-premium">
+                            <i data-lucide="shield-check"></i>
+                            <span>24/7 Security</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floor-plan-section">
+                    <h3>Floor Plan</h3>
+                    <div class="floor-plan-box">
+                        <img src="https://images.unsplash.com/photo-1574362848149-11496d93a7c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Floor Plan Placeholder">
+                        <button class="virtual-tour-btn">
+                            <i data-lucide="view"></i>
+                            Launch 3D Virtual Tour
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-content-column">
+                <!-- Seller Card -->
+                <div class="seller-card" id="sellerCardContainer">
+                    <img src="https://i.pravatar.cc/150" alt="Seller" class="seller-avatar" id="pd-seller-avatar">
+                    <h3 id="pd-seller-name" style="margin: 0; color: var(--text-dark); font-size: 1.2rem;">Property Owner</h3>
+                    <p class="seller-role" id="pd-seller-role" style="color: var(--primary); font-weight: 600; margin: 5px 0; font-size: 0.9rem;">Property Owner</p>
+                    <p class="seller-phone" id="pd-seller-phone" style="color: var(--text-light); margin-bottom: 15px; font-size: 0.95rem;">📞 Contact number</p>
+                    
+                    <div class="agent-contact-actions" id="pd-seller-actions" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        <!-- Buttons injected by JS -->
+                    </div>
+
+                    <div id="pd-own-property-badge" style="display: none; margin-top: 15px;">
+                        <span style="background: #e0f2fe; color: #0369a1; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 15px;">
+                            <i data-lucide="check-circle" style="width: 14px; height: 14px; display: inline; vertical-align: text-bottom;"></i> This is your listing
+                        </span>
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <button id="pd-edit-btn" class="btn" style="background: white; border: 1px solid #1a56db; color: #1a56db; padding: 8px 16px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: 600;">Edit Property</button>
+                            <button id="pd-delete-btn" class="btn" style="background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: 600;">Delete</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mortgage Calculator -->
+                <div class="mortgage-calculator">
+                    <h3>Mortgage Calculator</h3>
+                    <div class="calc-group">
+                        <label>Property Price</label>
+                        <div class="calc-input-wrapper">
+                            <span>₹</span>
+                            <input type="number" class="calc-input-premium" id="calcPrice" value="45000000">
+                        </div>
+                    </div>
+                    <div class="calc-group">
+                        <label>Down Payment (20%)</label>
+                        <div class="calc-input-wrapper">
+                            <span>₹</span>
+                            <input type="number" class="calc-input-premium" id="calcDown" value="9000000">
+                        </div>
+                    </div>
+                    <div class="calc-group">
+                        <label>Interest Rate (%)</label>
+                        <div class="calc-input-wrapper">
+                            <span style="left: auto; right: 1rem;">%</span>
+                            <input type="number" class="calc-input-premium" id="calcRate" value="8.5" step="0.1" style="padding-left: 1rem;">
+                        </div>
+                    </div>
+                    <div class="monthly-payment-display">
+                        <div class="payment-label">Estimated Monthly Payment</div>
+                        <div class="payment-amount" id="monthlyPayment">₹2,76,812</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        var API_BASE = '/api';
+        const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80';
+        const DEFAULT_PROPERTY = {
+            title: 'Skyline Modern Villa',
+            location: 'Jubilee Hills, Hyderabad, TS 500033',
+            price: 45000000,
+            bedrooms: 4,
+            bathrooms: 3,
+            area: 3200,
+            type: 'Luxury Villa',
+            description: 'Experience the pinnacle of luxury living in this architectural masterpiece located in the heart of Jubilee Hills.',
+            amenities: ['High-speed WiFi', 'Parking Space', 'Infinity Pool'],
+            images: [PLACEHOLDER_IMAGE]
+        };
+
+        function formatCurrency(value) {
+            return `₹${Number(value || 0).toLocaleString('en-IN')}`;
+        }
+
+        function setOwnerLoading(isLoading) {
+            const skeleton = document.getElementById('ownerLoadingState');
+            const name = document.getElementById('pd-seller-name');
+            const phone = document.getElementById('pd-seller-phone');
+            if (skeleton) skeleton.style.display = isLoading ? 'grid' : 'none';
+            if (name) name.style.display = isLoading ? 'none' : 'block';
+            if (phone) phone.style.display = isLoading ? 'none' : 'block';
+        }
+
+        function renderGallery(property) {
+            // Get images from property
+            let images = property.images || [];
+            
+            // DEBUG: Log what images we have
+            console.log('[Gallery] Raw images:', images);
+            
+            // Filter out empty/null/duplicate images
+            images = images
+                .filter(img => img && typeof img === 'string' && img.trim() !== '')
+                .filter((img, index, self) => self.indexOf(img) === index); // Remove duplicates
+            
+            console.log('[Gallery] Filtered images:', images);
+
+            const mainImg = document.getElementById('mainImage');
+            const noImageEl = document.getElementById('galleryNoImage');
+            const thumbNav = document.getElementById('thumbnailNav');
+
+            if (images.length > 0) {
+                // Main image = first uploaded image
+                const firstImage = images[0];
+                const mainImageUrl = firstImage.startsWith('http') 
+                    ? firstImage 
+                    : (firstImage.startsWith('/') ? firstImage : '/' + firstImage);
+                
+                console.log('[Gallery] Main image URL:', mainImageUrl);
+                mainImg.src = mainImageUrl;
+                mainImg.alt = `${property.title || 'Property'} main view`;
+                mainImg.style.display = 'block';
+                if (noImageEl) noImageEl.style.display = 'none';
+                
+                // Thumbnails = all unique uploaded images
+                if (thumbNav) {
+                    thumbNav.innerHTML = images.map((img, idx) => {
+                        const imgUrl = img.startsWith('http') 
+                            ? img 
+                            : (img.startsWith('/') ? img : '/' + img);
+                        console.log(`[Gallery] Thumbnail ${idx}:`, imgUrl);
+                        return `
+                        <button type="button" class="thumbnail-item ${idx === 0 ? 'active' : ''}" 
+                                onclick="switchMainImage('${imgUrl}', this)"
+                                aria-label="Show image ${idx + 1}">
+                            <img src="${imgUrl}" 
+                                 alt="${property.title || 'Property'} view ${idx + 1}"
+                                 onerror="this.parentElement.style.display='none'">
+                        </button>`;
+                    }).join('');
+                }
+            } else {
+                // No seller images — show placeholder state
+                console.log('[Gallery] No images found, showing placeholder');
+                mainImg.style.display = 'none';
+                if (noImageEl) noImageEl.style.display = 'flex';
+                if (thumbNav) thumbNav.innerHTML = '';
+            }
+        }
+
+        // Switch main image when thumbnail clicked
+        function switchMainImage(url, thumbnailEl) {
+            const mainImg = document.getElementById('mainImage');
+            console.log('[Gallery] Switching to:', url);
+            
+            // Fade transition
+            mainImg.style.opacity = '0.6';
+            mainImg.src = url;
+            mainImg.onload = () => { mainImg.style.opacity = '1'; };
+            
+            // Update active thumbnail
+            document.querySelectorAll('.thumbnail-item').forEach(t => t.classList.remove('active'));
+            thumbnailEl.classList.add('active');
+        }
+
+        async function loadPropertyDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const fallback = { ...DEFAULT_PROPERTY };
+
+            if (!id) {
+                applyPropertyData(fallback);
+                return;
+            }
+
+            // Load property data without explicit loading UI
+            try {
+                const res = await fetch(`${API_BASE}/properties/${id}`);
+                if (!res.ok) throw new Error('Property not found');
+                const apiRes = await res.json();
+                const property = (apiRes && apiRes.data) ? apiRes.data : apiRes;
+                applyPropertyData(property);
+            } catch (error) {
+                console.warn('[Property Detail] Falling back to demo data:', error);
+                applyPropertyData(fallback);
+            }
+        }
+
+        function applyPropertyData(property) {
+            const title = property.title || DEFAULT_PROPERTY.title;
+            const location = property.location || property.address?.street || DEFAULT_PROPERTY.location;
+            const city = property.address?.city ? `${property.address.city}, ${property.address.state || ''}`.trim() : '';
+            const fullLocation = [location, city].filter(Boolean).join(', ');
+            const price = property.price || DEFAULT_PROPERTY.price;
+            const type = property.type || DEFAULT_PROPERTY.type;
+            const amenities = Array.isArray(property.amenities) && property.amenities.length ? property.amenities : DEFAULT_PROPERTY.amenities;
+            const owner = property.createdBy || {};
+
+            document.getElementById('pd-title').textContent = title;
+            document.getElementById('pd-location').innerHTML = `<i data-lucide="map-pin"></i> ${fullLocation || DEFAULT_PROPERTY.location}`;
+            document.getElementById('pd-price').textContent = formatCurrency(price);
+            document.getElementById('pd-beds').textContent = `${property.bedrooms || DEFAULT_PROPERTY.bedrooms} Beds`;
+            document.getElementById('pd-baths').textContent = `${property.bathrooms || DEFAULT_PROPERTY.bathrooms} Baths`;
+            document.getElementById('pd-area').textContent = `${property.area || DEFAULT_PROPERTY.area} sq ft`;
+            document.getElementById('pd-type').textContent = type;
+            document.getElementById('pd-description').textContent = property.description || DEFAULT_PROPERTY.description;
+            document.getElementById('pd-seller-name').textContent = owner.name || 'Property Owner';
+            document.getElementById('pd-seller-role').textContent = owner.role === 'seller' ? 'Property Owner' : (owner.role || 'Property Owner');
+            document.getElementById('pd-seller-phone').textContent = owner.phone ? `📞 ${owner.phone}` : '📞 Phone not available';
+            document.getElementById('pd-seller-avatar').src = owner.avatar || 'https://i.pravatar.cc/150';
+            document.getElementById('pd-seller-avatar').alt = `${owner.name || 'Seller'} profile photo`;
+            if (owner.name) {
+                document.getElementById('pd-seller-name').style.display = 'block';
+                document.getElementById('pd-seller-phone').style.display = 'block';
+            }
+
+            const amenitiesContainer = document.querySelector('.amenities-grid-premium');
+            if (amenitiesContainer) {
+                amenitiesContainer.innerHTML = amenities.map(item => `
+                    <div class="amenity-item-premium">
+                        <i data-lucide="${item.toLowerCase().includes('wifi') ? 'wifi' : item.toLowerCase().includes('pool') ? 'waves' : item.toLowerCase().includes('parking') ? 'car' : item.toLowerCase().includes('security') ? 'shield-check' : 'home'}"></i>
+                        <span>${item}</span>
+                    </div>`).join('');
+                lucide.createIcons();
+            }
+
+            document.getElementById('calcPrice').value = price || 45000000;
+            document.getElementById('calcDown').value = Math.round((price || 45000000) * 0.2);
+            calculateMortgage();
+            renderGallery(property);
+            
+            // Inject Property Actions
+            const actionsContainer = document.getElementById('pd-seller-actions');
+            if (actionsContainer) {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('user') || '{}');
+                const currentUserId = currentUser._id || currentUser.id || '';
+                const isLoggedIn = Boolean(localStorage.getItem('authToken'));
+                const isOwner = currentUserId && owner && (currentUserId === owner._id || currentUserId === owner.id);
+                const isBuyer = currentUser.role === 'buyer';
+                const propId = property._id || new URLSearchParams(window.location.search).get('id') || '';
+                const sellerId = owner._id || owner.id || '';
+
+                let buttonsHtml = `
+<!-- Property Actions -->
+<div class="property-actions">
+  <!-- Favorite (always visible) -->
+  <button class="action-btn" id="favoriteBtnCard" onclick="toggleFavorite('${propId}')" type="button">
+    <i class="far fa-heart"></i>
+  </button>
+  
+  <!-- Share (always visible) -->
+  <button class="action-btn" id="shareBtnCard" onclick="shareProperty('${propId}')" type="button">
+    <i class="fas fa-share-alt"></i>
+  </button>
+`;
+
+                if (isOwner) {
+                    buttonsHtml += `
+  <!-- Owner actions -->
+  <a class="btn-contact" href="add-property-wizard.html?id=${propId}" style="flex:1; justify-content:center;" type="button">
+    <i class="fas fa-pen"></i> Edit Property
+  </a>
+`;
+                } else if (isBuyer && isLoggedIn) {
+                    buttonsHtml += `
+  <!-- Message Seller (BUYER ONLY - not owner) -->
+  <button class="btn-message" id="messageBtn" onclick="openMessageModal('${propId}', '${sellerId}')" type="button">
+    <i class="fas fa-comment-dots"></i> Message Seller
+  </button>
+  
+  <!-- Schedule Tour (BUYER ONLY - not owner) -->
+  <button class="btn-tour" id="tourBtn" onclick="openTourModal('${propId}', '${sellerId}')" type="button">
+    <i class="fas fa-calendar-check"></i> Schedule Tour
+  </button>
+`;
+                } else {
+                    buttonsHtml += `
+  <!-- Contact Agent (fallback) -->
+  <button class="btn-contact" id="contactBtn" onclick="showContactInfo()" type="button">
+    <i class="fas fa-phone"></i> Contact Agent
+  </button>
+`;
+                }
+
+                buttonsHtml += `\n</div>`;
+                actionsContainer.innerHTML = buttonsHtml;
+            }
+        }
+
+        function updateFavoriteButton() {
+            const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+            const isFavorited = favs.includes(new URLSearchParams(window.location.search).get('id') || '');
+            const headerBtn = document.getElementById('favoriteBtn');
+            const cardBtn = document.getElementById('favoriteBtnCard');
+            [headerBtn, cardBtn].forEach(btn => {
+                if (!btn) return;
+                btn.classList.toggle('active', isFavorited);
+                btn.querySelector('i')?.classList.toggle('fas', isFavorited);
+                btn.querySelector('i')?.classList.toggle('far', !isFavorited);
+            });
+        }
+
+        function toggleFavorite() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const favs = new Set(JSON.parse(localStorage.getItem('favorites') || '[]'));
+            if (id) {
+                if (favs.has(id)) favs.delete(id); else favs.add(id);
+                localStorage.setItem('favorites', JSON.stringify([...favs]));
+            }
+            updateFavoriteButton();
+        }
+
+        async function shareListing() {
+            const url = window.location.href;
+            if (navigator.share) {
+                await navigator.share({ title: document.title, text: 'Check out this property on RealEstate Pro', url });
+            } else if (navigator.clipboard) {
+                await navigator.clipboard.writeText(url);
+                alert('Listing link copied to clipboard.');
+            }
+        }
+
+        function updateUserName() {
+            const user = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('user') || '{}');
+            const nameEl = document.getElementById('userName');
+            const avatarEl = document.getElementById('userAvatar');
+            if (nameEl) nameEl.textContent = user.name || user.fullName || user.username || 'Guest';
+            if (avatarEl) avatarEl.src = user.avatar || user.photo || 'https://i.pravatar.cc/40';
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown')?.classList.toggle('open');
+        }
+
+        function logout() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        // ── Mortgage Calculator ──
+        const calcPrice = document.getElementById('calcPrice');
+        const calcDown  = document.getElementById('calcDown');
+        const calcRate  = document.getElementById('calcRate');
+        const monthlyPayment = document.getElementById('monthlyPayment');
+
+        function calculateMortgage() {
+            const P = calcPrice.value - calcDown.value;
+            const r = (calcRate.value / 100) / 12;
+            const n = 240;
+            if (P > 0 && r > 0) {
+                const M = P * (r * Math.pow(1+r,n)) / (Math.pow(1+r,n) - 1);
+                monthlyPayment.innerText = '₹' + Math.round(M).toLocaleString('en-IN');
+            }
+        }
+        [calcPrice, calcDown, calcRate].forEach(el => el.addEventListener('input', calculateMortgage));
+
+        // ── Modal helpers ──
+        function openPdModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closePdModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function shareProperty(id) {
+            shareListing();
+        }
+
+        function showContactInfo() {
+            document.getElementById('sellerCardContainer').scrollIntoView({ behavior: 'smooth' });
+            showToast("Contact the owner directly: " + (document.getElementById('pd-seller-phone').innerText || 'Not available'));
+        }
+
+        function openMessageModal(propId, sellerId) {
+            document.getElementById('msgPropertyId').value = propId || '';
+            document.getElementById('msgToId').value = sellerId || '';
+            document.getElementById('msgPropertyTitle').value = document.getElementById('pd-title').innerText;
+            document.getElementById('msgToName').value = document.getElementById('pd-seller-name').innerText;
+            document.getElementById('msgContent').value = '';
+            openPdModal('messageModal');
+        }
+
+        function openTourModal(propId, sellerId) {
+            document.getElementById('tourPropertyId').value = propId || '';
+            document.getElementById('tourSellerId').value = sellerId || '';
+            document.getElementById('tourPropertyTitle').innerText = document.getElementById('pd-title').innerText;
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || localStorage.getItem('user') || '{}');
+            document.getElementById('tourName').value = currentUser.name || currentUser.fullName || 'Guest';
+            document.getElementById('tourEmail').value = currentUser.email || '';
+            document.getElementById('tourPhone').value = '';
+            document.getElementById('tourDate').value = '';
+            document.getElementById('tourMessage').value = '';
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            openPdModal('tourModal');
+        }
+
+        async function handleSendMessage(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showToast('Please login to send a message');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const recipientId = document.getElementById('msgToId').value;
+            const propertyId = document.getElementById('msgPropertyId').value;
+            const content = document.getElementById('msgContent').value.trim();
+
+            if (!recipientId || !propertyId || !content) {
+                showToast('Please enter your message before sending');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/conversations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ recipientId, propertyId, firstMessage: content })
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    throw new Error(result.message || 'Unable to send message');
+                }
+
+                showToast('Message sent to the seller');
+                closePdModal('messageModal');
+                document.getElementById('msgContent').value = '';
+            } catch (err) {
+                console.error('[Property Detail] Message send error:', err);
+                showToast(err.message || 'Failed to send message');
+            }
+        }
+
+        async function handleTourBooking(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showToast('Please login to schedule a tour');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const propertyId = document.getElementById('tourPropertyId').value;
+            const sellerId = document.getElementById('tourSellerId').value;
+            const phone = document.getElementById('tourPhone').value.trim();
+            const date = document.getElementById('tourDate').value;
+            const selectedTime = document.querySelector('.time-slot.selected')?.dataset.time;
+            const message = document.getElementById('tourMessage').value.trim();
+
+            if (!phone || !date || !selectedTime) {
+                showToast('Please provide your phone, date, and preferred time');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/bookings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ propertyId, sellerId, phone, date, time: selectedTime, message })
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    throw new Error(result.message || 'Unable to schedule tour');
+                }
+
+                document.getElementById('successProp').innerText = document.getElementById('tourPropertyTitle').innerText;
+                document.getElementById('successDate').innerText = `${date} at ${selectedTime}`;
+                document.getElementById('successSeller').innerText = document.getElementById('pd-seller-name').innerText;
+                document.getElementById('successRef').innerText = result.data?._id || 'N/A';
+
+                closePdModal('tourModal');
+                openPdModal('tourSuccessModal');
+            } catch (err) {
+                console.error('[Property Detail] Tour booking error:', err);
+                showToast(err.message || 'Failed to schedule tour');
+            }
+        }
+
+        function showToast(message, duration = 3200) {
+            if (!message) return;
+            let toast = document.getElementById('propertyToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'propertyToast';
+                toast.style.position = 'fixed';
+                toast.style.bottom = '24px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.padding = '12px 18px';
+                toast.style.background = 'rgba(17, 24, 39, 0.95)';
+                toast.style.color = '#fff';
+                toast.style.borderRadius = '999px';
+                toast.style.zIndex = '10000';
+                toast.style.fontSize = '0.95rem';
+                toast.style.boxShadow = '0 15px 40px rgba(15, 23, 42, 0.25)';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            toast.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, duration);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('favoriteBtn')?.addEventListener('click', toggleFavorite);
+            document.getElementById('shareBtn')?.addEventListener('click', shareListing);
+            document.getElementById('sendMessageForm')?.addEventListener('submit', handleSendMessage);
+            document.getElementById('tourBookingForm')?.addEventListener('submit', handleTourBooking);
+
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.addEventListener('click', function() {
+                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+
+            updateUserName();
+            updateFavoriteButton();
+            loadPropertyDetail();
+            calculateMortgage();
+        });
+    </script>
+
+    <!-- Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closePdModal('messageModal')" aria-label="Close">&times;</button>
+            <div class="auth-header">
+                <h2>Send Message</h2>
+                <p>Contact the seller directly about this property</p>
+            </div>
+            <form id="sendMessageForm">
+                <div class="form-group-premium">
+                    <label for="msgToName">To</label>
+                    <input id="msgToName" class="form-input-premium" readonly style="background:#f8fafc;color:#64748b;cursor:not-allowed;">
+                    <input type="hidden" id="msgToId">
+                </div>
+                <div class="form-group-premium">
+                    <label for="msgPropertyTitle">Property</label>
+                    <input id="msgPropertyTitle" class="form-input-premium" readonly style="background:#f8fafc;color:#64748b;cursor:not-allowed;">
+                    <input type="hidden" id="msgPropertyId">
+                </div>
+                <div class="form-group-premium">
+                    <label for="msgContent">Message</label>
+                    <textarea id="msgContent" class="form-input-premium" style="height:120px;" placeholder="I'm interested in this property..." required></textarea>
+                </div>
+                <button type="submit" class="btn-gradient-auth">Send Message &#9993;</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tour Booking Modal -->
+    <div id="tourModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closePdModal('tourModal')" aria-label="Close">&times;</button>
+            <div class="auth-header">
+                <h2>Schedule a Tour</h2>
+                <p>Book a visit to <span id="tourPropertyTitle" style="font-weight:600;"></span></p>
+            </div>
+            <form id="tourBookingForm">
+                <input type="hidden" id="tourPropertyId">
+                <input type="hidden" id="tourSellerId">
+                <div style="display:flex;gap:10px;">
+                    <div class="form-group-premium" style="flex:1;">
+                        <label for="tourName">Your Name</label>
+                    <input id="tourName" class="form-input-premium" readonly style="background:#f8fafc;color:#64748b;cursor:not-allowed;">
+                    </div>
+                    <div class="form-group-premium" style="flex:1;">
+                        <label for="tourEmail">Your Email</label>
+                    <input id="tourEmail" class="form-input-premium" readonly style="background:#f8fafc;color:#64748b;cursor:not-allowed;">
+                    </div>
+                </div>
+                <div class="form-group-premium">
+                    <label for="tourPhone">Your Phone <span style="color:#ef4444;">*</span></label>
+                    <input id="tourPhone" class="form-input-premium" placeholder="Enter your phone number" required>
+                </div>
+                <div class="form-group-premium">
+                    <label for="tourDate">Select Date <span style="color:#ef4444;">*</span></label>
+                    <input id="tourDate" class="form-input-premium" required>
+                </div>
+                <div class="form-group-premium">
+                    <label>Select Time <span style="color:#ef4444;">*</span></label>
+                    <div class="time-slots">
+                        <button type="button" class="time-slot" data-time="09:00">9:00 AM</button>
+                        <button type="button" class="time-slot" data-time="10:00">10:00 AM</button>
+                        <button type="button" class="time-slot" data-time="11:00">11:00 AM</button>
+                        <button type="button" class="time-slot" data-time="14:00">2:00 PM</button>
+                        <button type="button" class="time-slot" data-time="15:00">3:00 PM</button>
+                        <button type="button" class="time-slot" data-time="16:00">4:00 PM</button>
+                    </div>
+                </div>
+                <div class="form-group-premium">
+                    <label for="tourMessage">Message (Optional)</label>
+                    <textarea id="tourMessage" class="form-input-premium" style="height:80px;" placeholder="Any specific requirements..."></textarea>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:16px;">
+                    <button type="button" style="flex:1;padding:12px;background:white;border:1.5px solid #cbd5e1;color:#475569;border-radius:10px;cursor:pointer;font-weight:600;" onclick="closePdModal('tourModal')">Cancel</button>
+                    <button type="submit" style="flex:1;padding:12px;background:#1a56db;color:white;border:none;border-radius:10px;cursor:pointer;font-weight:600;">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tour Success Modal -->
+    <div id="tourSuccessModal" class="modal">
+        <div class="modal-content" style="text-align:center;">
+            <button class="modal-close-btn" onclick="closePdModal('tourSuccessModal')" aria-label="Close">&times;</button>
+            <div style="width:64px;height:64px;background:#dcfce7;color:#16a34a;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;">&#10003;</div>
+            <h2 style="margin-bottom:8px;">Tour Scheduled!</h2>
+            <p style="color:#64748b;margin-bottom:20px;">Your request has been sent to the seller.</p>
+            <div style="background:#f8fafc;border-radius:12px;padding:16px;text-align:left;margin-bottom:20px;border:1px solid #e2e8f0;">
+                <div style="margin-bottom:8px;"><strong>Property:</strong> <span id="successProp"></span></div>
+                <div style="margin-bottom:8px;"><strong>Date &amp; Time:</strong> <span id="successDate"></span></div>
+                <div style="margin-bottom:8px;"><strong>Seller:</strong> <span id="successSeller"></span></div>
+                <div><strong>Ref #:</strong> <span id="successRef" style="font-family:monospace;"></span></div>
+            </div>
+            <button style="width:100%;padding:13px;background:#1a56db;color:white;border:none;border-radius:10px;font-weight:600;cursor:pointer;" onclick="closePdModal('tourSuccessModal')">Done</button>
+        </div>
+    </div>
+
+    <script src="navbar.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

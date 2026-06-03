@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Price Predictor | RealEstatePro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="premium-v2.css">
+    <link rel="stylesheet" href="ai-predict.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="navbar.css">
+</head>
+
+<body style="background-color: #f8faff;">
+    <!-- Standard Premium Navbar -->
+       <!-- Shared Consistent Navbar -->
+   <nav class="navbar" style="background: white; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+     
+     <!-- LEFT: Logo -->
+     <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 24px; font-weight: 700;">
+       <svg width="32" height="32" viewBox="0 0 24 24" fill="#1a56db">
+         <path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/>
+       </svg>
+       <span style="color: #1a56db;">RealEstate</span>
+       <span style="color: #f97316;">Pro</span>
+     </a>
+     
+     <!-- CENTER: Nav Links -->
+     <div class="nav-links" style="display: flex; gap: 30px;">
+       <a href="properties.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">Properties</a>
+       <a href="ai-tools.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">AI Tools</a>
+       <a href="about.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">About</a>
+     </div>
+     
+     <!-- RIGHT: User Actions -->
+     <div class="nav-right" style="display: flex; align-items: center; gap: 16px;">
+       <!-- Dark Mode Toggle -->
+       <button onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; border-radius: 8px;">
+         🌙
+       </button>
+       
+       <!-- User Name -->
+       <span id="userName" style="color: #4b5563; font-size: 14px; font-weight: 500;">ramu</span>
+       
+       <!-- Logout -->
+       <button onclick="logout()" style="background: transparent; border: 1px solid #e5e7eb; color: #4b5563; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px;">
+         Logout
+       </button>
+     </div>
+   </nav>
+
+    <div class="predict-container">
+        <!-- Input Form -->
+        <div class="predict-form-card">
+            <div style="width: 60px; height: 60px; background: #eff6ff; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; color: #3b82f6;">
+                <i data-lucide="zap" style="width: 30px; height: 30px;"></i>
+            </div>
+            <h2>AI Price Prediction</h2>
+            <p>Our neural network analyzes 50+ market variables to provide the most accurate property valuation in seconds.</p>
+
+            <form id="predictionForm" style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="form-group-premium">
+                    <div class="label-row">
+                        <i data-lucide="map-pin"></i>
+                        <label>Property Location</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="text" id="pLocation" class="form-input-premium" placeholder="e.g. Kokapet, Hyderabad" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="home"></i>
+                            <label>Type</label>
+                        </div>
+                        <select id="pType" class="form-input-premium">
+                            <option value="apartment">Apartment</option>
+                            <option value="house">House</option>
+                            <option value="villa">Villa</option>
+                        </select>
+                    </div>
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="maximize"></i>
+                            <label>Area (sq ft)</label>
+                        </div>
+                        <input type="number" id="pArea" class="form-input-premium" placeholder="1500" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="bed"></i>
+                            <label>Bedrooms</label>
+                        </div>
+                        <input type="number" id="pBeds" class="form-input-premium" placeholder="3" required>
+                    </div>
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="bath"></i>
+                            <label>Bathrooms</label>
+                        </div>
+                        <input type="number" id="pBaths" class="form-input-premium" placeholder="2" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-gradient-auth" style="margin-top: 10px;">
+                    Calculate Market Value <i data-lucide="sparkles" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Card -->
+        <div>
+            <div id="resultsCard" class="results-card">
+                <div class="price-box">
+                    <h4>Estimated Market Value</h4>
+                    <div class="predicted-price" id="resPrice">₹0</div>
+                </div>
+
+                <div class="confidence-section">
+                    <div class="confidence-header">
+                        <span>AI Confidence Level</span>
+                        <span style="color: #22c55e;" id="resConfidence">0%</span>
+                    </div>
+                    <div class="confidence-bar-wrapper">
+                        <div id="confidenceBar" class="confidence-bar"></div>
+                    </div>
+                </div>
+
+                <div class="insight-grid">
+                    <div class="insight-item">
+                        <div class="insight-icon"><i data-lucide="trending-up"></i></div>
+                        <div class="insight-text">
+                            <h5>Market Trend</h5>
+                            <p id="resTrend">Stable</p>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon"><i data-lucide="shield-check"></i></div>
+                        <div class="insight-text">
+                            <h5>Reliability</h5>
+                            <p>High</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Initial State Placeholder -->
+            <div id="placeholder" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; border-radius: 24px; border: 2px dashed #e2e8f0; padding: 60px; text-align: center;">
+                <div style="width: 100px; height: 100px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                    <i data-lucide="line-chart" style="width: 50px; height: 50px; color: #cbd5e1;"></i>
+                </div>
+                <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 10px;">Awaiting Input</h3>
+                <p style="color: #64748b; max-width: 300px;">Enter property details to the left to see our AI's detailed valuation and market trends.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let myChart = null;
+
+        document.getElementById('predictionForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('button');
+            const originalBtnHtml = submitBtn.innerHTML;
+
+            // Loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+
+            setTimeout(() => {
+                // Show results
+                document.getElementById('placeholder').style.display = 'none';
+                const resCard = document.getElementById('resultsCard');
+                resCard.classList.add('active');
+
+                // Generate random data for demo
+                const area = document.getElementById('pArea').value;
+                const basePrice = area * 8500; // Random multiplier
+                const finalPrice = basePrice + (Math.random() * 500000);
+
+                document.getElementById('resPrice').innerText = '₹' + Math.floor(finalPrice).toLocaleString('en-IN');
+                document.getElementById('resConfidence').innerText = '94%';
+                document.getElementById('confidenceBar').style.width = '94%';
+                document.getElementById('resTrend').innerText = '+12.4% Up';
+
+                initChart();
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                lucide.createIcons();
+            }, 1500);
+        });
+
+        function initChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Estimated Value Trend (Lakhs)',
+                        data: [65, 68, 67, 72, 75, 78],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

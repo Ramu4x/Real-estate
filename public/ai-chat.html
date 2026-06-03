@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot | RealEstatePro</title>
+    <link rel="stylesheet" href="premium-v2.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Standalone preview styling to simulate a mobile 9:16 view */
+        body {
+            background: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 0;
+        }
+    </style>
+    <link rel="stylesheet" href="navbar.css">
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <!-- Floating Button -->
+    <button class="chat-widget-btn" id="chatBtn" onclick="toggleChat()">
+        <i data-lucide="message-square" style="width: 28px; height: 28px;"></i>
+    </button>
+
+    <!-- Expanded Chat Panel -->
+    <div class="chat-panel-premium open" id="chatPanel">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="bot-avatar-header">
+                    <i data-lucide="home"></i>
+                </div>
+                <div>
+                    <h3>RealEstate AI</h3>
+                    <p>Online</p>
+                </div>
+            </div>
+            <button class="close-chat-btn" onclick="toggleChat()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="chat-messages-area" id="chatMessages">
+            
+            <!-- Bot Message -->
+            <div class="chat-message bot">
+                <div class="bot-avatar-small">
+                    <i data-lucide="home" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div class="message-bubble">
+                    Hi there! 👋 I'm your AI assistant for the Skyline Modern Villa. How can I help you today?
+                </div>
+            </div>
+
+            <!-- User Message -->
+            <div class="chat-message user">
+                <div class="message-bubble">
+                    What's the neighborhood like? Is it quiet?
+                </div>
+            </div>
+
+            <!-- Bot Message -->
+            <div class="chat-message bot">
+                <div class="bot-avatar-small">
+                    <i data-lucide="home" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div class="message-bubble">
+                    Jubilee Hills is one of the most premium and serene neighborhoods in Hyderabad. It's known for its tree-lined streets, large plot sizes, and excellent security. It is very quiet, especially in this specific lane.
+                </div>
+            </div>
+
+            <!-- User Message -->
+            <div class="chat-message user">
+                <div class="message-bubble">
+                    Can I schedule a tour for this weekend?
+                </div>
+            </div>
+
+            <!-- Typing Indicator (Hidden by default, shown for effect) -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="suggested-chips">
+                <button class="chip-btn" onclick="fillInput('What\'s the neighborhood like?')">Neighborhood</button>
+                <button class="chip-btn" onclick="fillInput('Schedule a tour')">Schedule a tour</button>
+                <button class="chip-btn" onclick="fillInput('Is the price negotiable?')">Price negotiable?</button>
+            </div>
+            
+            <div class="input-box-premium">
+                <i data-lucide="smile" style="color: #94a3b8; width: 20px; cursor: pointer;"></i>
+                <input type="text" id="chatInput" placeholder="Ask about this property..." onkeypress="handleKeyPress(event)">
+                <button class="btn-send" onclick="sendMessage()">
+                    <i data-lucide="send" style="width: 16px; height: 16px; margin-left: -2px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const chatPanel = document.getElementById('chatPanel');
+        const chatBtn = document.getElementById('chatBtn');
+        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        function toggleChat() {
+            chatPanel.classList.toggle('open');
+            if(chatPanel.classList.contains('open')) {
+                chatBtn.style.transform = 'scale(0)';
+            } else {
+                chatBtn.style.transform = 'scale(1)';
+            }
+        }
+
+        function fillInput(text) {
+            chatInput.value = text;
+            chatInput.focus();
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // Append User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message user';
+            userMsg.innerHTML = `<div class="message-bubble">${text}</div>`;
+            
+            // Insert before typing indicator
+            chatMessages.insertBefore(userMsg, typingIndicator);
+            chatInput.value = '';
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Show typing indicator
+            typingIndicator.style.display = 'flex';
+            
+            // Simulate bot response
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+                
+                const botMsg = document.createElement('div');
+                botMsg.className = 'chat-message bot';
+                botMsg.innerHTML = `
+                    <div class="bot-avatar-small">
+                        <i data-lucide="home" style="width: 16px; height: 16px;"></i>
+                    </div>
+                    <div class="message-bubble">
+                        I can certainly help with that! Let me connect you with the listing agent to confirm availability for this weekend.
+                    </div>
+                `;
+                chatMessages.insertBefore(botMsg, typingIndicator);
+                lucide.createIcons();
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1500);
+        }
+        
+        // Hide button initially since panel is open
+        chatBtn.style.transform = 'scale(0)';
+    </script>
+</body>
+</html>
