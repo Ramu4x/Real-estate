@@ -89,6 +89,16 @@ class AIService {
       }
     }
 
+    // Add some pseudo-random variance based on the location string characters
+    // so that different unknown locations don't get the exact same price.
+    let locationHash = 0;
+    for (let i = 0; i < locationStr.length; i++) {
+        locationHash += locationStr.charCodeAt(i);
+    }
+    // Varies the multiplier by up to +/- 30% based on the location name
+    const variance = ((locationHash % 60) - 30) / 100;
+    multiplier = multiplier * (1 + variance);
+
     basePrice = propertyData.area * multiplier;
 
     // Adjust for bedrooms and bathrooms
