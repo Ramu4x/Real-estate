@@ -576,7 +576,7 @@ function switchTab(tabId, subtab = null) {
     const menuItem = document.querySelector(`.menu-item[data-tab="${tabId}"]`);
     if(menuItem) menuItem.classList.add('active');
     
-    const tabPane = document.getElementById(tabId.replace('-tab', ''));
+    const tabPane = document.getElementById(tabId) || document.getElementById(tabId.replace('-tab', ''));
     if(tabPane) tabPane.classList.add('active');
     
     // Toggle Stats grid visibility: only show on Home tab
