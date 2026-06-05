@@ -44,11 +44,9 @@ const addProperty = async (req, res) => {
 
     // Handle image uploads if files are present
     if (req.files && req.files.length > 0) {
-      // For local storage, store file paths
-      propertyData.images = req.files.map(file => `/uploads/${file.filename}`);
-      // Uncomment below if you want to use Cloudinary instead
-      // const uploadedImages = await cloudinaryService.uploadMultipleImages(req.files);
-      // propertyData.images = uploadedImages.map(img => img.url);
+      // Use Cloudinary instead of local storage for Render
+      const uploadedImages = await cloudinaryService.uploadMultipleImages(req.files);
+      propertyData.images = uploadedImages.map(img => img.url);
     }
 
     // If no uploaded files but client provided image URLs in the JSON body, accept them
