@@ -48,7 +48,8 @@ class CloudinaryService {
       );
       return await Promise.all(uploadPromises);
     } catch (error) {
-      throw new Error("Failed to upload multiple images");
+      console.error("Cloudinary upload failed:", error);
+      throw new Error("Failed to upload multiple images: " + (error.message || "Unknown error"));
     }
   }
 }
