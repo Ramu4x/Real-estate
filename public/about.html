@@ -381,9 +381,25 @@
       <li><a href="about.html" class="active">About</a></li>
     </ul>
     <div style="display: flex; justify-content: flex-end;">
-      <a href="login.html" class="nav-cta" style="background: var(--teal); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: var(--transition);">Sign In</a>
+      <a href="login.html" class="nav-cta" id="navAuthBtn" style="background: var(--teal); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: var(--transition);">Sign In</a>
     </div>
   </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('authToken');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const btn = document.getElementById('navAuthBtn');
+      if (token && btn) {
+        const role = (user.role || '').toLowerCase();
+        let dash = 'dashboard.html';
+        if (role === 'admin') dash = 'admin-dashboard.html';
+        else if (role === 'seller') dash = 'seller-dashboard.html';
+        btn.href = dash;
+        btn.textContent = 'Dashboard';
+      }
+    });
+  </script>
 
   <!-- Hero Section -->
   <section class="hero">
