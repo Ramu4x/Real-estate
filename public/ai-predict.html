@@ -208,10 +208,24 @@
                 }, 10);
 
                 if (data.success && data.data) {
-                    const priceRaw = data.data.predictedPrice || data.data.price || 0;
-                    document.getElementById('resPrice').innerText = '₹' + Math.floor(priceRaw).toLocaleString('en-IN');
-                    document.getElementById('resConfidence').innerText = data.data.confidence || '92%';
-                    document.getElementById('confidenceBar').style.width = data.data.confidence || '92%';
+                    let priceDisplay = '₹0';
+                    if (data.data.priceRange) {
+                        priceDisplay = data.data.priceRange;
+                    } else {
+                        const priceRaw = data.data.predictedPrice || data.data.price || 0;
+                        priceDisplay = '₹' + Math.floor(priceRaw).toLocaleString('en-IN');
+                    }
+                    document.getElementById('resPrice').innerText = priceDisplay;
+
+                    let confDisplay = data.data.confidence || '92%';
+                    let confWidth = confDisplay;
+                    if (confDisplay.toString().toLowerCase() === 'high') { confDisplay = 'High'; confWidth = '90%'; }
+                    else if (confDisplay.toString().toLowerCase() === 'medium') { confDisplay = 'Medium'; confWidth = '70%'; }
+                    else if (confDisplay.toString().toLowerCase() === 'low') { confDisplay = 'Low'; confWidth = '40%'; }
+
+                    document.getElementById('resConfidence').innerText = confDisplay;
+                    document.getElementById('confidenceBar').style.width = confWidth;
+                    
                     document.getElementById('resTrend').innerText = '+12.4% Up';
                     if (data.data.source === 'ml_model') {
                         document.getElementById('resTrend').innerText = 'Real ML Prediction';
