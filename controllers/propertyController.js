@@ -356,7 +356,7 @@ const deleteProperty = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to delete this property" });
     }
 
-    await property.remove();
+    await property.deleteOne();
     
     res.json({
       success: true,
