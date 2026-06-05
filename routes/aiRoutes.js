@@ -16,6 +16,9 @@ router.post("/predict-price", predictPrice);
 // Generate property description (requires auth)
 router.post("/generate-description", auth, generateDescription);
 
+// Generate property description standalone (no auth required for demo)
+router.post("/generate-description-standalone", require("../controllers/aiController").generateStandaloneDescription);
+
 // Get property recommendations (requires auth)
 router.get("/recommendations", auth, getRecommendations);
 

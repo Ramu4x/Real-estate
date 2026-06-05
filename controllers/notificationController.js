@@ -9,6 +9,26 @@ const createNotification = async ({ recipient, sender, type, property, title, me
   }
 };
 
+// POST /api/notifications -> create notification (internal/testing use)
+const apiCreateNotification = async (req, res) => {
+  try {
+    const { recipient, sender, type, property, title, message, actionUrl } = req.body;
+    const notification = await Notification.create({
+      recipient,
+      sender: sender || req.user._id,
+      type,
+      property,
+      title,
+      message,
+      actionUrl,
+      read: false
+    });
+    res.status(201).json({ success: true, data: notification });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // GET /api/notifications — get my notifications
 const getNotifications = async (req, res) => {
   try {
@@ -56,4 +76,4 @@ const deleteNotification = async (req, res) => {
   }
 };
 
-module.exports = { getNotifications, markAsRead, markAllAsRead, deleteNotification, createNotification };
+module.exports = { getNotifications, markAsRead, markAllAsRead, deleteNotification, createNotification, apiCreateNotification };

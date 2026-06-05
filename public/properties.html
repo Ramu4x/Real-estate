@@ -28,7 +28,7 @@
             position:sticky; top:0; z-index:120;
         }
         .nav-left, .nav-center, .nav-right { display:flex; align-items:center; }
-        .nav-center { gap:1rem; margin-left:auto; margin-right:auto; }
+        .nav-center { gap:2.5rem; margin-left:auto; margin-right:auto; }
         .nav-center a, .nav-right a { color:#475569; text-decoration:none; font-weight:600; font-size:0.95rem; }
         .nav-center a.active, .nav-center a:hover { color:#1a56db; }
         .logo { font-size:1.15rem; font-weight:800; color:#111827; text-decoration:none; display:flex; align-items:center; gap:0.35rem; }
@@ -309,6 +309,106 @@
             .filter-group { min-width:90px; }
             .filter-input { width:120px; }
         }
+        /* ---- Right Filter Sidebar ---- */
+        .right-filter-sidebar {
+            position: fixed; top: 0; right: -320px; z-index: 2000;
+            width: 320px; height: 100%; background: #fff;
+            border-left: 1px solid #e8e8e8; display: flex;
+            flex-direction: column;
+            transition: right 0.3s ease; box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+        }
+        .right-filter-sidebar.open { right: 0; }
+        
+        .sidebar-header {
+            padding: 20px; border-bottom: 1px solid #f0f0f0;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+        .sidebar-content {
+            flex: 1; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .filter-accordion {
+            border: 1px solid #f0f0f0; border-radius: 12px;
+            overflow: hidden; background: #fff;
+        }
+        .accordion-header {
+            padding: 16px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; font-weight: 600;
+            color: #1a1a1a; transition: background 0.2s;
+        }
+        .accordion-header:hover { background: #fafafa; }
+        .right-filter-sidebar .accordion-content {
+            max-height: 500px; overflow: hidden; transition: max-height 0.3s ease;
+            display: block !important;
+        }
+        .right-filter-sidebar .accordion-content.collapsed { max-height: 0; }
+        .accordion-body { padding: 0 16px 16px; }
+        
+        /* Custom Checkbox */
+        .custom-checkbox {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+            cursor: pointer; font-size: 0.95rem; color: #475569;
+        }
+        .custom-checkbox input { display: none; }
+        .checkmark {
+            width: 20px; height: 20px; border: 2px solid #e2e8f0;
+            border-radius: 6px; display: flex; align-items: center;
+            justify-content: center; transition: all 0.2s;
+        }
+        .custom-checkbox input:checked + .checkmark {
+            background: #2A9D8F; border-color: #2A9D8F;
+        }
+        .checkmark::after {
+            content: ''; width: 5px; height: 10px; border: solid white;
+            border-width: 0 2px 2px 0; transform: rotate(45deg); display: none;
+        }
+        .custom-checkbox input:checked + .checkmark::after { display: block; }
+        
+        /* Amenities Pills */
+        .amenity-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+        .amenity-pill {
+            padding: 6px 14px; border: 1px solid #e2e8f0; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 500; cursor: pointer; color: #64748b;
+            transition: all 0.2s; background: #fff;
+        }
+        .amenity-pill.active {
+            background: #2A9D8F; color: #fff; border-color: #2A9D8F;
+        }
+        
+        /* Select Dropdowns */
+        .sidebar-select {
+            width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0;
+            border-radius: 8px; font-size: 0.9rem; color: #1e293b;
+            margin-bottom: 12px; cursor: pointer; outline: none;
+        }
+        .sidebar-select:focus { border-color: #2A9D8F; }
+        
+        /* Price Sliders */
+        .price-inputs { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .price-inputs input {
+            flex: 1; width: 100%; padding: 8px; border: 1px solid #e2e8f0;
+            border-radius: 6px; font-size: 0.9rem; outline: none;
+        }
+        .price-inputs input:focus { border-color: #2A9D8F; }
+        
+        /* Footer */
+        .sidebar-footer {
+            padding: 16px 20px; border-top: 1px solid #f0f0f0;
+            display: flex; gap: 12px; background: #fff;
+        }
+        .btn-reset {
+            padding: 12px 0; flex: 1; background: none; border: none;
+            color: #64748b; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+        .btn-reset:hover { color: #1a1a1a; }
+        .btn-apply {
+            padding: 12px 0; flex: 2; background: #2A9D8F; border: none;
+            color: #fff; font-weight: 600; border-radius: 8px; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(42, 157, 143, 0.2);
+        }
+        .btn-apply:hover { background: #1F7A6F; transform: translateY(-1px); }
     </style>
 </head>
 <body class="search-results-page">
@@ -395,17 +495,6 @@
 
 <!-- ==================== ADVANCED FILTERS ==================== -->
 <div class="filters-overlay" id="filtersOverlay" onclick="toggleFilters()"></div>
-<div class="filters-panel" id="filtersPanel">
-    <div class="filters-header">
-        <h3>Advanced Filters</h3>
-        <button class="close-filters" onclick="toggleFilters()" type="button">×</button>
-    </div>
-    <div class="filter-section"><div class="filter-title" onclick="toggleSection(this)">Price Range <span>▼</span></div><div class="filter-content"><div class="price-range"><span>₹10L</span><input type="range" id="priceMin" min="100000" max="100000000" value="100000"><input type="range" id="priceMax" min="100000" max="100000000" value="100000000"><span>₹10Cr+</span></div></div></div>
-    <div class="filter-section"><div class="filter-title" onclick="toggleSection(this)">Property Type <span>▼</span></div><div class="filter-content"><label><input type="checkbox" value="house"> House</label><label><input type="checkbox" value="apartment"> Apartment</label><label><input type="checkbox" value="villa"> Villa</label><label><input type="checkbox" value="plot"> Plot</label><label><input type="checkbox" value="commercial"> Commercial</label></div></div>
-    <div class="filter-section"><div class="filter-title" onclick="toggleSection(this)">Specifications <span>▼</span></div><div class="filter-content"><label>Bedrooms</label><div class="bedroom-btns"><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><button type="button">5+</button></div></div></div>
-    <div class="filter-section"><div class="filter-title" onclick="toggleSection(this)">Amenities <span>▼</span></div><div class="filter-content"><label><input type="checkbox"> Parking</label><label><input type="checkbox"> Pool</label><label><input type="checkbox"> Gym</label><label><input type="checkbox"> Garden</label></div></div>
-    <div class="filter-actions"><button class="btn-reset" type="button" onclick="resetFilters()">Reset</button><button class="btn-apply" type="button" onclick="applyFilters()">Apply Filters</button></div>
-</div>
 
 <!-- ==================== RESULTS WRAPPER ==================== -->
 <div class="results-wrapper">
@@ -437,13 +526,150 @@
         <div id="propertyMap"></div>
     </div>
 
+    <!-- Right Filter Sidebar -->
+    <aside class="right-filter-sidebar" id="filtersPanel">
+        <div class="sidebar-header" style="justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i data-lucide="sliders-horizontal" style="width: 20px; height: 20px; color: #1a1a1a;"></i>
+                <h3>Filters</h3>
+            </div>
+            <button onclick="toggleFilters()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
+        </div>
+        
+        <div class="sidebar-content">
+            <!-- Price Range -->
+            <div class="filter-accordion">
+                <div class="accordion-header">
+                    <span>Price Range</span>
+                    <i data-lucide="chevron-down" style="width: 18px; height: 18px; transition: transform 0.3s;"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div style="height: 4px; background: #e2e8f0; border-radius: 2px; position: relative; margin: 15px 0;">
+                            <div style="position: absolute; left: 10%; right: 30%; height: 100%; background: #2A9D8F; border-radius: 2px;"></div>
+                            <div style="position: absolute; left: 10%; top: -6px; width: 16px; height: 16px; background: #fff; border: 2px solid #2A9D8F; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;"></div>
+                            <div style="position: absolute; right: 30%; top: -6px; width: 16px; height: 16px; background: #fff; border: 2px solid #2A9D8F; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;"></div>
+                        </div>
+                        <div class="price-inputs">
+                            <input type="number" id="sidebarMinPrice" placeholder="Min ₹">
+                            <span style="color: #cbd5e1;">-</span>
+                            <input type="number" id="sidebarMaxPrice" placeholder="Max ₹">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Type -->
+            <div class="filter-accordion">
+                <div class="accordion-header">
+                    <span>Property Type</span>
+                    <i data-lucide="chevron-down" style="width: 18px; height: 18px; transition: transform 0.3s;"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="sidebar-type-cb" value="house">
+                            <div class="checkmark"></div>
+                            House
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="sidebar-type-cb" value="apartment">
+                            <div class="checkmark"></div>
+                            Apartment
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="sidebar-type-cb" value="villa">
+                            <div class="checkmark"></div>
+                            Villa
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="sidebar-type-cb" value="plot">
+                            <div class="checkmark"></div>
+                            Plot
+                        </label>
+                        <label class="custom-checkbox" style="margin-bottom: 0;">
+                            <input type="checkbox" class="sidebar-type-cb" value="commercial">
+                            <div class="checkmark"></div>
+                            Commercial
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Specifications -->
+            <div class="filter-accordion">
+                <div class="accordion-header">
+                    <span>Specifications</span>
+                    <i data-lucide="chevron-down" style="width: 18px; height: 18px; transition: transform 0.3s;"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <select class="sidebar-select" id="sidebarBeds">
+                            <option value="">Bedrooms (Any)</option>
+                            <option value="1">1 Bedroom</option>
+                            <option value="2">2 Bedrooms</option>
+                            <option value="3">3 Bedrooms</option>
+                            <option value="4">4+ Bedrooms</option>
+                        </select>
+                        <select class="sidebar-select" id="sidebarBaths">
+                            <option value="">Bathrooms (Any)</option>
+                            <option value="1">1 Bathroom</option>
+                            <option value="2">2 Bathrooms</option>
+                            <option value="3">3+ Bathrooms</option>
+                        </select>
+                        <select class="sidebar-select" style="margin-bottom: 0;">
+                            <option value="">Square Feet (Any)</option>
+                            <option value="<1000">Under 1000 sqft</option>
+                            <option value="1000-2000">1000 - 2000 sqft</option>
+                            <option value=">2000">Over 2000 sqft</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amenities -->
+            <div class="filter-accordion">
+                <div class="accordion-header">
+                    <span>Amenities</span>
+                    <i data-lucide="chevron-down" style="width: 18px; height: 18px; transition: transform 0.3s;"></i>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-body">
+                        <div class="amenity-pills">
+                            <div class="amenity-pill" data-val="pool">Pool</div>
+                            <div class="amenity-pill" data-val="garage">Garage</div>
+                            <div class="amenity-pill" data-val="garden">Garden</div>
+                            <div class="amenity-pill" data-val="balcony">Balcony</div>
+                            <div class="amenity-pill" data-val="gym">Gym</div>
+                            <div class="amenity-pill" data-val="parking">Parking</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <button class="btn-reset" onclick="resetFilters()">Reset</button>
+            <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+        </div>
+    </aside>
+
 </div>
 
 <!-- ==================== SCRIPTS ==================== -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 <script>
-const API = '/api';
+const API = (() => {
+    const origin = window.location.origin.replace(/\/$/, '');
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '5003') {
+        return 'http://localhost:5003/api';
+    }
+    return `${origin}/api`;
+})();
+console.log('[API] properties.html using API base:', API);
 let map;
 let markerCluster;
 let pinMarkers = {};
@@ -473,19 +699,52 @@ function readUrlParams() {
 // ==================== BUILD QUERY ====================
 function buildQuery() {
     const params = new URLSearchParams();
-    const loc  = document.getElementById('topLocation').value.trim();
-    const type = document.getElementById('topType').value;
-    const purp = document.getElementById('topPurpose').value;
-    const maxP = document.getElementById('topMaxPrice').value;
+    const loc  = document.getElementById('topLocation')?.value.trim();
+    const type = document.getElementById('topType')?.value;
+    const purp = document.getElementById('topPurpose')?.value;
+    const maxP = document.getElementById('topMaxPrice')?.value;
     const minP = document.getElementById('minPriceInput')?.value || '';
+    
+    // Sidebar variables
+    const sideMinP = document.getElementById('sidebarMinPrice')?.value;
+    const sideMaxP = document.getElementById('sidebarMaxPrice')?.value;
+    const sideBeds = document.getElementById('sidebarBeds')?.value;
+    const sideBaths = document.getElementById('sidebarBaths')?.value;
+    
+    const sideTypes = Array.from(document.querySelectorAll('.sidebar-type-cb:checked')).map(cb => cb.value);
+    const sideAmenities = Array.from(document.querySelectorAll('.amenity-pill.active')).map(pill => pill.getAttribute('data-val'));
 
     if (loc)  params.set('location', loc);
-    if (type) params.set('type', type);
     if (purp) params.set('purpose', purp);
-    if (maxP) params.set('maxPrice', maxP);
-    if (minP) params.set('minPrice', minP);
-    if (selectedBHK.length > 0) params.set('bedrooms', selectedBHK.join(','));
-    if (selectedAmenities.length > 0) params.set('amenities', selectedAmenities.join(','));
+    
+    // Combine types
+    let combinedTypes = [];
+    if (type) combinedTypes.push(type.toLowerCase());
+    if (sideTypes.length > 0) combinedTypes.push(...sideTypes);
+    if (combinedTypes.length > 0) params.set('type', Array.from(new Set(combinedTypes)).join(','));
+    
+    // Combine max price
+    let finalMax = sideMaxP || maxP;
+    if (finalMax) params.set('maxPrice', finalMax);
+    
+    // Combine min price
+    let finalMin = sideMinP || minP;
+    if (finalMin) params.set('minPrice', finalMin);
+
+    // Combine Bedrooms
+    let combinedBeds = [];
+    if (selectedBHK.length > 0) combinedBeds.push(...selectedBHK);
+    if (sideBeds) combinedBeds.push(sideBeds);
+    if (combinedBeds.length > 0) params.set('bedrooms', Array.from(new Set(combinedBeds)).join(','));
+    
+    if (sideBaths) params.set('bathrooms', sideBaths);
+
+    // Combine Amenities
+    let combinedAmenities = [];
+    if (selectedAmenities.length > 0) combinedAmenities.push(...selectedAmenities);
+    if (sideAmenities.length > 0) combinedAmenities.push(...sideAmenities);
+    if (combinedAmenities.length > 0) params.set('amenities', Array.from(new Set(combinedAmenities)).join(','));
+    
     params.set('limit', '50');
     return params.toString();
 }
@@ -617,7 +876,6 @@ function renderEmptyState(container) {
             <i class="fas fa-search" style="font-size:48px; margin-bottom:16px; color:#cbd5e1;"></i>
             <h3 style="font-size:18px; font-weight:600; color:#475569; margin-bottom:8px;">No properties found</h3>
             <p style="margin-bottom:16px;">Try adjusting your filters or search criteria.</p>
-            <a href="add-property-wizard.html" class="btn-primary" style="display:inline-block; padding:10px 24px; background:#2563eb; color:#fff; text-decoration:none; border-radius:8px;">Add Property</a>
         </div>`;
 }
 
@@ -726,23 +984,33 @@ function toggleFav(btn, id) {
     btn.style.color = btn.classList.contains('faved') ? '#ef4444' : '';
 
     if (localStorage.getItem('authToken')) {
-        fetch(`${API}/users/favorites`, {
+        fetch(`${API}/properties/${id}/favorite`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            },
-            body: JSON.stringify({ propertyId: id })
+            }
         }).catch(() => {});
     }
 }
 function updateFilterBadge() {
-    const minPrice = document.getElementById('minPriceInput')?.value || '';
-    const count = selectedBHK.length + selectedAmenities.length + (minPrice ? 1 : 0);
     const badge = document.getElementById('filterBadge');
+    if (!badge) return;
+    
+    let count = 0;
+    if (document.getElementById('minPriceInput')?.value) count++;
+    if (document.getElementById('sidebarMinPrice')?.value) count++;
+    if (document.getElementById('sidebarMaxPrice')?.value) count++;
+    if (document.getElementById('sidebarBeds')?.value) count++;
+    if (document.getElementById('sidebarBaths')?.value) count++;
+    
+    count += selectedBHK.length;
+    count += selectedAmenities.length;
+    count += document.querySelectorAll('.sidebar-type-cb:checked').length;
+    count += document.querySelectorAll('.amenity-pill.active').length;
+    
     badge.textContent = count;
     badge.classList.toggle('visible', count > 0);
-    if (badge) badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    badge.style.display = count > 0 ? 'inline-flex' : 'none';
 }
 
 function toggleFilters() {
@@ -783,11 +1051,21 @@ function logout() {
 }
 
 function resetFilters() {
-    document.getElementById('topLocation').value = '';
-    document.getElementById('topType').value = '';
-    document.getElementById('topPurpose').value = '';
-    document.getElementById('topMaxPrice').value = '';
-    document.getElementById('minPriceInput').value = '';
+    if (document.getElementById('topLocation')) document.getElementById('topLocation').value = '';
+    if (document.getElementById('topType')) document.getElementById('topType').value = '';
+    if (document.getElementById('topPurpose')) document.getElementById('topPurpose').value = '';
+    if (document.getElementById('topMaxPrice')) document.getElementById('topMaxPrice').value = '';
+    if (document.getElementById('minPriceInput')) document.getElementById('minPriceInput').value = '';
+    
+    // Clear sidebar inputs
+    if (document.getElementById('sidebarMinPrice')) document.getElementById('sidebarMinPrice').value = '';
+    if (document.getElementById('sidebarMaxPrice')) document.getElementById('sidebarMaxPrice').value = '';
+    if (document.getElementById('sidebarBeds')) document.getElementById('sidebarBeds').value = '';
+    if (document.getElementById('sidebarBaths')) document.getElementById('sidebarBaths').value = '';
+    
+    document.querySelectorAll('.sidebar-type-cb').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.amenity-pill').forEach(pill => pill.classList.remove('active'));
+    
     selectedBHK = [];
     selectedAmenities = [];
     updateFilterBadge();
@@ -803,6 +1081,7 @@ function applyFilters() {
 function getDashboardTarget() {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const role = (user.role || user.userType || '').toString().toLowerCase();
+    if (role === 'admin') return 'admin-dashboard.html';
     return role === 'seller' ? 'seller-dashboard.html' : 'dashboard.html';
 }
 
@@ -842,6 +1121,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     gridBtn?.addEventListener('click', () => setView('grid'));
     listBtn?.addEventListener('click', () => setView('list'));
+
+    // Sidebar Accordion Logic
+    const accordions = document.querySelectorAll('.accordion-header');
+    accordions.forEach(acc => {
+        acc.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const icon = this.querySelector('svg, i');
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.add('collapsed');
+                if (icon) icon.style.transform = 'rotate(-180deg)';
+            }
+        });
+    });
+
+    // Sidebar Amenity Pill Logic
+    const amenityPills = document.querySelectorAll('.amenity-pill');
+    amenityPills.forEach(pill => {
+        pill.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
 
     // Default: list view active
     setView('grid');

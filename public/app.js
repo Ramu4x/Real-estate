@@ -1,6 +1,13 @@
 // API Configuration — only declare if not already defined by an inline script
 if (typeof API_BASE === 'undefined') {
-    var API_BASE = '/api';
+    var API_BASE = (() => {
+        const host = window.location.hostname;
+        const port = window.location.port;
+        if ((host === 'localhost' || host === '127.0.0.1') && port !== '5003') {
+            return 'http://localhost:5003/api';
+        }
+        return '/api';
+    })();
 }
 
 // Global state — only declare if not already defined

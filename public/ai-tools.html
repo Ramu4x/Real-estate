@@ -182,11 +182,16 @@
       cursor: default;
       overflow: hidden;
     }
+    .at-card > * {
+      position: relative;
+      z-index: 1;
+    }
     .at-card::before {
       content: '';
       position: absolute; inset: 0; opacity: 0;
       transition: opacity 0.35s;
       border-radius: var(--radius);
+      z-index: 0;
     }
     .at-card:hover { transform: translateY(-12px); box-shadow: var(--shadow-lg); }
     .at-card:hover::before { opacity: 1; }
@@ -392,15 +397,17 @@
 
   <!-- ── NAVBAR ── -->
   <nav class="at-nav">
-    <div class="logo">
-      <span>🏠</span> EstateAI
-    </div>
+    <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 24px; font-weight: 700;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="#1a56db">
+        <path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/>
+      </svg>
+      <span style="color: #1a56db;">RealEstate</span><span style="color: #f97316;">Pro</span>
+    </a>
     <ul>
       <li><a href="index.html">Home</a></li>
       <li><a href="properties.html">Properties</a></li>
-      <li><a href="premium.html">Premium</a></li>
       <li><a href="ai-tools.html" class="active">AI Tools</a></li>
-      <li><a href="contact.html">Contact</a></li>
+      <li><a href="about.html">About</a></li>
     </ul>
     <a href="login.html" class="nav-cta">Sign In</a>
   </nav>
@@ -415,7 +422,7 @@
         <p>Harness artificial intelligence to predict prices, discover perfect homes, and generate compelling listings — all in seconds.</p>
         <div class="at-hero-btns">
           <a href="#cards" class="btn-primary">Explore Tools</a>
-          <a href="ai-prediction.html" class="btn-secondary">Try Price Predictor →</a>
+          <a href="ai-predict.html" class="btn-secondary">Try Price Predictor →</a>
         </div>
       </div>
       <div class="at-hero-image" data-aos="fade-left" data-aos-duration="900" data-aos-delay="200">
@@ -438,26 +445,26 @@
         <div class="at-card blue" data-aos="fade-up" data-aos-delay="0">
           <span class="stat-badge">95% Accuracy</span>
           <div class="icon-wrap">📈</div>
-          <h3>Price Prediction</h3>
-          <p class="preview">Enter location &amp; specs → Get an instant AI-powered market estimate</p>
-          <a href="ai-prediction.html" class="card-btn">Try Now →</a>
+          <h3 style="color: #111827;">Price Prediction</h3>
+          <p class="preview" style="color: #6b7280;">Enter location &amp; specs → Get an instant AI-powered market estimate</p>
+          <a href="ai-predict.html" class="card-btn">Try Now →</a>
         </div>
 
         <!-- Card 2 -->
         <div class="at-card purple" data-aos="fade-up" data-aos-delay="100">
           <span class="stat-badge">10K+ Users</span>
           <div class="icon-wrap">🧠</div>
-          <h3>Smart Recommendations</h3>
-          <p class="preview">Set your preferences → Get matched properties tailored to you</p>
-          <a href="ai-recommendations.html" class="card-btn">Explore →</a>
+          <h3 style="color: #111827;">AI Chat Assistant</h3>
+          <p class="preview" style="color: #6b7280;">Ask about properties, neighborhoods, and get tailored recommendations 24/7</p>
+          <a href="ai-chat.html" class="card-btn">Explore →</a>
         </div>
 
         <!-- Card 3 -->
         <div class="at-card orange" data-aos="fade-up" data-aos-delay="200">
           <span class="stat-badge">50K+ Generated</span>
           <div class="icon-wrap">✨</div>
-          <h3>Description Generator</h3>
-          <p class="preview">Enter features → AI writes a compelling property description for you</p>
+          <h3 style="color: #111827;">Description Generator</h3>
+          <p class="preview" style="color: #6b7280;">Auto-generate a compelling property description in seconds</p>
           <a href="ai-description.html" class="card-btn">Create →</a>
         </div>
 

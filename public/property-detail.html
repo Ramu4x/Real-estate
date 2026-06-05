@@ -378,7 +378,16 @@
     </main>
 
     <script>
-        var API_BASE = '/api';
+        var API_BASE = (function() {
+            var origin = window.location.origin.replace(/\/$/, '');
+            var host = window.location.hostname;
+            var port = window.location.port;
+            if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '5003') {
+                return 'http://localhost:5003/api';
+            }
+            return origin + '/api';
+        })();
+        console.log('[API] property-detail using API base:', API_BASE);
         const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80';
         const DEFAULT_PROPERTY = {
             title: 'Skyline Modern Villa',
@@ -406,6 +415,22 @@
             if (phone) phone.style.display = isLoading ? 'none' : 'block';
         }
 
+        function normalizeImageUrl(url) {
+            if (!url || typeof url !== 'string') return '';
+            if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:')) {
+                return url;
+            }
+            return url.startsWith('/') ? url : '/' + url;
+        }
+
+        function normalizeImageUrl(url) {
+            if (!url || typeof url !== 'string') return '';
+            if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:')) {
+                return url;
+            }
+            return url.startsWith('/') ? url : '/' + url;
+        }
+
         function renderGallery(property) {
             // Get images from property
             let images = property.images || [];
@@ -427,9 +452,7 @@
             if (images.length > 0) {
                 // Main image = first uploaded image
                 const firstImage = images[0];
-                const mainImageUrl = firstImage.startsWith('http') 
-                    ? firstImage 
-                    : (firstImage.startsWith('/') ? firstImage : '/' + firstImage);
+                const mainImageUrl = normalizeImageUrl(firstImage);
                 
                 console.log('[Gallery] Main image URL:', mainImageUrl);
                 mainImg.src = mainImageUrl;
@@ -440,9 +463,7 @@
                 // Thumbnails = all unique uploaded images
                 if (thumbNav) {
                     thumbNav.innerHTML = images.map((img, idx) => {
-                        const imgUrl = img.startsWith('http') 
-                            ? img 
-                            : (img.startsWith('/') ? img : '/' + img);
+                        const imgUrl = normalizeImageUrl(img);
                         console.log(`[Gallery] Thumbnail ${idx}:`, imgUrl);
                         return `
                         <button type="button" class="thumbnail-item ${idx === 0 ? 'active' : ''}" 
@@ -576,14 +597,14 @@
     <i class="fas fa-pen"></i> Edit Property
   </a>
 `;
-                } else if (isBuyer && isLoggedIn) {
+                } else if (isLoggedIn) {
                     buttonsHtml += `
-  <!-- Message Seller (BUYER ONLY - not owner) -->
+  <!-- Message Seller (not owner) -->
   <button class="btn-message" id="messageBtn" onclick="openMessageModal('${propId}', '${sellerId}')" type="button">
     <i class="fas fa-comment-dots"></i> Message Seller
   </button>
   
-  <!-- Schedule Tour (BUYER ONLY - not owner) -->
+  <!-- Schedule Tour (not owner) -->
   <button class="btn-tour" id="tourBtn" onclick="openTourModal('${propId}', '${sellerId}')" type="button">
     <i class="fas fa-calendar-check"></i> Schedule Tour
   </button>
@@ -621,6 +642,15 @@
             if (id) {
                 if (favs.has(id)) favs.delete(id); else favs.add(id);
                 localStorage.setItem('favorites', JSON.stringify([...favs]));
+                
+                if (localStorage.getItem('authToken')) {
+                    fetch(`${API_BASE}/properties/${id}/favorite`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    }).catch(err => console.error('Error saving favorite:', err));
+                }
             }
             updateFavoriteButton();
         }

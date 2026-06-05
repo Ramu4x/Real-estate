@@ -356,12 +356,9 @@
         <a href="properties.html" class="nav-link" style="color:#6b7280; font-weight:500; text-decoration:none; font-family:Inter, sans-serif;">Properties</a>
         <a href="ai-tools.html" class="nav-link" style="color:#6b7280; font-weight:500; text-decoration:none; font-family:Inter, sans-serif;">AI Tools</a>
         <a href="about.html" class="nav-link" style="color:#6b7280; font-weight:500; text-decoration:none; font-family:Inter, sans-serif;">About</a>
-        <a href="dashboard.html" class="nav-link nav-dashboard" id="navDashboard">Dashboard</a>
     </div>
     <div class="nav-right" style="display:flex; align-items:center; gap:1rem;">
-        <button id="darkModeToggle" style="background:none; border:none; font-size:1.3rem; color:#111827; cursor:pointer;">
-            <i class="fas fa-moon"></i>
-        </button>
+
         <div id="guestActions" class="guest-actions">
             <button id="loginBtn" type="button" class="btn-pill btn-pill-login" aria-label="Login" onclick="handleLoginClick(event)">Login</button>
             <button id="registerBtn" type="button" class="btn-pill btn-pill-register" aria-label="Register" onclick="openRegisterModal()">Register</button>
@@ -398,15 +395,7 @@
         <h1>Find Your Dream Home in India</h1>
 
         <div class="search-container">
-            <!-- Property Type Pills -->
-            <div class="property-types">
-                <button class="pill active" data-type="all">All</button>
-                <button class="pill" data-type="apartment">Buy</button>
-                <button class="pill" data-type="rent">Rent</button>
-                <button class="pill" data-type="plot">Plot</button>
-                <button class="pill" data-type="commercial">Commercial</button>
-            </div>
-
+            <!-- Property Type Pills removed per user request -->
             <!-- Search Bar -->
             <div class="search-bar" id="heroSearchBar">
                 <div class="search-field">
@@ -573,6 +562,16 @@
 
 <!-- ==================== SCRIPTS ==================== -->
 <script>
+const API = (() => {
+    const origin = window.location.origin.replace(/\/$/, '');
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '5003') {
+        return 'http://localhost:5003/api';
+    }
+    return `${origin}/api`;
+})();
+
 const DEMO_MODE = true;
 const mockProperties = [
   { _id: 'm1', title: 'Luxury 3BHK in Powai', price: 24500000, location: 'Mumbai, Maharashtra', type: 'Apartment', bedrooms: 3, bathrooms: 3, area: 1650, images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=900&q=80'], createdBy: { name: 'Aarav Shah' } },
@@ -594,7 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateNavUI();
     loadFeaturedProperties();
     loadStats();
-    setupPills();
     setupAutocomplete();
     setupHeroSearch();
     setupMobileNav();
@@ -611,6 +609,7 @@ function setAuthState(username, isLoggedIn = true) {
 
 function getDashboardTarget(user = currentUser) {
     const role = (user?.role || user?.userType || '').toString().toLowerCase();
+    if (role === 'admin') return 'admin-dashboard.html';
     return role === 'seller' ? 'seller-dashboard.html' : 'dashboard.html';
 }
 
@@ -701,19 +700,7 @@ function setupMobileNav() {
     overlay?.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
 }
 
-// ---------- Pills ----------
-function setupPills() {
-    document.querySelectorAll('.pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-            document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-            pill.classList.add('active');
-            const type = pill.dataset.type;
-            const typeSelect = document.getElementById('heroPropertyType');
-            if (type && type !== 'all') typeSelect.value = (type === 'rent') ? '' : type;
-        });
-    });
-}
-
+// ---------- Pills logic removed ----------
 // ---------- Hero Search ----------
 function setupHeroSearch() {
     document.getElementById('heroSearchBtn').addEventListener('click', () => {
@@ -758,10 +745,25 @@ function selectCity(city) {
     document.getElementById('locationSuggestions').classList.remove('open');
 }
 
+// ---------- API Helpers ----------
+const API_BASE_URL = window.API_BASE || (() => {
+    const origin = window.location.origin.replace(/\/$/, '');
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '5003') {
+        return 'http://localhost:5003';
+    }
+    return origin;
+})();
+
+function apiUrl(path) {
+    return `${API_BASE_URL}${path}`;
+}
+
 // ---------- Featured Properties ----------
 async function loadFeaturedProperties() {
     try {
-        const res = await fetch('/api/properties/featured');
+        const res = await fetch(apiUrl('/api/properties/featured'));
         const json = await res.json();
         
         if (json.success && json.data && json.data.length > 0) {
@@ -833,6 +835,15 @@ function loadStats() {
 function toggleFav(btn, id) {
     btn.classList.toggle('faved');
     btn.style.color = btn.classList.contains('faved') ? '#ef4444' : '';
+
+    if (localStorage.getItem('authToken')) {
+        fetch(`${API}/properties/${id}/favorite`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        }).catch(() => {});
+    }
 }
 
 // ---------- Login ----------
@@ -1007,7 +1018,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             throw new Error('Please enter a valid email and a password of at least 6 characters.');
         }
         console.log('[Auth] sending login POST to /api/auth/login');
-        const res = await fetch('/api/auth/login', {
+        const res = await fetch(apiUrl('/api/auth/login'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -1114,7 +1125,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
             throw new Error('Please enter a valid name, email, and password of at least 6 characters.');
         }
         const role = (document.querySelector('input[name="role"]:checked')?.value || 'buyer').toLowerCase();
-        const res = await fetch('/api/auth/register', {
+        const res = await fetch(apiUrl('/api/auth/register'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password, role })

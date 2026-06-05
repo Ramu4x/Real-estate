@@ -157,8 +157,17 @@
 
                 <!-- Tour Requests Tab -->
                 <div id="tour-requests" class="tab-pane">
-                    <h2 style="margin-top: 0;">Tour Requests</h2>
+                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                        <h2 style="margin: 0;">Tour Requests</h2>
+                        <div class="view-toggle" style="display:flex; gap:8px;">
+                            <button class="btn btn-outline active" id="tourListViewBtn" onclick="toggleTourView('list')"><i class="fas fa-list"></i> List</button>
+                            <button class="btn btn-outline" id="tourCalendarViewBtn" onclick="toggleTourView('calendar')"><i class="fas fa-calendar-alt"></i> Calendar</button>
+                        </div>
+                    </div>
                     <div class="section">
+                        <div id="tourCalendarContainer" style="display:none; padding:20px; background:#fff; border-radius:12px; border:1px solid var(--border); margin-bottom:20px;">
+                            <!-- Simple calendar grid will be rendered here -->
+                        </div>
                         <div class="item-list" id="tourList">
                             <!-- Tours injected here -->
                         </div>

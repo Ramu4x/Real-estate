@@ -3,7 +3,15 @@
 
 const API_BASE =
   window.API_BASE ||
-  `${window.location.origin.replace(/\/$/, "")}/api`;
+  (() => {
+    const origin = window.location.origin.replace(/\/$/, "");
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if ((host === "localhost" || host === "127.0.0.1") && port && port !== "5003") {
+      return "http://localhost:5003/api";
+    }
+    return `${origin}/api`;
+  })();
 
 const AUTH_TOKEN_KEY = "authToken";
 const OFFLINE_QUEUE_KEY = "offlineQueue:v1";

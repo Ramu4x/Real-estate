@@ -2,6 +2,26 @@ const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const { createNotification } = require("./notificationController");
 
+const formatConversation = (convo, currentUserId) => {
+  const convoObj = convo.toObject ? convo.toObject() : convo;
+  const unreadObj = {};
+  
+  if (convoObj.lastMessageSender && convoObj.lastMessageSender.toString() !== currentUserId.toString()) {
+    unreadObj[currentUserId.toString()] = convoObj.unreadCount || 0;
+  } else if (!convoObj.lastMessageSender && convoObj.participants) {
+    const otherParticipant = convoObj.participants.find(p => {
+      const pId = p._id ? p._id.toString() : p.toString();
+      return pId !== currentUserId.toString();
+    });
+    if (otherParticipant) {
+      const otherId = otherParticipant._id ? otherParticipant._id.toString() : otherParticipant.toString();
+      unreadObj[otherId] = convoObj.unreadCount || 0;
+    }
+  }
+  convoObj.unreadCount = unreadObj;
+  return convoObj;
+};
+
 // POST /api/conversations — start or get existing conversation
 const startConversation = async (req, res) => {
   try {
@@ -24,7 +44,8 @@ const startConversation = async (req, res) => {
         property: propertyId,
         lastMessage: firstMessage,
         lastMessageAt: new Date(),
-        unreadCount: { [recipientId]: 1 },
+        unreadCount: 1,
+        lastMessageSender: senderId,
       });
     }
 
@@ -40,8 +61,8 @@ const startConversation = async (req, res) => {
 
     conversation.lastMessage = firstMessage;
     conversation.lastMessageAt = new Date();
-    const existing = conversation.unreadCount.get(recipientId.toString()) || 0;
-    conversation.unreadCount.set(recipientId.toString(), existing + 1);
+    conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+    conversation.lastMessageSender = senderId;
     await conversation.save();
 
     // Notify recipient
@@ -74,7 +95,9 @@ const getConversations = async (req, res) => {
       .populate("property", "title images location price")
       .sort({ lastMessageAt: -1 });
 
-    res.json({ success: true, data: conversations });
+    const formattedConversations = conversations.map(c => formatConversation(c, userId));
+
+    res.json({ success: true, data: formattedConversations });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -95,14 +118,18 @@ const getConversationMessages = async (req, res) => {
 
     // Mark messages as read
     await Message.updateMany({ conversation: req.params.id, sender: { $ne: userId }, read: false }, { read: true });
-    conversation.unreadCount.set(userId.toString(), 0);
-    await conversation.save();
+    if (conversation.lastMessageSender && conversation.lastMessageSender.toString() !== userId.toString()) {
+      conversation.unreadCount = 0;
+      await conversation.save();
+    }
 
     const messages = await Message.find({ conversation: req.params.id })
       .populate("sender", "name avatar")
       .sort({ createdAt: 1 });
 
-    res.json({ success: true, conversation, messages });
+    const formattedConversation = formatConversation(conversation, userId);
+
+    res.json({ success: true, conversation: formattedConversation, messages });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -132,8 +159,8 @@ const sendMessage = async (req, res) => {
     const recipientId = conversation.participants.find(p => p.toString() !== senderId.toString());
     conversation.lastMessage = content;
     conversation.lastMessageAt = new Date();
-    const existing = conversation.unreadCount.get(recipientId.toString()) || 0;
-    conversation.unreadCount.set(recipientId.toString(), existing + 1);
+    conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+    conversation.lastMessageSender = senderId;
     await conversation.save();
 
     await createNotification({

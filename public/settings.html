@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | RealEstatePro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --gray: #64748b;
+        }
+
+        /* Dark Mode Overrides */
+        [data-theme="dark"] {
+            --dark: #f8fafc;
+            --light: #0f172a;
+            --border: #334155;
+            --gray: #94a3b8;
+        }
+        [data-theme="dark"] body { background: #0f172a; }
+        [data-theme="dark"] .sidebar { background: #1e293b; border-color: #334155; }
+        [data-theme="dark"] .settings-card { background: #1e293b; color: #f8fafc; border: 1px solid #334155; box-shadow: none; }
+        [data-theme="dark"] .card-header h2, [data-theme="dark"] .dashboard-header h1 { color: #f8fafc; }
+        [data-theme="dark"] .form-group input, [data-theme="dark"] .form-group select, [data-theme="dark"] .form-group textarea { background: #0f172a; border-color: #334155; color: #f8fafc; }
+        [data-theme="dark"] .form-group label, [data-theme="dark"] .toggle-info h4, [data-theme="dark"] h4 { color: #e2e8f0 !important; }
+        [data-theme="dark"] .btn-secondary { background: #0f172a; color: #f8fafc; border-color: #334155; }
+        [data-theme="dark"] .btn-secondary:hover { background: #1e293b; }
+        [data-theme="dark"] .sidebar-nav li a { color: #94a3b8; }
+        [data-theme="dark"] .sidebar-nav li a:hover, [data-theme="dark"] .sidebar-nav li a.active { background: rgba(59, 130, 246, 0.1); }
+        [data-theme="dark"] .theme-option { border-color: #334155; }
+        [data-theme="dark"] .theme-option i { color: #f8fafc; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f0f4f8; color: var(--dark); overflow-x: hidden; }
+
+        /* Layout */
+        .dashboard-layout { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px; background: #fff; border-right: 1px solid var(--border);
+            padding: 24px 0; position: fixed; height: 100vh; overflow-y: auto;
+            z-index: 100; transition: all 0.3s;
+        }
+        .sidebar-logo {
+            padding: 0 24px 24px; font-size: 20px; font-weight: 800; color: var(--dark);
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+        }
+        .sidebar-logo i { color: var(--primary); }
+        .sidebar-nav { list-style: none; padding: 0; }
+        .sidebar-nav li { position: relative; margin-bottom: 4px; }
+        .sidebar-nav li a {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 24px; color: var(--gray); text-decoration: none;
+            font-weight: 600; font-size: 14px; transition: all 0.2s;
+            cursor: pointer;
+        }
+        .sidebar-nav li a:hover, .sidebar-nav li a.active {
+            background: #e8f4fd; color: var(--primary); border-left: 3px solid var(--primary);
+        }
+        .sidebar-nav li a.active i { color: var(--primary); }
+        .sidebar-nav li a i { width: 20px; text-align: center; font-size: 16px; color: var(--gray); transition: color 0.2s; }
+        .sidebar-nav li a.text-danger { color: var(--danger); }
+        .sidebar-nav li a.text-danger i { color: var(--danger); }
+
+        /* Main Content */
+        .main-content { margin-left: 260px; flex: 1; padding: 24px 32px; min-width: 0; }
+
+        /* Header */
+        .dashboard-header {
+            margin-bottom: 28px;
+        }
+        .dashboard-header h1 { font-size: 24px; font-weight: 800; color: var(--dark); }
+        .dashboard-header p { font-size: 14px; color: var(--gray); margin-top: 4px; }
+
+        /* Settings Cards */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .settings-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .settings-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .card-header i {
+            color: var(--gray);
+            font-size: 20px;
+        }
+        .card-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        /* Form Elements */
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+        .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+            background: #fff;
+            color: var(--dark);
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .form-group input, .form-group select {
+            height: 40px;
+        }
+        .form-group textarea {
+            padding: 12px;
+            resize: vertical;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Profile Photo */
+        .profile-photo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #e0f2fe;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+        }
+        .btn-primary { background: #3b82f6; color: #fff; }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-secondary { background: #fff; color: var(--gray); border: 1px solid #e5e7eb; }
+        .btn-secondary:hover { background: #f8fafc; }
+        
+        /* Toggles */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .toggle-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+        .toggle-info p {
+            font-size: 13px;
+            color: var(--gray);
+        }
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #cbd5e1;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle-switch.active {
+            background: #3b82f6;
+        }
+        .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(20px);
+        }
+
+        /* Radio & Checkbox */
+        .custom-radio, .custom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--dark);
+        }
+        .custom-radio input, .custom-checkbox input {
+            display: none;
+        }
+        .radio-mark {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--gray);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radio-mark::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: none;
+        }
+        .custom-radio input:checked + .radio-mark {
+            border-color: #3b82f6;
+        }
+        .custom-radio input:checked + .radio-mark::after {
+            display: block;
+        }
+        .check-mark {
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .check-mark i {
+            font-size: 12px;
+            color: #fff;
+            display: none;
+        }
+        .custom-checkbox input:checked + .check-mark {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .custom-checkbox input:checked + .check-mark i {
+            display: block;
+        }
+
+        /* Lists & Tables */
+        .blocked-user {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .blocked-user:last-child {
+            border-bottom: none;
+        }
+        .blocked-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .blocked-user-info img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        .blocked-user-info span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .unblock-link {
+            color: #3b82f6;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .empty-state {
+            text-align: center;
+            color: var(--gray);
+            font-size: 14px;
+            font-style: italic;
+            padding: 16px 0;
+        }
+
+        /* Payments */
+        .saved-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .card-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .card-info i {
+            font-size: 24px;
+            color: var(--dark);
+        }
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .card-number {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .card-meta {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .remove-link {
+            color: var(--danger);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .billing-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .billing-table th {
+            text-align: left;
+            padding: 8px 0;
+            font-size: 12px;
+            color: var(--gray);
+            border-bottom: 1px solid var(--border);
+        }
+        .billing-table td {
+            padding: 12px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .billing-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Integrations */
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .integration-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .integration-card i {
+            font-size: 28px;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+        .integration-card.google i { color: #ea4335; }
+        .integration-card.facebook i { color: #1877f2; }
+        .integration-card.instagram i { color: #e4405f; }
+        .integration-card h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .integration-card .btn {
+            width: 100%;
+            justify-content: center;
+            font-size: 12px;
+            padding: 6px;
+        }
+
+        /* Appearance */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .theme-option {
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .theme-option.active {
+            border-color: #3b82f6;
+        }
+        .theme-option i {
+            font-size: 24px;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        .theme-option span {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .color-circles {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .color-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+        .color-circle.blue { background: #3b82f6; }
+        .color-circle.teal { background: #14b8a6; }
+        .color-circle.purple { background: #a855f7; }
+        .color-circle.green { background: #10b981; }
+        .color-circle.orange { background: #f97316; }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .form-row { flex-direction: column; gap: 16px; }
+        }
+        .save-btn-container {
+            text-align: right;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-logo">
+            <i class="fas fa-home"></i> RealEstate<span>Pro</span>
+        </a>
+        <ul class="sidebar-nav">
+            <li><a class="menu-item" href="seller-dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a></li>
+            <li><a class="menu-item" href="seller-dashboard.html#my-listings"><i class="fas fa-list"></i> My Listings</a></li>
+            <li><a class="menu-item" href="seller-dashboard.html#inquiries-messages"><i class="fas fa-envelope"></i> Inquiries & Messages</a></li>
+            <li><a class="menu-item" href="seller-dashboard.html#tour-requests-tab"><i class="fas fa-calendar-check"></i> Tour Requests</a></li>
+            <li><a class="menu-item" href="seller-dashboard.html#analytics-tab"><i class="fas fa-chart-line"></i> Analytics</a></li>
+            <li><a class="menu-item active" href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            <li style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                <a href="#" class="text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h1>Settings</h1>
+            <p>Manage your account and preferences</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Account Card -->
+            <div class="settings-card full-width" style="position: relative;">
+                <div id="accountLoading" style="position: absolute; inset: 0; background: rgba(255,255,255,0.8); z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: 600; color: var(--primary);">Loading...</div>
+                <div class="card-header">
+                    <i class="fas fa-user-circle"></i>
+                    <h2>Account Information</h2>
+                </div>
+                <div class="profile-photo-section">
+                    <div class="avatar-circle" id="accountAvatar">--</div>
+                    <div>
+                        <button class="btn btn-secondary" style="margin-bottom: 8px;">Change Photo</button>
+                        <p style="font-size: 12px; color: var(--gray);">JPG, GIF or PNG. Max size of 800K</p>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="accountName" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="accountEmail" placeholder="Enter your email">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="accountPhone" placeholder="Enter your phone number">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label>Bio</label>
+                    <textarea id="accountBio" rows="3" placeholder="Tell buyers about yourself..."></textarea>
+                </div>
+                <div class="save-btn-container">
+                    <button class="btn btn-primary" id="saveAccountBtn" onclick="saveAccountSettings()">Save Changes</button>
+                </div>
+            </div>
+
+
+
+
+            <!-- Appearance Card -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <i class="fas fa-palette"></i>
+                    <h2>Appearance</h2>
+                </div>
+                <h4 style="font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 12px;">Theme</h4>
+                <div class="theme-grid">
+                    <div class="theme-option active" data-theme="light">
+                        <i class="fas fa-sun"></i>
+                        <span>Light</span>
+                    </div>
+                    <div class="theme-option" data-theme="dark">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark</span>
+                    </div>
+                    <div class="theme-option" data-theme="auto">
+                        <i class="fas fa-desktop"></i>
+                        <span>Auto</span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label>Language</label>
+                    <select>
+                        <option>English</option>
+                        <option>Spanish</option>
+                        <option>French</option>
+                    </select>
+                </div>
+
+                <h4 style="font-size: 14px; font-weight: 600; color: var(--dark); margin-bottom: 12px;">Accent Color</h4>
+                <div class="color-circles">
+                    <div class="color-circle blue" data-color="blue" data-hex="#3b82f6"><i class="fas fa-check"></i></div>
+                    <div class="color-circle teal" data-color="teal" data-hex="#14b8a6"></div>
+                    <div class="color-circle purple" data-color="purple" data-hex="#a855f7"></div>
+                    <div class="color-circle green" data-color="green" data-hex="#10b981"></div>
+                    <div class="color-circle orange" data-color="orange" data-hex="#f97316"></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // -----------------------------------------
+    // Appearance & Theming
+    // -----------------------------------------
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (theme === 'light') {
+            document.documentElement.removeAttribute('data-theme');
+        } else if (theme === 'auto') {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        }
+        localStorage.setItem('rep_theme', theme);
+        
+        document.querySelectorAll('.theme-option').forEach(opt => {
+            opt.classList.remove('active');
+            if (opt.dataset.theme === theme) {
+                opt.classList.add('active');
+            }
+        });
+    };
+
+    const applyAccent = (color, hex) => {
+        document.documentElement.style.setProperty('--primary', hex);
+        localStorage.setItem('rep_accent', JSON.stringify({ name: color, hex: hex }));
+        
+        document.querySelectorAll('.color-circle').forEach(c => {
+            c.innerHTML = '';
+            if (c.dataset.color === color) {
+                c.innerHTML = '<i class="fas fa-check"></i>';
+            }
+        });
+    };
+
+    document.querySelectorAll('.theme-option').forEach(el => {
+        el.addEventListener('click', function() { applyTheme(this.dataset.theme); });
+    });
+
+    document.querySelectorAll('.color-circle').forEach(el => {
+        el.addEventListener('click', function() { applyAccent(this.dataset.color, this.dataset.hex); });
+    });
+
+    // Init Theme/Color on Settings Page
+    const savedTheme = localStorage.getItem('rep_theme') || 'light';
+    applyTheme(savedTheme);
+    const savedAccent = JSON.parse(localStorage.getItem('rep_accent'));
+    if (savedAccent) applyAccent(savedAccent.name, savedAccent.hex);
+
+    // -----------------------------------------
+    // Backend API & User Data Binding
+    // -----------------------------------------
+    const API_BASE = (() => {
+        const origin = window.location.origin.replace(/\/$/, '');
+        const host = window.location.hostname;
+        const port = window.location.port;
+        if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '5003') {
+            return 'http://localhost:5003/api';
+        }
+        return `${origin}/api`;
+    })();
+
+    let currentUserData = null;
+
+    function getInitials(name) {
+        if (!name) return 'U';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    async function fetchUserProfile() {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/users/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Failed to fetch profile');
+            const data = await res.json();
+            currentUserData = data.data || data;
+
+            // Update UI
+            document.getElementById('accountName').value = currentUserData.name || '';
+            document.getElementById('accountEmail').value = currentUserData.email || '';
+            document.getElementById('accountPhone').value = currentUserData.phone || '';
+            document.getElementById('accountBio').value = currentUserData.bio || '';
+            
+            // Set Avatar
+            const avatarEl = document.getElementById('accountAvatar');
+            if (currentUserData.profilePhoto) {
+                avatarEl.innerHTML = `<img src="${currentUserData.profilePhoto}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            } else {
+                avatarEl.innerHTML = getInitials(currentUserData.name);
+            }
+
+            // Hide loading overlay
+            document.getElementById('accountLoading').style.display = 'none';
+
+        } catch (err) {
+            console.error('Error fetching user profile:', err);
+            // Fallback to local storage if API fails
+            try {
+                currentUserData = JSON.parse(localStorage.getItem('user'));
+                if (currentUserData) {
+                    document.getElementById('accountName').value = currentUserData.name || '';
+                    document.getElementById('accountEmail').value = currentUserData.email || '';
+                    document.getElementById('accountAvatar').innerHTML = getInitials(currentUserData.name);
+                }
+            } catch(e) {}
+            document.getElementById('accountLoading').style.display = 'none';
+        }
+    }
+
+    async function saveAccountSettings() {
+        const btn = document.getElementById('saveAccountBtn');
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        const updatedData = {
+            name: document.getElementById('accountName').value.trim(),
+            email: document.getElementById('accountEmail').value.trim(),
+            phone: document.getElementById('accountPhone').value.trim(),
+            bio: document.getElementById('accountBio').value.trim()
+        };
+
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(`${API_BASE}/users/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updatedData)
+            });
+
+            if (!res.ok) throw new Error('Update failed');
+            const data = await res.json();
+            
+            // Update local state
+            const updatedUser = data.data || data;
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            
+            // Re-generate initials in case name changed
+            const avatarEl = document.getElementById('accountAvatar');
+            if (!avatarEl.querySelector('img')) {
+                avatarEl.innerHTML = getInitials(updatedUser.name);
+            }
+
+            btn.innerHTML = 'Saved!';
+            btn.style.background = 'var(--success)';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.disabled = false;
+            }, 2000);
+
+        } catch (err) {
+            console.error('Error saving profile:', err);
+            alert('Failed to save changes. Please try again.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchUserProfile();
+    });
+</script>
+</body>
+</html>

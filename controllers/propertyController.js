@@ -3,6 +3,7 @@ const User = require("../models/User");
 const cloudinaryService = require("../services/cloudinaryService");
 const locationService = require("../services/locationService");
 const { createNotification } = require("./notificationController");
+const SearchHistory = require("../models/SearchHistory");
 
 const addProperty = async (req, res) => {
   try {
@@ -70,6 +71,35 @@ const addProperty = async (req, res) => {
     
     // Populate createdBy (seller) info for the response
     await property.populate("createdBy", "name email phone avatar");
+
+    // Proactively match SearchHistory for other users and send notifications
+    try {
+      const query = {};
+      if (property.location || property.address?.city) {
+        query.location = { $regex: property.location || property.address?.city, $options: "i" };
+      }
+      const matchingSearches = await SearchHistory.find(query).populate("user");
+      for (const search of matchingSearches) {
+        if (search.user && search.user._id.toString() !== req.user.id) {
+          if (search.minPrice && property.price < search.minPrice) continue;
+          if (search.maxPrice && property.price > search.maxPrice) continue;
+          if (search.bedrooms && property.bedrooms !== search.bedrooms) continue;
+          if (search.propertyType && property.type !== search.propertyType) continue;
+
+          await createNotification({
+            recipient: search.user._id,
+            sender: req.user.id,
+            type: "system",
+            property: property._id,
+            title: "New property matches your search!",
+            message: `A new ${property.type || "property"} matching your search was listed: "${property.title}" for ₹${property.price.toLocaleString('en-IN')}`,
+            actionUrl: `/property-detail.html?id=${property._id}`
+          });
+        }
+      }
+    } catch (searchError) {
+      console.error("Failed to query/notify matching searches:", searchError.message);
+    }
     
     res.status(201).json({
       success: true,
@@ -278,11 +308,30 @@ const updateProperty = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to update this property" });
     }
 
+    const oldPrice = property.price;
+    const newPrice = parseFloat(req.body.price);
+
     const updatedProperty = await Property.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     ).populate("createdBy", "name email");
+
+    if (updatedProperty && !isNaN(newPrice) && newPrice < oldPrice) {
+      // Find all users who have this property in their favorites
+      const favoritedUsers = await User.find({ favorites: property._id });
+      for (const favUser of favoritedUsers) {
+        await createNotification({
+          recipient: favUser._id,
+          sender: req.user.id,
+          type: "system",
+          property: property._id,
+          title: "Price drop alert!",
+          message: `Price dropped on your favorited property "${property.title}": ₹${oldPrice.toLocaleString('en-IN')} → ₹${newPrice.toLocaleString('en-IN')}`,
+          actionUrl: `/property-detail.html?id=${property._id}`
+        });
+      }
+    }
 
     res.json({
       success: true,

@@ -151,16 +151,25 @@
 
         async function fetchData() {
             const token = localStorage.getItem('token');
+            const API_BASE_URL = (() => {
+                const origin = window.location.origin.replace(/\/$/, '');
+                const host = window.location.hostname;
+                const port = window.location.port;
+                if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '5003') {
+                    return 'http://localhost:5003';
+                }
+                return origin;
+            })();
             
             try {
                 // Fetch Properties (Admin sees all)
-                const pRes = await fetch('/api/properties/admin/all', {
+                const pRes = await fetch(`${API_BASE_URL}/api/properties/admin/all`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const pData = await pRes.json();
                 
                 // Fetch Users
-                const uRes = await fetch('/api/users', {
+                const uRes = await fetch(`${API_BASE_URL}/api/users`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const uData = await uRes.json();

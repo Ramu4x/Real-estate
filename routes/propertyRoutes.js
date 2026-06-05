@@ -5,7 +5,8 @@ const {
   getFeaturedProperties,
   getProperty,
   updateProperty,
-  deleteProperty
+  deleteProperty,
+  toggleFavorite
 } = require("../controllers/propertyController");
 const auth = require("../middleware/authmiddleware");
 const upload = require("../config/multer");
@@ -26,5 +27,6 @@ router.get("/my-listings", auth, async (req, res) => {
 router.get("/:id", getProperty);
 router.put("/:id", auth, updateProperty);
 router.delete("/:id", auth, deleteProperty);
+router.post("/:propertyId/favorite", auth, toggleFavorite);
 
 module.exports = router;

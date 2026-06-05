@@ -7,7 +7,8 @@ const conversationSchema = new mongoose.Schema(
     property: { type: mongoose.Schema.Types.ObjectId, ref: "Property" },
     lastMessage: { type: String, default: "" },
     lastMessageAt: { type: Date, default: Date.now },
-    unreadCount: { type: Map, of: Number, default: {} }, // { userId: count }
+    unreadCount: { type: Number, default: 0 },
+    lastMessageSender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );

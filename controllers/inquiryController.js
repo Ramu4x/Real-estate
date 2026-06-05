@@ -13,19 +13,24 @@ const formatMessage = (msg) => ({
   isRead: Boolean(msg.isRead || msg.read),
 });
 
-const getMapValue = (map, key) => {
-  if (!map) return 0;
-  if (typeof map.get === "function") return map.get(key) || 0;
-  return map[key] || 0;
-};
-
-const setMapValue = (map, key, value) => {
-  if (!map) map = {};
-  if (typeof map.set === "function") {
-    map.set(key, value);
-    return map;
+const formatConversation = (convo, currentUserId) => {
+  const convoObj = convo.toObject ? convo.toObject() : convo;
+  const unreadObj = {};
+  
+  if (convoObj.lastMessageSender && convoObj.lastMessageSender.toString() !== currentUserId.toString()) {
+    unreadObj[currentUserId.toString()] = convoObj.unreadCount || 0;
+  } else if (!convoObj.lastMessageSender && convoObj.participants) {
+    const otherParticipant = convoObj.participants.find(p => {
+      const pId = p._id ? p._id.toString() : p.toString();
+      return pId !== currentUserId.toString();
+    });
+    if (otherParticipant) {
+      const otherId = otherParticipant._id ? otherParticipant._id.toString() : otherParticipant.toString();
+      unreadObj[otherId] = convoObj.unreadCount || 0;
+    }
   }
-  return { ...map, [key]: value };
+  convoObj.unreadCount = unreadObj;
+  return convoObj;
 };
 
 // GET /api/inquiries/:id/messages
@@ -53,17 +58,20 @@ const getInquiryMessages = async (req, res) => {
       { isRead: true }
     );
 
-    conversation.unreadCount = setMapValue(conversation.unreadCount, userId, 0);
-    await conversation.save();
+    if (conversation.lastMessageSender && conversation.lastMessageSender.toString() !== userId) {
+      conversation.unreadCount = 0;
+      await conversation.save();
+    }
 
     const messages = await Message.find({ conversation: conversation._id })
       .populate("sender", "name avatar")
       .sort({ createdAt: 1 });
 
+    const formattedConversation = formatConversation(conversation, userId);
     return res.json({
       success: true,
       messages: messages.map(formatMessage),
-      data: { conversation, messages: messages.map(formatMessage) },
+      data: { conversation: formattedConversation, messages: messages.map(formatMessage) },
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
@@ -118,8 +126,8 @@ const postInquiryMessage = async (req, res) => {
 
     conversation.lastMessage = message.substring(0, 200);
     conversation.lastMessageAt = new Date();
-    const existingUnread = getMapValue(conversation.unreadCount, receiverId);
-    conversation.unreadCount = setMapValue(conversation.unreadCount, receiverId, existingUnread + 1);
+    conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+    conversation.lastMessageSender = senderId;
     await conversation.save();
 
     await createNotification({

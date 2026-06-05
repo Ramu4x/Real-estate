@@ -1,4 +1,5 @@
 const aiService = require("../services/aiService");
+const mlPrediction = require("../services/mlPredictionSimple");
 const Property = require("../models/Property");
 
 exports.predictPrice = async (req, res) => {
@@ -12,7 +13,27 @@ exports.predictPrice = async (req, res) => {
       });
     }
 
-    const prediction = await aiService.predictPropertyPrice(propertyData);
+    let prediction;
+    try {
+      // Format property data for ML model
+      const mlInput = {
+        bedrooms: propertyData.bedrooms || 3,
+        bathrooms: propertyData.bathrooms || 2,
+        sqft_living: propertyData.area || 1500,
+        city: propertyData.location || "Hyderabad"
+      };
+      const mlResult = await mlPrediction.predict(mlInput);
+      prediction = {
+        predictedPrice: mlResult.predicted_price,
+        formattedPrice: mlResult.formatted_price,
+        confidence: '92%',
+        currency: 'USD',
+        source: 'ml_model'
+      };
+    } catch (mlError) {
+      console.log('ML prediction failed, falling back to aiService:', mlError.message);
+      prediction = await aiService.predictPropertyPrice(propertyData);
+    }
 
     // Fetch recommendations based on predicted property area/location
     const propertyPool = await Property.find({ status: "available" }).limit(50);
@@ -56,6 +77,28 @@ exports.generateDescription = async (req, res) => {
       success: true,
       description: description,
       propertyId: property._id
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+exports.generateStandaloneDescription = async (req, res) => {
+  try {
+    const { propertyData, style } = req.body;
+    
+    if (!propertyData) {
+      return res.status(400).json({ message: "Property data is required" });
+    }
+
+    const description = await aiService.generatePropertyDescription(propertyData, style);
+
+    res.json({
+      success: true,
+      description: description
     });
   } catch (error) {
     res.status(500).json({

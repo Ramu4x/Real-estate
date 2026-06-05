@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Description Generator | RealEstatePro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="premium-v2.css">
+    <link rel="stylesheet" href="ai-predict.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="navbar.css">
+</head>
+
+<body style="background-color: #f8faff;">
+   <nav class="navbar" style="background: white; padding: 12px 40px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+     <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 24px; font-weight: 700;">
+       <svg width="32" height="32" viewBox="0 0 24 24" fill="#1a56db">
+         <path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/>
+       </svg>
+       <span style="color: #1a56db;">RealEstate</span>
+       <span style="color: #f97316;">Pro</span>
+     </a>
+      <div class="nav-links" style="display: flex; gap: 30px;">
+        <a href="properties.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">Properties</a>
+        <a href="ai-tools.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">AI Tools</a>
+        <a href="about.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">About</a>
+      </div>
+      <div class="nav-right" style="width: 170px;"></div>
+    </nav>
+
+    <div class="predict-container">
+        <!-- Input Form -->
+        <div class="predict-form-card">
+            <div style="width: 60px; height: 60px; background: #fff7ed; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin-bottom: 25px; color: #ea580c;">
+                <i data-lucide="sparkles" style="width: 30px; height: 30px;"></i>
+            </div>
+            <h2>AI Description Generator</h2>
+            <p>Enter basic property details and let our AI craft a compelling, marketing-ready property description.</p>
+
+            <form id="generatorForm" style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="form-group-premium">
+                    <div class="label-row">
+                        <i data-lucide="type"></i>
+                        <label>Property Title</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="text" id="pTitle" class="form-input-premium" placeholder="e.g. Luxurious Villa in Jubilee Hills" required>
+                    </div>
+                </div>
+
+                <div class="form-group-premium">
+                    <div class="label-row">
+                        <i data-lucide="map-pin"></i>
+                        <label>Property Location</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="text" id="pLocation" class="form-input-premium" placeholder="e.g. Jubilee Hills, Hyderabad" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="home"></i>
+                            <label>Type</label>
+                        </div>
+                        <select id="pType" class="form-input-premium">
+                            <option value="Apartment">Apartment</option>
+                            <option value="House">House</option>
+                            <option value="Villa">Villa</option>
+                            <option value="Penthouse">Penthouse</option>
+                        </select>
+                    </div>
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="pen-tool"></i>
+                            <label>Writing Style</label>
+                        </div>
+                        <select id="pStyle" class="form-input-premium">
+                            <option value="professional">Professional</option>
+                            <option value="luxury">Luxury</option>
+                            <option value="family">Family Friendly</option>
+                            <option value="investment">Investment Focus</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="bed"></i>
+                            <label>Bedrooms</label>
+                        </div>
+                        <input type="number" id="pBeds" class="form-input-premium" placeholder="3" required>
+                    </div>
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="bath"></i>
+                            <label>Bathrooms</label>
+                        </div>
+                        <input type="number" id="pBaths" class="form-input-premium" placeholder="2" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="maximize"></i>
+                            <label>Area (sq ft)</label>
+                        </div>
+                        <input type="number" id="pArea" class="form-input-premium" placeholder="1500" required>
+                    </div>
+                    <div class="form-group-premium">
+                        <div class="label-row">
+                            <i data-lucide="dollar-sign"></i>
+                            <label>Price (Optional)</label>
+                        </div>
+                        <input type="number" id="pPrice" class="form-input-premium" placeholder="25000000">
+                    </div>
+                </div>
+
+                <div class="form-group-premium">
+                    <div class="label-row">
+                        <i data-lucide="list"></i>
+                        <label>Amenities (Comma separated)</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="text" id="pAmenities" class="form-input-premium" placeholder="e.g. Swimming Pool, Gym, Smart Home">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-gradient-auth" style="margin-top: 10px; background: linear-gradient(135deg, #fb923c, #ea580c);">
+                    Generate Description <i data-lucide="wand-2" style="margin-left: 8px;"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results Card -->
+        <div>
+            <div id="resultsCard" class="results-card" style="display: none; height: 100%;">
+                <div class="price-box" style="background: #fff7ed; border-color: #ffedd5; text-align: left;">
+                    <h4 style="color: #ea580c; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="check-circle-2"></i> Generated Description
+                    </h4>
+                    <div id="resDescription" style="font-size: 1.05rem; line-height: 1.8; color: #334155; white-space: pre-wrap; font-weight: 500;">
+                        Generating...
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 15px;">
+                    <button onclick="copyToClipboard()" class="btn-secondary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i data-lucide="copy"></i> Copy Text
+                    </button>
+                    <a href="add-property-wizard.html" class="btn-primary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+                        <i data-lucide="plus-square"></i> List Property
+                    </a>
+                </div>
+            </div>
+
+            <!-- Initial State Placeholder -->
+            <div id="placeholder" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white; border-radius: 24px; border: 2px dashed #e2e8f0; padding: 60px; text-align: center;">
+                <div style="width: 100px; height: 100px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 25px;">
+                    <i data-lucide="file-text" style="width: 50px; height: 50px; color: #cbd5e1;"></i>
+                </div>
+                <h3 style="font-weight: 700; color: #1e293b; margin-bottom: 10px;">Awaiting Input</h3>
+                <p style="color: #64748b; max-width: 300px;">Fill out the details on the left, and our AI will generate a highly converting description for your property.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const API_BASE = (() => {
+            const host = window.location.hostname;
+            const port = window.location.port;
+            if ((host === 'localhost' || host === '127.0.0.1') && port !== '5003') {
+                return 'http://localhost:5003/api';
+            }
+            return '/api';
+        })();
+
+        document.getElementById('generatorForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('button');
+            const originalBtnHtml = submitBtn.innerHTML;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+            document.getElementById('placeholder').style.display = 'none';
+            const resCard = document.getElementById('resultsCard');
+            resCard.style.display = 'block';
+            resCard.classList.add('active');
+            document.getElementById('resDescription').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Crafting the perfect description...';
+
+            const propertyData = {
+                title: document.getElementById('pTitle').value,
+                location: document.getElementById('pLocation').value,
+                type: document.getElementById('pType').value,
+                area: document.getElementById('pArea').value,
+                bedrooms: document.getElementById('pBeds').value,
+                bathrooms: document.getElementById('pBaths').value,
+                price: document.getElementById('pPrice').value || 0,
+                amenities: document.getElementById('pAmenities').value ? document.getElementById('pAmenities').value.split(',').map(s => s.trim()) : []
+            };
+
+            const style = document.getElementById('pStyle').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/ai/generate-description-standalone`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ propertyData, style })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('resDescription').innerText = data.description;
+                } else {
+                    document.getElementById('resDescription').innerText = "Failed to generate: " + data.message;
+                }
+            } catch (err) {
+                document.getElementById('resDescription').innerText = "Network error while generating description.";
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
+            lucide.createIcons();
+        });
+
+        function copyToClipboard() {
+            const text = document.getElementById('resDescription').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Description copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+
+</html>

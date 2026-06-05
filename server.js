@@ -35,6 +35,7 @@ app.use("/api/conversations", require("./routes/conversationRoutes"));
 app.use("/api/inquiries", require("./routes/inquiryRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 app.use("/api/calls", require("./routes/callRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 // Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({ 

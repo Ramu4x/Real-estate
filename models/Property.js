@@ -57,16 +57,21 @@ const propertySchema = new mongoose.Schema({
     enum: ["available", "pending", "sold"],
     default: "available"
   },
+  approvalStatus: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "approved"
+  },
   images: [{
     type: String
   }],
   // Geospatial fields temporarily disabled due to index conflicts
-  // latitude: {
-  //   type: Number
-  // },
-  // longitude: {
-  //   type: Number
-  // },
+  latitude: {
+    type: Number
+  },
+  longitude: {
+    type: Number
+  },
   // locationPoint: {
   //   type: {
   //     type: String,

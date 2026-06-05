@@ -1,78 +1,553 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Real Estate Marketplace</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="premium.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | RealEstatePro</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    :root {
+      --teal: #2A9D8F;
+      --teal-light: rgba(42, 157, 143, 0.1);
+      --teal-dark: #1F7A6F;
+      --bg-color: #FAFAFA;
+      --text-dark: #1E293B;
+      --text-gray: #64748B;
+      --white: #FFFFFF;
+      --radius: 16px;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 20px 40px -5px rgba(42, 157, 143, 0.15);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-dark);
+      background-color: var(--bg-color);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4 {
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-dark);
+    }
+    
+    /* Navbar */
+    .navbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 20px 5%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-sm);
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+      justify-content: center;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-gray);
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+    }
+    .nav-links a:hover {
+      color: var(--teal);
+    }
+    .nav-links a.active {
+      color: var(--teal);
+    }
+    .nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--teal);
+      border-radius: 2px;
+    }
+    
+    /* Hero Section */
+    .hero {
+      padding: 100px 5% 120px;
+      text-align: center;
+      position: relative;
+      background: linear-gradient(135deg, #ffffff 0%, #eefcfa 100%);
+      overflow: hidden;
+    }
+    .hero-bg-shapes {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .shape {
+      position: absolute;
+      background: linear-gradient(45deg, var(--teal-light), transparent);
+      border-radius: var(--radius);
+      animation: float 6s ease-in-out infinite;
+    }
+    .shape-1 { width: 120px; height: 120px; top: 20%; left: 10%; transform: rotate(15deg); }
+    .shape-2 { width: 80px; height: 80px; bottom: 30%; right: 15%; animation-delay: 2s; border-radius: 50%; }
+    .shape-3 { width: 150px; height: 150px; top: 10%; right: 10%; transform: rotate(-20deg); animation-delay: 1s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+    }
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-gray);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Stats Section */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      padding: 0 5%;
+      margin-top: -60px;
+      position: relative;
+      z-index: 2;
+    }
+    .stat-card {
+      background: var(--white);
+      padding: 32px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      transition: var(--transition);
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+    .stat-card h3 {
+      font-size: 2.5rem;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+    .stat-card p {
+      color: var(--text-gray);
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    
+    /* Mission Section */
+    .mission {
+      padding: 100px 5%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .mission-text h2 {
+      font-size: 2.5rem;
+      margin-bottom: 24px;
+    }
+    .mission-text p {
+      color: var(--text-gray);
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+    }
+    .mission-image-wrapper {
+      position: relative;
+    }
+    .mission-image-wrapper img {
+      width: 100%;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      object-fit: cover;
+      aspect-ratio: 4/3;
+    }
+    .floating-badge {
+      position: absolute;
+      bottom: -20px;
+      left: -20px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .floating-badge .icon-wrapper {
+      background: var(--teal-light);
+      color: var(--teal);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .floating-badge div h4 { font-size: 1.1rem; margin-bottom: 4px; }
+    .floating-badge div p { color: var(--text-gray); font-size: 0.9rem; margin: 0; }
+    
+    /* Core Values */
+    .values {
+      padding: 100px 5%;
+      background: var(--white);
+    }
+    .values-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 60px;
+    }
+    .values-header h2 { font-size: 2.5rem; margin-bottom: 16px; }
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .value-card {
+      padding: 40px 30px;
+      background: var(--bg-color);
+      border-radius: var(--radius);
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+    .value-card:hover {
+      background: var(--white);
+      border-color: var(--teal-light);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-5px);
+    }
+    .value-card .icon-wrapper {
+      width: 60px;
+      height: 60px;
+      background: var(--teal-light);
+      color: var(--teal);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      transition: var(--transition);
+    }
+    .value-card:hover .icon-wrapper {
+      background: var(--teal);
+      color: var(--white);
+    }
+    .value-card h3 { font-size: 1.3rem; margin-bottom: 12px; }
+    .value-card p { color: var(--text-gray); font-size: 0.95rem; }
+    
+    /* Team Section */
+    .team {
+      padding: 100px 5%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .team-header { text-align: center; margin-bottom: 60px; }
+    .team-header h2 { font-size: 2.5rem; }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+    }
+    .team-card {
+      background: var(--white);
+      padding: 40px 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+      border: 1px solid rgba(0,0,0,0.03);
+      transition: var(--transition);
+    }
+    .team-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .team-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: var(--teal-light);
+      color: var(--teal);
+      font-size: 2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-family: 'Outfit', sans-serif;
+    }
+    .team-card h3 { font-size: 1.4rem; margin-bottom: 4px; }
+    .team-card .role { color: var(--teal); font-weight: 500; margin-bottom: 16px; font-size: 0.95rem; }
+    .team-card p { color: var(--text-gray); font-size: 0.95rem; }
+    
+    /* CTA Section */
+    .cta {
+      padding: 100px 5%;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+      color: var(--white);
+      text-align: center;
+    }
+    .cta-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .cta h2 { color: var(--white); font-size: 3rem; margin-bottom: 20px; }
+    .cta p { font-size: 1.2rem; margin-bottom: 40px; opacity: 0.9; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--white);
+      color: var(--teal-dark);
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: var(--transition);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .cta-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    /* Responsive */
+    @media (max-width: 968px) {
+      .mission { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.5rem; }
+      .cta h2 { font-size: 2.2rem; }
+    }
+  </style>
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <i class="fas fa-home"></i>
-                <span>RealEstatePro</span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="properties.html" class="nav-link">Properties</a></li>
-                <li><a href="ai-tools.html" class="nav-link">AI Tools</a></li>
-                <li><a href="about.html" class="nav-link active">About</a></li>
-            </ul>
-            <div class="nav-auth">
-                <button id="themeToggle" class="theme-toggle" title="Toggle dark/light theme">
-                <div class="message ai">
-                    Hello! I'm your AI property assistant. How can I help you find your dream home today?
-                </div>
-            </div>
-            <form class="ai-chat-input" id="aiChatForm">
-                <input type="text" id="aiInput" placeholder="Ask about properties, areas..." autocomplete="off">
-                <button type="submit">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </form>
-        </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="logo" style="display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 24px; font-weight: 700;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="#1a56db">
+        <path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/>
+      </svg>
+      <span style="color: #1a56db;">RealEstate</span><span style="color: #f97316;">Pro</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="properties.html">Properties</a></li>
+      <li><a href="ai-tools.html">AI Tools</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+    </ul>
+    <div style="display: flex; justify-content: flex-end;">
+      <a href="login.html" class="nav-cta" style="background: var(--teal); color: white; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-weight: 600; transition: var(--transition);">Sign In</a>
     </div>
+  </nav>
 
-    <script src="app.js"></script>
-    <script>
-        // Set active nav link and back button
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            document.querySelector('[href="about.html"]').classList.add('active');
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="hero-content">
+      <h1>About RealEstatePro</h1>
+      <p>Pioneering the future of property search with advanced AI-driven insights to help you find, value, and secure your perfect home faster than ever.</p>
+    </div>
+  </section>
 
-            // Back button functionality
-            const backButton = document.querySelector('.back-button');
-            if (backButton) {
-                backButton.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    window.history.back();
-                });
-            }
+  <!-- Stats Section -->
+  <section class="stats">
+    <div class="stat-card">
+      <h3 id="stat-1">50K+</h3>
+      <p>Happy Clients</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="stat-2">12K+</h3>
+      <p>Properties Sold</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="stat-3">98%</h3>
+      <p>Satisfaction Rate</p>
+    </div>
+    <div class="stat-card">
+      <h3 id="stat-4">15+</h3>
+      <p>Years Experience</p>
+    </div>
+  </section>
 
-            // Handle contact form submission
-            document.getElementById('contactForm')?.addEventListener('submit', function (e) {
-                e.preventDefault();
-                showMessage('Thank you for your message! We\'ll get back to you soon.', 'success');
-                this.reset();
-            });
+  <!-- Mission Section -->
+  <section class="mission">
+    <div class="mission-text">
+      <h2>Our Mission</h2>
+      <p>At RealEstatePro, we believe that finding a home should be an exciting journey, not a stressful chore. Our mission is to revolutionize the real estate industry by bringing transparency, speed, and intelligence into every transaction.</p>
+      <p>We are integrating cutting-edge Artificial Intelligence to analyze millions of market data points. Whether you are a first-time buyer seeking a cozy apartment or an investor looking for hidden gems, our algorithms ensure you have the exact insights you need to make confident decisions.</p>
+      <p>We don't just sell houses; we provide the technology to match you with your future.</p>
+    </div>
+    <div class="mission-image-wrapper">
+      <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Modern House">
+      <div class="floating-badge">
+        <div class="icon-wrapper">
+          <i data-lucide="award"></i>
+        </div>
+        <div>
+          <h4>#1 Innovator</h4>
+          <p>Real Estate Tech 2026</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            // Initialize mobile navigation
-            setupMobileNavigation();
-        });
-    </script>
+  <!-- Core Values -->
+  <section class="values">
+    <div class="values-header">
+      <h2>Our Core Values</h2>
+      <p style="color: var(--text-gray)">The principles that guide our technology and our relationships with clients.</p>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="icon-wrapper">
+          <i data-lucide="bot"></i>
+        </div>
+        <h3>AI Innovation</h3>
+        <p>Continuously pushing the boundaries of machine learning to provide accurate, real-time property valuations and predictive analytics.</p>
+      </div>
+      <div class="value-card">
+        <div class="icon-wrapper">
+          <i data-lucide="handshake"></i>
+        </div>
+        <h3>Trust & Transparency</h3>
+        <p>We believe in open data. No hidden fees, no opaque algorithms—just clear, honest insights you can rely on.</p>
+      </div>
+      <div class="value-card">
+        <div class="icon-wrapper">
+          <i data-lucide="zap"></i>
+        </div>
+        <h3>Speed & Efficiency</h3>
+        <p>Your time is valuable. Our platform is optimized to instantly surface the most relevant listings, cutting your search time in half.</p>
+      </div>
+      <div class="value-card">
+        <div class="icon-wrapper">
+          <i data-lucide="bar-chart-3"></i>
+        </div>
+        <h3>Data-Driven Insights</h3>
+        <p>Every recommendation we make is backed by robust data, empowering you to invest with logic and complete confidence.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team">
+    <div class="team-header">
+      <h2>Meet the Leadership</h2>
+      <p style="color: var(--text-gray)">The visionaries blending real estate expertise with artificial intelligence.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">JD</div>
+        <h3>Jane Doe</h3>
+        <div class="role">Chief Executive Officer</div>
+        <p>With 20 years in real estate brokerage, Jane leads our mission to modernize the home buying experience.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">JS</div>
+        <h3>John Smith</h3>
+        <div class="role">Chief Technology Officer</div>
+        <p>Former lead AI engineer at a top tech firm, John architects the predictive models powering our platform.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">EW</div>
+        <h3>Emily Wong</h3>
+        <div class="role">Head of Product</div>
+        <p>Emily ensures our cutting-edge technology remains intuitive, accessible, and user-friendly for all clients.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="cta-content">
+      <h2>Ready to Find Your Dream Home?</h2>
+      <p>Experience the power of AI-driven real estate search today. Let our technology guide you to the perfect property.</p>
+      <a href="properties.html" class="cta-btn">Start Exploring</a>
+    </div>
+  </section>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+    
+    // Simple counter animation
+    function animateValue(id, start, end, duration, suffix) {
+      const obj = document.getElementById(id);
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start) + suffix;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+    
+    // Trigger animation when stats section comes into view
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateValue("stat-1", 0, 50, 2000, "K+");
+          animateValue("stat-2", 0, 12, 2000, "K+");
+          animateValue("stat-3", 0, 98, 2000, "%");
+          animateValue("stat-4", 0, 15, 2000, "+");
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+    
+    observer.observe(document.querySelector('.stats'));
+  </script>
 </body>
-
 </html>

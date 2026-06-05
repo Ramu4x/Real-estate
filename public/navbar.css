@@ -1,3 +1,4 @@
+body { padding-top: 0 !important; }
 .navbar { position: sticky; top: 0; z-index: 100; }
 .nav-links a { position: relative; transition: color 0.2s ease; }
 .nav-right button, .nav-links a { transition: transform 0.18s ease, color 0.18s ease, background-color 0.18s ease; }

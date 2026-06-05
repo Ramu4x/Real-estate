@@ -90,7 +90,16 @@ function logout() {
 // ==========================================
 // API HELPERS
 // ==========================================
-const API_BASE = '/api';
+const API_BASE = (() => {
+    const origin = window.location.origin.replace(/\/$/, '');
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if ((host === 'localhost' || host === '127.0.0.1') && port && port !== '5003') {
+        return 'http://localhost:5003/api';
+    }
+    return `${origin}/api`;
+})();
+console.log('[API] dashboard using API base:', API_BASE);
 
 async function apiGet(endpoint) {
     const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -187,6 +196,10 @@ async function loadBuyerDashboard() {
     const { data } = await apiGet('/dashboard/buyer');
     if(!data) return;
 
+    const user = JSON.parse(localStorage.getItem('user'));
+    const userId = user._id || user.id;
+
+    // Stat Cards
     document.getElementById('statCards').innerHTML = `
         <div class="stat-card">
             <div class="stat-icon"><i data-lucide="heart"></i></div>
@@ -194,7 +207,7 @@ async function loadBuyerDashboard() {
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i data-lucide="message-square"></i></div>
-            <div class="stat-info"><h4>Unread Messages</h4><h2>${data.stats.unreadMessages}</h2></div>
+            <div class="stat-info"><h4>Messages Sent</h4><h2>${data.stats.messagesSent}</h2></div>
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i data-lucide="calendar"></i></div>
@@ -202,36 +215,70 @@ async function loadBuyerDashboard() {
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i data-lucide="search"></i></div>
-            <div class="stat-info"><h4>Saved Searches</h4><h2>${data.stats.savedSearches}</h2></div>
+            <div class="stat-info"><h4>Searches Saved</h4><h2>${data.stats.savedSearches}</h2></div>
         </div>
     `;
 
-    document.getElementById('pendingTasksTitle').innerText = 'Upcoming Tours';
-    const confirmedHtml = data.confirmedBookings.map(b => `
-        <div class="list-item">
-            <img src="${b.propertyId?.images?.[0] || 'https://via.placeholder.com/50'}" alt="Prop">
-            <div class="list-item-content">
-                <div class="list-item-title">${b.propertyId?.title}</div>
-                <div class="list-item-subtitle">✅ Confirmed for ${b.date} at ${b.time}</div>
+    // New Replies from Sellers
+    document.getElementById('pendingTasksTitle').innerText = 'New Replies from Sellers';
+    const repliesHtml = data.conversations.filter(c => {
+        return c.lastMessageSender !== userId;
+    }).map(c => {
+        const seller = c.participants.find(p => p._id?.toString() !== userId && p.toString() !== userId) || {};
+        const isUnread = c.unreadCount?.[userId] > 0;
+        return `
+            <div class="list-item" onclick="openChat('${c._id}')" style="cursor:pointer">
+                <img src="${seller.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(seller.name || 'Seller')}`}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;">
+                <div class="list-item-content">
+                    <div class="list-item-title">👤 <strong>${seller.name || 'Seller'}</strong> (Seller): "${c.lastMessage}"</div>
+                    <div class="list-item-subtitle" style="margin-top:4px; font-size:0.85rem; color:var(--gray);">${c.property?.title || 'Property'} • ${new Date(c.lastMessageAt).toLocaleDateString()} ${isUnread ? '• <span style="color:#ef4444; font-weight:bold;">NEW 🔴</span>' : ''}</div>
+                </div>
             </div>
-            <div class="list-item-actions">
-                <button class="btn btn-outline" onclick="window.location.href='property-detail.html?id=${b.propertyId?._id}'">View</button>
-            </div>
-        </div>
-    `).join('') || '<div style="color:var(--gray)">No upcoming confirmed tours.</div>';
-    document.getElementById('pendingTasksList').innerHTML = confirmedHtml;
+        `;
+    }).join('') || '<div style="color:var(--gray); padding:10px;">No new replies from sellers.</div>';
+    document.getElementById('pendingTasksList').innerHTML = repliesHtml;
 
-    document.getElementById('recentActivityTitle').innerText = 'Pending Tour Requests';
-    const pendingHtml = data.pendingBookings.map(b => `
-        <div class="list-item">
-            <img src="${b.propertyId?.images?.[0] || 'https://via.placeholder.com/50'}" alt="Prop">
-            <div class="list-item-content">
-                <div class="list-item-title">${b.propertyId?.title}</div>
-                <div class="list-item-subtitle">⏳ Waiting for seller: ${b.date} at ${b.time}</div>
-            </div>
-        </div>
-    `).join('') || '<div style="color:var(--gray)">No pending requests.</div>';
-    document.getElementById('recentActivityList').innerHTML = pendingHtml;
+    // Recent Activity
+    document.getElementById('recentActivityTitle').innerText = 'Recent Activity';
+    const activities = [];
+    
+    // Tour status changes
+    data.bookings.forEach(b => {
+        const statusIcon = b.status === 'confirmed' ? '✅' : b.status === 'cancelled' ? '❌' : b.status === 'pending' ? '⏳' : '✓';
+        activities.push({
+            date: new Date(b.updatedAt || b.createdAt),
+            html: `
+                <div class="list-item">
+                    <div class="list-item-content">
+                        <div class="list-item-title">📅 Tour Request: ${new Date(b.date).toLocaleDateString()} at ${b.time}</div>
+                        <div class="list-item-subtitle" style="margin-top:4px; font-size:0.85rem; color:var(--gray);">${b.propertyId?.title || 'Property'} • Status: ${b.status} ${statusIcon}</div>
+                    </div>
+                </div>
+            `
+        });
+    });
+
+    // Messages sent
+    data.conversations.forEach(c => {
+        if (c.lastMessageSender === userId) {
+            const other = c.participants.find(p => p._id?.toString() !== userId && p.toString() !== userId) || {};
+            activities.push({
+                date: new Date(c.lastMessageAt),
+                html: `
+                    <div class="list-item" onclick="openChat('${c._id}')" style="cursor:pointer">
+                        <div class="list-item-content">
+                            <div class="list-item-title">💬 You → ${other.name || 'Seller'}: "${c.lastMessage}"</div>
+                            <div class="list-item-subtitle" style="margin-top:4px; font-size:0.85rem; color:var(--gray);">${c.property?.title || 'Property'} • Sent ✓</div>
+                        </div>
+                    </div>
+                `
+            });
+        }
+    });
+
+    activities.sort((a, b) => b.date - a.date);
+    const activityHtml = activities.slice(0, 5).map(a => a.html).join('') || '<div style="color:var(--gray); padding:10px;">No recent activity.</div>';
+    document.getElementById('recentActivityList').innerHTML = activityHtml;
 
     lucide.createIcons();
 }
@@ -283,18 +330,82 @@ async function markAllNotificationsRead() {
 // ==========================================
 // TOUR REQUESTS
 // ==========================================
+let currentTourView = 'list';
+let loadedTourData = [];
+
+function toggleTourView(view) {
+    currentTourView = view;
+    document.getElementById('tourListViewBtn').classList.toggle('active', view === 'list');
+    document.getElementById('tourCalendarViewBtn').classList.toggle('active', view === 'calendar');
+    
+    if (view === 'list') {
+        document.getElementById('tourCalendarContainer').style.display = 'none';
+        document.getElementById('tourList').style.display = 'block';
+    } else {
+        document.getElementById('tourCalendarContainer').style.display = 'block';
+        document.getElementById('tourList').style.display = 'none';
+        renderTourCalendar();
+    }
+}
+window.toggleTourView = toggleTourView;
+
+function renderTourCalendar() {
+    const container = document.getElementById('tourCalendarContainer');
+    if (!loadedTourData || loadedTourData.length === 0) {
+        container.innerHTML = '<div style="color:var(--gray); text-align:center; padding: 20px;">No tours scheduled to show in calendar.</div>';
+        return;
+    }
+    
+    const sorted = [...loadedTourData].sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    const listHtml = sorted.map(t => {
+        const dateObj = new Date(t.date);
+        const day = dateObj.getDate();
+        const month = dateObj.toLocaleString('default', { month: 'short' });
+        
+        return `
+            <div style="display:flex; align-items:center; gap:20px; padding:15px; border-bottom:1px solid #f1f5f9;">
+                <div style="background:#1a56db; color:#fff; border-radius:10px; padding:10px; min-width:60px; text-align:center;">
+                    <div style="font-size:0.75rem; text-transform:uppercase; font-weight:600; opacity:0.8;">${month}</div>
+                    <div style="font-size:1.3rem; font-weight:800; line-height:1.2;">${day}</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:700; color:#1e293b;">${t.propertyId?.title || 'Property Tour'}</div>
+                    <div style="font-size:0.85rem; color:#64748b; margin-top:4px;">⏱ Time: ${t.time} • Status: <strong style="color:${t.status === 'confirmed' ? 'green' : 'orange'}; text-transform:capitalize;">${t.status}</strong></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = `
+        <h4 style="margin-top:0; margin-bottom:15px; color:#1e293b; font-weight:700;"><i class="fas fa-calendar-alt"></i> Tour Schedule</h4>
+        <div style="display:grid; gap:10px;">
+            ${listHtml}
+        </div>
+    `;
+}
+window.renderTourCalendar = renderTourCalendar;
+
+function rescheduleTour(id) {
+    alert("To reschedule, please send a message to the seller directly, or cancel this tour request and submit a new one from the property detail page.");
+}
+window.rescheduleTour = rescheduleTour;
+
 async function loadTours() {
     const user = JSON.parse(localStorage.getItem('user'));
     const endpoint = user.role === 'seller' ? '/bookings/received' : '/bookings/my';
     const { data } = await apiGet(endpoint);
     
     if(!data) return;
+    loadedTourData = data;
 
     const html = data.map(b => {
         const statusColors = {
             pending: 'orange',
             confirmed: 'green',
-            cancelled: 'red'
+            cancelled: 'red',
+            completed: 'blue',
+            rejected: 'purple'
         };
         const statusBadge = `<span style="color: ${statusColors[b.status]}; font-weight: bold; text-transform: capitalize;">${b.status}</span>`;
         
@@ -306,23 +417,32 @@ async function loadTours() {
                     <button class="btn btn-outline" onclick="updateTourStatus('${b._id}', 'cancelled')">Cancel</button>
                 </div>
             `;
+        } else if(user.role !== 'seller' && (b.status === 'pending' || b.status === 'confirmed')) {
+            actions = `
+                <div class="list-item-actions">
+                    <button class="btn btn-outline" onclick="rescheduleTour('${b._id}')">Reschedule</button>
+                    <button class="btn btn-outline" style="color:#ef4444; border-color:#fecaca;" onclick="updateTourStatus('${b._id}', 'cancelled')">Cancel</button>
+                </div>
+            `;
         }
 
         const person = user.role === 'seller' ? b.buyerId : b.sellerId;
+        const formattedDate = new Date(b.date).toLocaleDateString();
 
         return `
             <div class="list-item">
-                <img src="${b.propertyId?.images?.[0] || 'https://via.placeholder.com/80'}" alt="Prop" style="width:80px;height:80px;">
+                <img src="${b.propertyId?.images?.[0] || 'https://via.placeholder.com/80'}" alt="Prop" style="width:80px;height:80px;object-fit:cover;border-radius:10px;">
                 <div class="list-item-content">
                     <div class="list-item-title">${b.propertyId?.title || 'Property'}</div>
-                    <div class="list-item-subtitle" style="margin-bottom: 5px;">
-                        🗓 <strong>${b.date}</strong> at <strong>${b.time}</strong>
+                    <div class="list-item-subtitle" style="margin-bottom: 5px; margin-top: 4px;">
+                        🗓 <strong>${formattedDate}</strong> at <strong>${b.time}</strong>
                     </div>
-                    <div style="font-size: 0.85rem; color: var(--dark);">
-                        👤 ${person?.name} | 📞 ${b.phone || person?.phone || 'N/A'}
+                    <div style="font-size: 0.85rem; color: #475569;">
+                        👤 ${person?.name || 'User'} | 📞 ${b.phone || person?.phone || 'N/A'}
                     </div>
                     <div style="font-size: 0.85rem; margin-top: 5px;">Status: ${statusBadge}</div>
-                    ${b.message ? `<div style="font-size: 0.8rem; color: var(--gray); margin-top: 5px; font-style: italic;">"${b.message}"</div>` : ''}
+                    ${b.message ? `<div style="font-size: 0.8rem; color: #64748b; margin-top: 5px; font-style: italic;">"${b.message}"</div>` : ''}
+                    ${b.sellerNotes ? `<div style="font-size: 0.8rem; color: #1e3a8a; background: #eff6ff; padding: 6px 10px; border-radius: 6px; margin-top: 5px;"><strong>Seller Response:</strong> "${b.sellerNotes}"</div>` : ''}
                 </div>
                 ${actions}
             </div>
@@ -330,15 +450,25 @@ async function loadTours() {
     }).join('') || '<div style="color:var(--gray); padding: 20px;">No tour requests found.</div>';
 
     document.getElementById('tourList').innerHTML = html;
+    if (currentTourView === 'calendar') {
+        renderTourCalendar();
+    }
 }
+window.loadTours = loadTours;
 
 async function updateTourStatus(id, status) {
     await apiPut(`/bookings/${id}/status`, { status });
     loadTours(); // refresh tab
+    const user = JSON.parse(localStorage.getItem('user'));
     if(document.getElementById('dashboard-home').classList.contains('active')) {
-        loadSellerDashboard(); // refresh home if active
+        if (user.role === 'seller') {
+            loadSellerDashboard(); // refresh home if active
+        } else {
+            loadBuyerDashboard();
+        }
     }
 }
+window.updateTourStatus = updateTourStatus;
 
 // ==========================================
 // MY LISTINGS

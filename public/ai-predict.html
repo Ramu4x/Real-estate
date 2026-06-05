@@ -32,28 +32,13 @@
      </a>
      
      <!-- CENTER: Nav Links -->
-     <div class="nav-links" style="display: flex; gap: 30px;">
-       <a href="properties.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">Properties</a>
-       <a href="ai-tools.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">AI Tools</a>
-       <a href="about.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">About</a>
-     </div>
-     
-     <!-- RIGHT: User Actions -->
-     <div class="nav-right" style="display: flex; align-items: center; gap: 16px;">
-       <!-- Dark Mode Toggle -->
-       <button onclick="toggleDarkMode()" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 8px; border-radius: 8px;">
-         🌙
-       </button>
-       
-       <!-- User Name -->
-       <span id="userName" style="color: #4b5563; font-size: 14px; font-weight: 500;">ramu</span>
-       
-       <!-- Logout -->
-       <button onclick="logout()" style="background: transparent; border: 1px solid #e5e7eb; color: #4b5563; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px;">
-         Logout
-       </button>
-     </div>
-   </nav>
+      <div class="nav-links" style="display: flex; gap: 30px;">
+        <a href="properties.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">Properties</a>
+        <a href="ai-tools.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">AI Tools</a>
+        <a href="about.html" style="color: #4b5563; text-decoration: none; font-size: 15px; font-weight: 500;">About</a>
+      </div>
+      <div class="nav-right" style="width: 170px;"></div>
+    </nav>
 
     <div class="predict-container">
         <!-- Input Form -->
@@ -121,7 +106,7 @@
 
         <!-- Results Card -->
         <div>
-            <div id="resultsCard" class="results-card">
+            <div id="resultsCard" class="results-card" style="display: none;">
                 <div class="price-box">
                     <h4>Estimated Market Value</h4>
                     <div class="predicted-price" id="resPrice">₹0</div>
@@ -173,9 +158,18 @@
     <script>
         lucide.createIcons();
 
+        const API_BASE = (() => {
+            const host = window.location.hostname;
+            const port = window.location.port;
+            if ((host === 'localhost' || host === '127.0.0.1') && port !== '5003') {
+                return 'http://localhost:5003/api';
+            }
+            return '/api';
+        })();
+
         let myChart = null;
 
-        document.getElementById('predictionForm').addEventListener('submit', function (e) {
+        document.getElementById('predictionForm').addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const submitBtn = e.target.querySelector('button');
@@ -185,28 +179,58 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
 
-            setTimeout(() => {
+            try {
+                const conditionEl = document.getElementById('pCondition');
+                const propertyData = {
+                    type: document.getElementById('pType').value,
+                    location: document.getElementById('pLocation').value || 'Hyderabad',
+                    area: parseInt(document.getElementById('pArea').value) || 1500,
+                    bedrooms: parseInt(document.getElementById('pBeds').value) || 3,
+                    bathrooms: parseFloat(document.getElementById('pBaths').value) || 2,
+                    condition: conditionEl ? conditionEl.value : '3'
+                };
+
+                const response = await fetch(`${API_BASE}/ai/predict-price`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(propertyData)
+                });
+                
+                const data = await response.json();
+                
                 // Show results
                 document.getElementById('placeholder').style.display = 'none';
                 const resCard = document.getElementById('resultsCard');
-                resCard.classList.add('active');
+                resCard.style.display = 'flex';
+                // Slight delay to allow display to apply before fading in
+                setTimeout(() => {
+                    resCard.classList.add('active');
+                }, 10);
 
-                // Generate random data for demo
-                const area = document.getElementById('pArea').value;
-                const basePrice = area * 8500; // Random multiplier
-                const finalPrice = basePrice + (Math.random() * 500000);
-
-                document.getElementById('resPrice').innerText = '₹' + Math.floor(finalPrice).toLocaleString('en-IN');
-                document.getElementById('resConfidence').innerText = '94%';
-                document.getElementById('confidenceBar').style.width = '94%';
-                document.getElementById('resTrend').innerText = '+12.4% Up';
+                if (data.success && data.data) {
+                    const priceRaw = data.data.predictedPrice || data.data.price || 0;
+                    document.getElementById('resPrice').innerText = '₹' + Math.floor(priceRaw).toLocaleString('en-IN');
+                    document.getElementById('resConfidence').innerText = data.data.confidence || '92%';
+                    document.getElementById('confidenceBar').style.width = data.data.confidence || '92%';
+                    document.getElementById('resTrend').innerText = '+12.4% Up';
+                    if (data.data.source === 'ml_model') {
+                        document.getElementById('resTrend').innerText = 'Real ML Prediction';
+                    }
+                } else {
+                    document.getElementById('resPrice').innerText = 'Error';
+                    document.getElementById('resConfidence').innerText = 'N/A';
+                    document.getElementById('confidenceBar').style.width = '0%';
+                }
 
                 initChart();
-
+            } catch (error) {
+                console.error("Prediction Error:", error);
+                document.getElementById('resPrice').innerText = 'Failed to predict';
+            } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnHtml;
                 lucide.createIcons();
-            }, 1500);
+            }
         });
 
         function initChart() {

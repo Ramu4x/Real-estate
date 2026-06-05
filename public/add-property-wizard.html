@@ -214,7 +214,14 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     lucide.createIcons();
-    const API_BASE = '/api';
+    const API_BASE = (() => {
+      const host = window.location.hostname;
+      const port = window.location.port;
+      if ((host === 'localhost' || host === '127.0.0.1') && port !== '5003') {
+          return 'http://localhost:5003/api';
+      }
+      return '/api';
+    })();
 
     const totalSteps = 4;
     let currentStep = 1;
@@ -268,8 +275,8 @@
       if (fieldId === 'title' && !el.value.trim()) return showFieldError(fieldId, 'Property title is required.'), false;
       if (fieldId === 'purpose' && !el.value.trim()) return showFieldError(fieldId, 'Select a listing purpose.'), false;
       if (fieldId === 'description') {
-        const ok = el.value.trim().length >= 500;
-        showFieldError(fieldId, ok ? '' : 'Please enter at least 500 characters for the description.');
+        const ok = el.value.trim().length >= 10;
+        showFieldError(fieldId, ok ? '' : 'Please enter at least 10 characters for the description.');
         return ok;
       }
       if (fieldId === 'address' && !el.value.trim()) return showFieldError(fieldId, 'Address is required.'), false;
@@ -474,7 +481,9 @@
         area: Number(document.getElementById('area')?.value) || Number(document.getElementById('sqft')?.value) || 0,
         amenities: selectedAmenities || [],
         purpose: document.getElementById('purpose')?.value || 'sale',
-        status: 'available'
+        status: 'available',
+        latitude: Number(document.getElementById('latValue')?.textContent) || defaultLat,
+        longitude: Number(document.getElementById('lngValue')?.textContent) || defaultLng
       };
 
       // Validate required fields
@@ -521,6 +530,8 @@
         formData.append('amenities', JSON.stringify(propertyData.amenities));
         formData.append('purpose', propertyData.purpose);
         formData.append('status', propertyData.status);
+        formData.append('latitude', propertyData.latitude);
+        formData.append('longitude', propertyData.longitude);
         
         // Add image files
         imageFiles.forEach((img, idx) => {
