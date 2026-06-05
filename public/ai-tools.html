@@ -409,8 +409,24 @@
       <li><a href="ai-tools.html" class="active">AI Tools</a></li>
       <li><a href="about.html">About</a></li>
     </ul>
-    <a href="login.html" class="nav-cta">Sign In</a>
+    <a href="login.html" class="nav-cta" id="navAuthBtn">Sign In</a>
   </nav>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('authToken');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const btn = document.getElementById('navAuthBtn');
+      if (token && btn) {
+        const role = (user.role || '').toLowerCase();
+        let dash = 'dashboard.html';
+        if (role === 'admin') dash = 'admin-dashboard.html';
+        else if (role === 'seller') dash = 'seller-dashboard.html';
+        btn.href = dash;
+        btn.textContent = 'Dashboard';
+      }
+    });
+  </script>
 
   <!-- ── HERO ── -->
   <section class="at-hero">
